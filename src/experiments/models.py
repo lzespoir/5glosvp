@@ -62,12 +62,23 @@ class StatusTransition(BaseModel):
     at: str
 
 
+class ExperimentPurpose(str, Enum):
+    """实验用途 / Why the experiment was run."""
+
+    MANUAL = "manual"
+    OPTIMIZATION_BASELINE = "optimization_baseline"
+    OPTIMIZATION_CANDIDATE = "optimization_candidate"
+
+
 class ExperimentRecord(BaseModel):
     """平台实验记录 / Platform experiment record."""
 
     experiment_id: str
     name: str
     status: ExperimentStatus
+    purpose: ExperimentPurpose = ExperimentPurpose.MANUAL
+    # 由优化运行产生时，指向所属 OPT-XXXXXXXX
+    optimization_id: str | None = None
     scenario_id: str
     scenario_name_zh: str
     scenario_name_en: str

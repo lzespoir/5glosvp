@@ -7,6 +7,7 @@ import {
 } from '@ant-design/icons';
 import { Alert, Badge, Layout, Menu, Space, Tooltip } from 'antd';
 import type { MenuProps } from 'antd';
+import { useEffect } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 
 import { useBackends } from '../api/backends';
@@ -26,13 +27,13 @@ function navLabel(zh: string, en: string) {
 const NAV_ITEMS: NonNullable<MenuProps['items']> = [
   { key: '/overview', icon: <DashboardOutlined />, label: navLabel('平台概览', 'Overview') },
   { key: '/scenarios', icon: <EnvironmentOutlined />, label: navLabel('场景中心', 'Scenario Center') },
-  { key: '/algorithms', icon: <FunctionOutlined />, label: navLabel('算法中心', 'Algorithm Center') },
+  { key: '/optimizations', icon: <FunctionOutlined />, label: navLabel('优化中心', 'Optimization Center') },
   { key: '/experiments', icon: <ExperimentOutlined />, label: navLabel('实验中心', 'Experiment Center') },
   { key: '/acceptance', icon: <AuditOutlined />, label: navLabel('验收中心', 'Acceptance Center') },
 ];
 
 function selectedNavKey(pathname: string): string {
-  const match = ['/overview', '/scenarios', '/algorithms', '/experiments', '/acceptance'].find((k) =>
+  const match = ['/overview', '/scenarios', '/optimizations', '/experiments', '/acceptance'].find((k) =>
     pathname.startsWith(k),
   );
   return match ?? '/overview';
@@ -71,6 +72,10 @@ export function PlatformLayout() {
   const location = useLocation();
   const { data: health } = useHealth();
 
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
+
   return (
     <Layout className="platform">
       <Header className="platform__header">
@@ -105,7 +110,7 @@ export function PlatformLayout() {
             <Outlet />
           </Content>
           <Footer className="platform__footer">
-            V0.1{health ? ` · API v${health.version}` : ''} · Simulation Generated Data · 仿真生成数据，非实测/现网数据
+            V0.2{health ? ` · API v${health.version}` : ''} · Simulation Generated Data · 仿真生成数据，非实测/现网数据
           </Footer>
         </Layout>
       </Layout>

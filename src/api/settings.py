@@ -2,6 +2,7 @@
 API 配置（环境变量）/ API settings from environment variables.
 
 GLOSVP_DATA_DIR            实验仓库目录，默认 <repo>/data/experiments
+GLOSVP_OPTIMIZATIONS_DIR   优化运行仓库目录，默认 <repo>/data/optimizations
 GLOSVP_CONFIGS_DIR         场景配置目录，默认 <repo>/configs
 GLOSVP_EXPERIMENT_TIMEOUT  单次实验同步等待上限（秒），默认 600
 TESTING                    "true" 时注册 FakeBackend（仅软件测试）
@@ -29,6 +30,7 @@ def _env_flag(name: str) -> bool:
 @dataclass(frozen=True)
 class Settings:
     data_dir: Path
+    optimizations_dir: Path
     configs_dir: Path
     experiment_timeout_seconds: float
     testing: bool
@@ -38,6 +40,9 @@ class Settings:
     def from_env(cls) -> Settings:
         return cls(
             data_dir=Path(os.environ.get("GLOSVP_DATA_DIR", REPO_ROOT / "data" / "experiments")),
+            optimizations_dir=Path(
+                os.environ.get("GLOSVP_OPTIMIZATIONS_DIR", REPO_ROOT / "data" / "optimizations")
+            ),
             configs_dir=Path(os.environ.get("GLOSVP_CONFIGS_DIR", REPO_ROOT / "configs")),
             experiment_timeout_seconds=float(os.environ.get("GLOSVP_EXPERIMENT_TIMEOUT", "600")),
             testing=_env_flag("TESTING"),

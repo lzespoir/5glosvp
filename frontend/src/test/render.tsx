@@ -20,6 +20,7 @@ export function renderWithProviders(ui: ReactElement, { path = '/', route = '/' 
             <Routes>
               <Route path={path} element={ui} />
               <Route path="/experiments/:experimentId" element={<div data-testid="detail-route" />} />
+              <Route path="/optimizations/:optimizationId" element={<div data-testid="optimization-route" />} />
             </Routes>
           </MemoryRouter>
         </QueryClientProvider>

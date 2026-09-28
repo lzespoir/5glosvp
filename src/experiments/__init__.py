@@ -11,6 +11,7 @@ from .errors import (
 from .models import (
     ExperimentError,
     ExperimentErrorCode,
+    ExperimentPurpose,
     ExperimentRecord,
     ExperimentStatus,
 )
@@ -24,6 +25,7 @@ __all__ = [
     "ExperimentError",
     "ExperimentErrorCode",
     "ExperimentNotFoundError",
+    "ExperimentPurpose",
     "ExperimentRecord",
     "ExperimentService",
     "ExperimentServiceError",

@@ -77,6 +77,19 @@ def save_radio_map_npz(radio_map: RadioMapData, path: Path) -> None:
     np.savez_compressed(path, **arrays)
 
 
+def load_radio_map_layers(path: Path) -> dict[str, np.ndarray]:
+    """读取 radio_map.npz 中的各层数值（layer_<metric>），key 为 metric 名称。"""
+    try:
+        with np.load(path) as data:
+            return {
+                key.removeprefix("layer_"): np.asarray(data[key], dtype=np.float64)
+                for key in data.files
+                if key.startswith("layer_")
+            }
+    except (OSError, ValueError) as e:
+        raise ArtifactExportError(f"Failed to read radio map layers from {path.name}: {e}") from e
+
+
 def plot_radio_map(radio_map: RadioMapData, path: Path, subtitle: str) -> None:
     values = radio_map.values
     if not np.isfinite(values).any():

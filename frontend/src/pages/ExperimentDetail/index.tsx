@@ -1,6 +1,6 @@
 import { ArrowLeftOutlined } from '@ant-design/icons';
-import { Alert, Button, Card, Col, Row, Skeleton, Space, Statistic, Typography } from 'antd';
-import { useNavigate, useParams } from 'react-router-dom';
+import { Alert, Button, Card, Col, Row, Skeleton, Space, Statistic, Tag, Typography } from 'antd';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 
 import { useExperiment } from '../../api/experiments';
 import { ArtifactsPanel } from '../../components/ArtifactsPanel';
@@ -15,6 +15,7 @@ import { StatusTag } from '../../components/StatusTag';
 import { StatusTimeline } from '../../components/StatusTimeline';
 import type { ExperimentResponse, LayerStatistics } from '../../types/experiment';
 import { formatDateTime, formatPercent } from '../../utils/format';
+import { purposeMeta } from '../../utils/optimization';
 import { isActiveStatus, isExperimentFailed, isLayerStatistics, orderedLayers } from '../../utils/status';
 
 function sectionTitle(zh: string, en: string) {
@@ -140,6 +141,7 @@ export function ExperimentDetailPage() {
   }
 
   const failed = isExperimentFailed(exp);
+  const purpose = purposeMeta(exp.purpose ?? 'manual');
 
   return (
     <>
@@ -151,6 +153,12 @@ export function ExperimentDetailPage() {
           <Space wrap size={[16, 4]} className="experiment-meta">
             <code className="experiment-meta__id">{exp.experiment_id}</code>
             <StatusTag status={exp.status} showEn />
+            {purpose && exp.optimization_id && (
+              <span>
+                <Tag color="purple">{purpose.zh} {purpose.en}</Tag>
+                <Link to={`/optimizations/${exp.optimization_id}`}><code>{exp.optimization_id}</code></Link>
+              </span>
+            )}
             <span>场景 Scenario：{exp.scenario.name_zh}</span>
             <span>后端 Backend：{exp.backend.id}{exp.backend.version ? ` ${exp.backend.version}` : ''}</span>
             <span>创建 Created：{formatDateTime(exp.created_at)}</span>

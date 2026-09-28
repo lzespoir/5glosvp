@@ -15,6 +15,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+import numpy as np
+
 from simulation import (
     ArtifactExportError,
     BackendUnavailableError,
@@ -23,7 +25,7 @@ from simulation import (
     SimulationBackend,
     new_experiment_id,
 )
-from simulation.artifacts import RUN_LOG, media_type_for
+from simulation.artifacts import RADIO_MAP_NPZ, RUN_LOG, load_radio_map_layers, media_type_for
 from simulation.models import Artifact
 from simulation.registry import BackendDescriptor, BackendRegistry
 from simulation.runner import execute_experiment
@@ -32,6 +34,7 @@ from .errors import ArtifactNotFoundError, ExperimentNotFoundError
 from .models import (
     ExperimentError,
     ExperimentErrorCode,
+    ExperimentPurpose,
     ExperimentRecord,
     ExperimentStatus,
     utc_now,
@@ -113,17 +116,35 @@ class ExperimentService:
         return self._store.list(limit=limit, offset=offset), self._store.count()
 
     def create_experiment(self, name: str, scenario_id: str) -> ExperimentRecord:
-        config = self._catalog.get(scenario_id)
-        backend = self._registry.create(config.backend)
+        return self.run_experiment(name, self._catalog.get(scenario_id))
+
+    def backend_descriptor(self, backend_id: str) -> BackendDescriptor:
+        return self._registry.get(backend_id)
+
+    def ensure_backend_available(self, backend_id: str) -> tuple[SimulationBackend, dict[str, Any]]:
+        backend = self._registry.create(backend_id)
         health = backend.health_check()
         if not health.get("available"):
             reason = "; ".join(health.get("errors") or []) or "backend not available"
-            raise BackendUnavailableError(f"Backend '{config.backend}' unavailable: {reason}")
+            raise BackendUnavailableError(f"Backend '{backend_id}' unavailable: {reason}")
+        return backend, health
+
+    def run_experiment(
+        self,
+        name: str,
+        config: ScenarioConfig,
+        purpose: ExperimentPurpose = ExperimentPurpose.MANUAL,
+        optimization_id: str | None = None,
+    ) -> ExperimentRecord:
+        """用给定（可能是派生的）场景配置同步运行一次实验。"""
+        backend, health = self.ensure_backend_available(config.backend)
 
         record = ExperimentRecord(
             experiment_id=self._new_unique_id(),
             name=name,
             status=ExperimentStatus.CREATED,
+            purpose=purpose,
+            optimization_id=optimization_id,
             scenario_id=config.scenario_id,
             scenario_name_zh=config.name_zh,
             scenario_name_en=config.name_en,
@@ -159,6 +180,11 @@ class ExperimentService:
                 f"Artifact {artifact_name!r} not found in experiment {experiment_id}"
             )
         return artifact, self._store.resolve_artifact(experiment_id, artifact.path)
+
+    def radio_map_layers(self, experiment_id: str) -> dict[str, np.ndarray]:
+        """实验 radio_map.npz 中的数值层（rss / path_gain / sinr …）。"""
+        _, path = self.resolve_artifact(experiment_id, RADIO_MAP_NPZ)
+        return load_radio_map_layers(path)
 
     # ------------------------------------------------------------------
     # Internal

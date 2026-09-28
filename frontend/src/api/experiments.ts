@@ -51,10 +51,11 @@ export function useExperiments(limit: number, offset: number) {
   });
 }
 
-export function useExperiment(id: string) {
+export function useExperiment(id: string, enabled = true) {
   return useQuery({
     queryKey: experimentKeys.detail(id),
     queryFn: () => fetchExperiment(id),
+    enabled: enabled && id.length > 0,
     // 未来改为后台执行时，运行中的实验自动轮询
     refetchInterval: (query) =>
       query.state.data && isActiveStatus(query.state.data.status) ? 2000 : false,

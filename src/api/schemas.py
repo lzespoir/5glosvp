@@ -11,7 +11,7 @@ from urllib.parse import quote
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from experiments import BackendStatus, ExperimentRecord, ExperimentStatus
+from experiments import BackendStatus, ExperimentPurpose, ExperimentRecord, ExperimentStatus
 from simulation import ScenarioConfig
 from simulation.models import Artifact
 
@@ -227,6 +227,11 @@ class ExperimentResponse(BaseModel):
     experiment_id: str
     name: str
     status: ExperimentStatus = Field(description="created | queued | running | succeeded | failed")
+    purpose: ExperimentPurpose = Field(
+        default=ExperimentPurpose.MANUAL,
+        description="manual | optimization_baseline | optimization_candidate",
+    )
+    optimization_id: str | None = Field(default=None, description="所属优化运行 / Parent optimization run")
     scenario: ScenarioRef
     backend: BackendRef
     created_at: str
@@ -255,6 +260,8 @@ class ExperimentResponse(BaseModel):
             experiment_id=r.experiment_id,
             name=r.name,
             status=r.status,
+            purpose=r.purpose,
+            optimization_id=r.optimization_id,
             scenario=ScenarioRef(
                 scenario_id=r.scenario_id, name_zh=r.scenario_name_zh, name_en=r.scenario_name_en
             ),

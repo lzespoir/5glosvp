@@ -63,7 +63,7 @@ class ExperimentStore(ABC):
         """安全解析产物路径，保证结果位于该实验的产物目录内。"""
 
 
-def _atomic_write_text(path: Path, text: str) -> None:
+def atomic_write_text(path: Path, text: str) -> None:
     """写入 <name>.tmp 后 os.replace，避免进程异常导致半写入文件。"""
     tmp = path.with_name(path.name + ".tmp")
     with tmp.open("w", encoding="utf-8") as f:
@@ -92,7 +92,7 @@ class FileExperimentStore(ExperimentStore):
 
     def _write(self, experiment: ExperimentRecord) -> None:
         path = self._experiment_dir(experiment.experiment_id) / EXPERIMENT_FILE
-        _atomic_write_text(path, experiment.model_dump_json(indent=2))
+        atomic_write_text(path, experiment.model_dump_json(indent=2))
 
     def create(self, experiment: ExperimentRecord) -> ExperimentRecord:
         with self._lock:
@@ -100,7 +100,7 @@ class FileExperimentStore(ExperimentStore):
             if exp_dir.exists():
                 raise FileExistsError(f"Experiment already exists: {experiment.experiment_id}")
             (exp_dir / ARTIFACTS_DIR).mkdir(parents=True)
-            _atomic_write_text(
+            atomic_write_text(
                 exp_dir / CONFIG_FILE,
                 yaml.safe_dump(experiment.config, allow_unicode=True, sort_keys=False),
             )

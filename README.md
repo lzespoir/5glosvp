@@ -16,12 +16,14 @@
   The platform can create, execute, persist, and query a real Sionna RT simulation experiment through a standard HTTP API.
 - **Day 3**：Web 前端 V0.1。用户在浏览器中查看平台状态、选择场景、运行 Sionna RT 实验，并查看 Radio Map、指标、运行耗时、数据来源和产物。
   Web Frontend V0.1: run a Sionna RT experiment from the browser and inspect its results.
+- **Day 4**：Optimization Loop V0.2。网格搜索（Grid Search，工程基线优化器，**不是学习算法**）通过统一的 Optimizer 接口调用真实 Sionna RT，评价候选配置，选出目标函数最优的配置，并在 Web UI 中形成可追溯的 Before/After 证据链。
+  Grid Search (engineering baseline, not a learning algorithm) evaluates real Sionna RT candidates through a unified optimizer interface.
 
-设计任务书：[`design/001.md`](design/001.md)（Day 1）、[`design/DAY1_FIX_and_DAY2_API.md`](design/DAY1_FIX_and_DAY2_API.md)（Day 1.1 + Day 2）、[`design/DAY3_FRONTEND.md`](design/DAY3_FRONTEND.md)（Day 3）。
+设计任务书：[`design/001.md`](design/001.md)（Day 1）、[`design/DAY1_FIX_and_DAY2_API.md`](design/DAY1_FIX_and_DAY2_API.md)（Day 1.1 + Day 2）、[`design/DAY3_FRONTEND.md`](design/DAY3_FRONTEND.md)（Day 3）、[`design/DAY4_OPTIMIZATION.md`](design/DAY4_OPTIMIZATION.md)（Day 4）。
 
 ## 当前状态 / Current Status
 
-**Day 1 技术探针 + Day 1.1 修复 + Day 2 Experiment API + Day 3 Web 前端 V0.1：完成 / DONE**
+**Day 1 技术探针 + Day 1.1 修复 + Day 2 Experiment API + Day 3 Web 前端 V0.1 + Day 4 Optimization Loop V0.2：完成 / DONE**
 
 | 项目 / Item | 值 / Value |
 | --- | --- |
@@ -57,6 +59,10 @@
 ├──────────────────────────────┤
 │  HTTP API (src/api)          │  FastAPI Router：只做 HTTP ↔ Schema 转换
 ├──────────────────────────────┤
+│  Optimization Service        │  src/optimization/service.py：候选派生、基线、事件、持久化
+│   ├─ Optimizer (GridSearch)  │  只通过 CandidateEvaluator 接口评价候选，不认识 Sionna
+│   └─ Objective (V0_1)        │  只读取 radio map 数组计算目标值，不认识实验/引擎
+├──────────────────────────────┤
 │  Experiment Service          │  src/experiments/service.py：生命周期、状态、错误
 ├──────────────────────────────┤
 │  Experiment Store            │  src/experiments/store.py：唯一知道文件布局的模块
@@ -73,6 +79,7 @@
 
 - 除 `sionna_backend.py` 外不得 `import sionna / mitsuba / drjit`（`test_only_adapter_imports_sionna`）。
 - `src/api`、`src/experiments` 不得 import Sionna 或 `simulation.backends`；唯一例外是生产装配入口 `src/api/main.py`（`test_api_layer_does_not_import_simulation_engines`）。
+- `src/optimization/optimizers`、`src/optimization/objectives` 不得 import Sionna、`simulation` 或 `experiments`（`test_optimizer_does_not_require_sionna`）。
 
 | 文件 / File | 职责 / Responsibility |
 | --- | --- |
@@ -88,6 +95,11 @@
 | `src/experiments/scenarios.py` | `ScenarioCatalog`：读取 `configs/*.yaml` |
 | `src/experiments/service.py` | `ExperimentService`：创建、校验、解析后端、执行、状态迁移、保存结果/错误、解析产物 |
 | `src/api/` | FastAPI：`app.py`（应用工厂）、`main.py`（生产装配）、`schemas.py`、`errors.py`、`routes/` |
+| `src/optimization/base.py` | `Optimizer`、`Objective`、`CandidateEvaluator` 抽象接口，`OptimizerInfo` |
+| `src/optimization/optimizers/grid_search.py` | `GridSearchOptimizer`：按定义顺序穷举候选；平局时低功率胜出 |
+| `src/optimization/objectives/propagation_utility.py` | `PROPAGATION_UTILITY_V0_1`（见 [`docs/objectives/propagation-utility-v0.1.md`](docs/objectives/propagation-utility-v0.1.md)） |
+| `src/optimization/service.py` | `OptimizationService`：校验、基线独立运行、候选配置派生（不修改原场景）、基线复用、失败持久化、事件时间线 |
+| `src/optimization/store.py` | `FileOptimizationStore`：`data/optimizations/OPT-XXXXXXXX/optimization.json`（原子写入） |
 
 ## 安装 / Installation
 
@@ -137,6 +149,7 @@ uvicorn api.main:app --app-dir src --reload
 | --- | --- | --- |
 | `GLOSVP_DATA_DIR` | `data/experiments` | 实验仓库目录 |
 | `GLOSVP_CONFIGS_DIR` | `configs` | 场景配置目录 |
+| `GLOSVP_OPTIMIZATIONS_DIR` | `data/optimizations` | 优化运行仓库目录 |
 | `GLOSVP_EXPERIMENT_TIMEOUT` | `600` | 单次实验同步等待上限（秒，软超时） |
 | `TESTING` | 未设置 | `true` 时 `/backends` 额外列出 FakeBackend（仅软件测试），`/health` 返回 `testing: true`，前端显示“开发测试模式”横幅 |
 
@@ -172,8 +185,10 @@ npm run dev                       # http://127.0.0.1:5173 ，/api 代理到 http
 | `/overview`（`/` 重定向） | 平台概览：后端状态、场景/实验数量、最新 Radio Map、最近实验、运行耗时图 |
 | `/scenarios` | 场景中心：场景卡片与参数，“运行实验”确认 → 运行中 → 成功跳转详情 / 失败显示错误 |
 | `/experiments` | 实验中心：服务端分页（每页 20，`limit/offset`） |
-| `/experiments/:experimentId` | 实验详情：Radio Map、RSS/SINR/Path Gain/Radio Map 覆盖比例、系统级 KPI 占位、运行耗时、数据来源、时间线、产物 |
-| `/algorithms`、`/acceptance` | 即将开放 / Coming Soon（不展示任何数据） |
+| `/experiments/:experimentId` | 实验详情：Radio Map、RSS/SINR/Path Gain/Radio Map 覆盖比例、系统级 KPI 占位、运行耗时、数据来源、时间线、产物；优化产生的实验显示“优化基线/优化候选”并链接回优化实验 |
+| `/optimizations` | 优化中心：优化器卡片（网格搜索 · 工程基线 · Learning Algorithm: No）、目标函数卡片、新建优化实验、优化实验列表（服务端分页） |
+| `/optimizations/:optimizationId` | 优化详情：Before/After 无线电地图、优化目标改善、候选评价历史（ECharts，非平滑）、目标函数分解、候选表、数据来源、时间线、运行耗时 |
+| `/acceptance` | 即将开放 / Coming Soon（不展示任何数据）；`/algorithms` 重定向到 `/optimizations` |
 
 前端约定：
 
@@ -183,7 +198,11 @@ npm run dev                       # http://127.0.0.1:5173 ，/api 代理到 http
 - 数据类型来自后端：`source_type = simulation` 显示“仿真生成 / Simulation Generated”，`test_fixture` 显示“测试数据 / TEST FIXTURE”。
 - 前端不读取 `data/`、`reference/`、`outputs/`，不调用 Python 或 Sionna。
 
-浏览器实测截图见 [`reference/frontend/`](reference/frontend/)（1920×1080 与 1366×768，真实 Sionna RT 实验）。
+- 优化目标值、改善量、相对改善、最优候选全部由后端计算；前端只展示，不计算目标函数。
+- “优化目标改善 Objective Improvement”按 `improvement_status` 着色：改善为绿色，`no_improvement` 为中性色（“未获得改善”），下降为警告色；不称为验收 KPI，也不显示“优化速度”。
+- 运行优化时只显示“正在执行参数搜索 Running parameter search...”，不显示伪造的候选进度。
+
+浏览器实测截图见 [`reference/frontend/`](reference/frontend/)（1920×1080 与 1366×768，真实 Sionna RT 实验）与 [`reference/optimization/screenshots/`](reference/optimization/screenshots/)（优化中心与优化详情）。
 
 ### API 冒烟测试 / Smoke Test
 
@@ -261,6 +280,40 @@ Traceback 只写服务日志和实验 `run.log`，不会返回给浏览器。
 - **Path Traversal**：产物只能按实验记录中登记的名称访问；`FileExperimentStore.resolve_artifact` 再次校验解析后的真实路径位于该实验的 `artifacts/` 目录内。实验 ID 必须匹配 `^EXP-[0-9A-F]{8}$`。
 - **CORS**：仅允许 `http://localhost` / `http://127.0.0.1` 的 3000、5173 端口，不使用 `allow_origins=["*"]`。
 
+### 优化 API / Optimization API（Day 4）
+
+| Method | Path | 说明 |
+| --- | --- | --- |
+| GET | `/api/v1/optimizers` | 优化器列表（`category`、`learning_algorithm`、推荐演示搜索空间 `[A]`、`max_candidates`） |
+| GET | `/api/v1/objectives` | 目标函数列表（id、版本、公式、默认参数、假设） |
+| POST | `/api/v1/optimizations` | 创建并**同步**运行优化，返回 201（失败时同样 201 + `status=failed`） |
+| GET | `/api/v1/optimizations?limit=&offset=` | 优化列表，`created_at` 倒序 |
+| GET | `/api/v1/optimizations/{optimization_id}` | 优化详情（候选、比较、事件、溯源），不存在返回 404 |
+
+```bash
+curl -X POST http://127.0.0.1:8000/api/v1/optimizations \
+  -H 'Content-Type: application/json' \
+  -d '{"name": "TX Power Grid Search", "scenario_id": "SIONNA-DEMO-001",
+       "optimizer_id": "grid_search", "objective_id": "PROPAGATION_UTILITY_V0_1",
+       "parameter_space": {"tx_power_dbm": [38, 40, 42, 44, 46]}}'
+```
+
+语义 / Semantics：
+
+- **基线**：场景原始配置（所有发射端必须有相同的显式 `power_dbm`），独立运行一次；与基线参数相同的候选直接复用基线结果（`reused_baseline = true`），不重复仿真。
+- **候选**：从场景配置深拷贝派生，只修改发射功率；原场景配置不被修改。基线与全部候选使用同一随机种子（公共随机数）。
+- **目标函数** `PROPAGATION_UTILITY_V0_1`：`J = C_sinr − λ·(P − P_min)/(P_max − P_min)`，`C_sinr` 为 Sionna SINR ≥ 0 dB 的格点比例；λ = 0.10 与阈值 0 dB 均为 `[A]` 工程假设。定义与已知局限见 [`docs/objectives/propagation-utility-v0.1.md`](docs/objectives/propagation-utility-v0.1.md)。
+- **选择**：目标值最大者胜出；平局时低功率胜出。改善量可以为负或零（`improvement_status = worse / no_improvement`）；基线目标值 ≈ 0 时相对改善为 `null`。
+- **失败**：任一候选失败则整个优化 `failed`；已完成候选与失败候选（含 `error`）均被持久化。
+- 候选数上限 10（超出返回 422 `INVALID_PARAMETER_SPACE`）；功率范围 [−10, 70] dBm。
+- 优化产生的实验带 `purpose`（`optimization_baseline` / `optimization_candidate`）与 `optimization_id`，可从实验回溯到优化。
+
+| code | HTTP |
+| --- | --- |
+| `OPTIMIZER_NOT_FOUND` / `OBJECTIVE_NOT_FOUND` / `OPTIMIZATION_NOT_FOUND` | 404 |
+| `INVALID_PARAMETER_SPACE` | 422 |
+| `OPTIMIZATION_FAILED` | 优化内失败码（`optimization.error.code`） |
+
 ## 输出 / Outputs
 
 ### CLI：`outputs/EXP-XXXXXXXX/`
@@ -336,6 +389,7 @@ data/experiments/
 
 - [`reference/sionna_demo/`](reference/sionna_demo/)：CLI demo 运行（`result.json`、`metadata.json`、`radio_map.png`）
 - [`reference/api_experiment/`](reference/api_experiment/)：通过 `POST /api/v1/experiments` 的运行（`experiment.json`、`result.json`、`radio_map.png`）
+- [`reference/optimization/OPT-E56D9514/`](reference/optimization/OPT-E56D9514/)：从浏览器运行的真实 Sionna RT 网格搜索（`optimization.json`、`comparison.png`、`README.md`）。由 `python scripts/export_optimization_reference.py OPT-XXXXXXXX` 生成。Optimizer：Grid Search；Learning Algorithm：No；Purpose：Optimization Loop Validation。
 
 类型：Simulation Generated；Measured Data：NO；Acceptance Evidence：NO。
 
@@ -368,12 +422,18 @@ data/experiments/
 - Day 2 的非阻塞技术债（软超时、单 Worker、状态机未强制迁移矩阵、Store 全量扫描、无崩溃恢复）按 Day 3 任务书要求**保持不变**。
 - 前端运行实验为同步请求：浏览器等待 `POST /experiments` 返回期间显示“运行中”，不显示伪造的进度百分比。
 - 前端生产构建中 antd 单个 chunk 约 1.1 MB（gzip 约 350 KB）。
+- **Objective Design Limitation（`PROPAGATION_UTILITY_V0_1`）**：在 `etoile` 场景中 SINR ≥ 0 dB 覆盖比例随功率只缓慢增加（38→46 dBm 约 +1.6 个百分点），而 λ·c_P 在搜索空间内变化 0.10，因此最低功率（38 dBm）胜出，其 SINR 覆盖比例低于 44 dBm 基线。ΔJ > 0 只表示该目标函数定义下的改善，不代表覆盖或吞吐率改善。按规范未调整 λ / 阈值 / 种子；改变权衡需发布 V0_2。
+- 优化为同步执行：`POST /optimizations` 在全部候选评价完成后返回（5 个候选约 4–5 s，Sionna 热启动）；没有后台任务、取消或进度推送。
+- 只支持单一参数（全部发射端统一的 TX Power）；多发射端独立功率、天线倾角等尚未开放。
+- 优化仓库与实验仓库一样按文件全量扫描，无数据库。
 
 ## 下一步 / Next Step
 
 以下概念已冻结为正式架构：`SimulationBackend`、`SimulationResult`、`ScenarioConfig`、`Artifact`、`SionnaBackend`、`ExperimentRecord`、`ExperimentStore`、`ExperimentService`、`/api/v1` API Contract。
 
-算法中心、验收中心与系统级 KPI（吞吐量、边缘用户速率、RSRP）在前端已预留入口，待对应后端能力与验收口径确定后接入。
+Day 4 新增冻结概念：`Optimizer`、`Objective`、`CandidateEvaluator`、`OptimizationRecord`、`OptimizationService`、`PROPAGATION_UTILITY_V0_1`（版本化，不得原地修改）。
+
+学习优化算法可作为新的 `Optimizer` 实现接入（复用同一 `CandidateEvaluator` 与目标函数），网格搜索保留为工程基线用于对比。验收中心与系统级 KPI（吞吐量、边缘用户速率、RSRP）在前端已预留入口，待对应后端能力与验收口径确定后接入。
 
 ## 目录结构 / Repository Layout
 
@@ -387,14 +447,17 @@ data/experiments/
 ├── reference/
 │   ├── sionna_demo/
 │   ├── api_experiment/
-│   └── frontend/            # 浏览器实测截图
+│   ├── frontend/            # 浏览器实测截图
+│   └── optimization/        # OPT-XXXXXXXX/ 优化参考证据 + screenshots/
+├── docs/objectives/         # 目标函数定义（版本化）
 ├── frontend/
 │   ├── package.json  vite.config.ts  tsconfig.json  index.html
 │   └── src/
 │       ├── api/  types/  utils/  layouts/  test/
 │       ├── components/  (PageHeader, StatusTag, ProvenanceTag, MetricCard, EmptyMetric, RadioMap,
-│       │                 RuntimePanel, RuntimeChart, ProvenancePanel, StatusTimeline, ArtifactsPanel, ErrorState)
-│       └── pages/       (Overview, Scenarios, Experiments, ExperimentDetail, ComingSoon)
+│       │                 RuntimePanel, RuntimeChart, ProvenancePanel, StatusTimeline, ArtifactsPanel, ErrorState,
+│       │                 ObjectiveHistoryChart)
+│       └── pages/       (Overview, Scenarios, Optimizations, OptimizationDetail, Experiments, ExperimentDetail, ComingSoon)
 ├── src/
 │   ├── simulation/
 │   │   ├── base.py  models.py  errors.py  registry.py
@@ -402,18 +465,26 @@ data/experiments/
 │   │   └── backends/  (__init__.py, sionna_backend.py)
 │   ├── experiments/
 │   │   ├── models.py  errors.py  store.py  scenarios.py  service.py
+│   ├── optimization/
+│   │   ├── base.py  models.py  errors.py  registry.py  store.py  service.py
+│   │   ├── optimizers/grid_search.py
+│   │   └── objectives/propagation_utility.py
 │   └── api/
-│       ├── app.py  main.py  settings.py  schemas.py  errors.py  deps.py
-│       └── routes/  (health.py, scenarios.py, experiments.py)
+│       ├── app.py  main.py  settings.py  schemas.py  optimization_schemas.py  errors.py  deps.py
+│       └── routes/  (health.py, scenarios.py, experiments.py, optimizations.py)
 ├── scripts/
 │   ├── check_environment.py
 │   ├── run_sionna_demo.py
-│   └── smoke_test_api.py
+│   ├── smoke_test_api.py
+│   └── export_optimization_reference.py
 ├── tests/
 │   ├── conftest.py
 │   ├── test_models.py
 │   ├── test_sionna_backend.py
 │   ├── test_api.py
-│   └── test_api_sionna.py
+│   ├── test_api_sionna.py
+│   ├── test_optimization.py
+│   ├── test_api_optimization.py
+│   └── test_optimization_sionna.py
 └── outputs/.gitkeep
 ```

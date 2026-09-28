@@ -6,6 +6,7 @@ import { Link, useNavigate } from 'react-router-dom';
 
 import { useBackends } from '../../api/backends';
 import { useExperiments } from '../../api/experiments';
+import { useOptimizations } from '../../api/optimizations';
 import { useScenarios } from '../../api/scenarios';
 import { ErrorState } from '../../components/ErrorState';
 import { PageHeader } from '../../components/PageHeader';
@@ -47,6 +48,7 @@ export function OverviewPage() {
   const backends = useBackends();
   const scenarios = useScenarios();
   const experiments = useExperiments(RECENT_LIMIT, 0);
+  const optimizations = useOptimizations(1, 0);
 
   const items = experiments.data?.items ?? [];
   const latest = items[0];
@@ -93,15 +95,13 @@ export function OverviewPage() {
           </KpiCard>
         </Col>
         <Col xs={24} sm={12} xl={6}>
-          <KpiCard titleZh="最近实验" titleEn="Latest Experiment" loading={experiments.isLoading}>
-            {latest ? (
-              <div>
-                <StatusTag status={latest.status} showEn />
-                <span className="kpi-card__value kpi-card__value--sm">{formatSeconds(latest.runtime.total_seconds)}</span>
-                <div className="muted">总耗时 Total runtime</div>
-              </div>
+          <KpiCard titleZh="优化实验" titleEn="Optimization Runs" loading={optimizations.isLoading}>
+            {optimizations.isError ? (
+              <Badge status="error" text="不可用 / Unavailable" />
             ) : (
-              <span className="muted">暂无实验 / None</span>
+              <Link to="/optimizations" className="kpi-card__link">
+                <Statistic value={optimizations.data?.total ?? EMPTY} suffix={<span className="muted">Runs</span>} />
+              </Link>
             )}
           </KpiCard>
         </Col>

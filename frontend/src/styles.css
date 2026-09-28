@@ -458,3 +458,57 @@ code {
 .timeline-time {
   font-size: 12px;
 }
+
+/* ---------- optimization ---------- */
+.kpi-card__link {
+  color: inherit;
+}
+
+.before-after {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+@media (max-width: 1100px) {
+  .before-after {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.before-after__meta {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+
+.before-after__note {
+  margin-top: 6px;
+  font-size: 12px;
+}
+
+.objective-delta {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.objective-delta__value {
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.objective-formula {
+  margin-bottom: 12px;
+  padding: 8px 12px;
+  background: #f8fafc;
+  border: 1px solid var(--c-border);
+  border-radius: 6px;
+}
+
+.candidate-row--best > td {
+  background: #f0fdf4 !important;
+}

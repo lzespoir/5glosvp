@@ -23,6 +23,10 @@ export function useScenarios() {
   return useQuery({ queryKey: scenarioKeys.all, queryFn: fetchScenarios });
 }
 
-export function useScenario(id: string) {
-  return useQuery({ queryKey: scenarioKeys.detail(id), queryFn: () => fetchScenario(id) });
+export function useScenario(id: string, enabled = true) {
+  return useQuery({
+    queryKey: scenarioKeys.detail(id),
+    queryFn: () => fetchScenario(id),
+    enabled: enabled && id.length > 0,
+  });
 }

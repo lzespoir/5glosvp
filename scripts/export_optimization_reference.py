@@ -1,0 +1,179 @@
+"""
+导出优化实验参考证据 / Export optimization reference evidence.
+
+    python scripts/export_optimization_reference.py OPT-XXXXXXXX [--data-dir data] [--out reference/optimization]
+
+生成 reference/optimization/OPT-XXXXXXXX/{optimization.json, comparison.png, README.md}。
+comparison.png 由基线与最优候选实验的真实 radio_map.npz 绘制（共用 RSS 色标），
+不复制 npz 文件本身。
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import shutil
+from pathlib import Path
+from typing import Any
+
+import numpy as np
+from matplotlib.figure import Figure
+
+TX = "tx_power_dbm"
+
+
+def _load_npz(data_dir: Path, experiment_id: str) -> dict[str, np.ndarray]:
+    path = data_dir / "experiments" / experiment_id / "artifacts" / "radio_map.npz"
+    with np.load(path) as npz:
+        return {k: npz[k] for k in ("layer_rss", "x", "y", "transmitter_positions")}
+
+
+def _extent(grid: dict[str, np.ndarray]) -> list[float]:
+    x, y = grid["x"], grid["y"]
+    return [float(x.min()), float(x.max()), float(y.min()), float(y.max())]
+
+
+def _plot(record: dict[str, Any], data_dir: Path, out: Path) -> None:
+    cmp = record["comparison"]
+    baseline = _load_npz(data_dir, cmp["baseline_experiment_id"])
+    best = _load_npz(data_dir, cmp["optimized_experiment_id"])
+    finite = np.concatenate([
+        baseline["layer_rss"][np.isfinite(baseline["layer_rss"])],
+        best["layer_rss"][np.isfinite(best["layer_rss"])],
+    ])
+    vmin, vmax = np.percentile(finite, [1, 99])
+
+    fig = Figure(figsize=(18, 5.6), layout="constrained")
+    grid = fig.add_gridspec(1, 3, width_ratios=[1, 1, 0.9])
+    image = None
+    for col, (title, data, power, value) in enumerate([
+        ("Before · Baseline", baseline, cmp["baseline_parameters"][TX], cmp["baseline_objective"]),
+        (f"After · {cmp['optimized_candidate_id']}", best, cmp["optimized_parameters"][TX], cmp["optimized_objective"]),
+    ]):
+        ax = fig.add_subplot(grid[0, col])
+        image = ax.imshow(
+            np.ma.masked_invalid(data["layer_rss"]), origin="lower", extent=_extent(data),
+            cmap="viridis", vmin=vmin, vmax=vmax,
+        )
+        tx = data["transmitter_positions"]
+        ax.scatter(tx[:, 0], tx[:, 1], marker="^", c="red", s=40, label="TX")
+        ax.set_title(f"{title}\nTX {power:g} dBm · J = {value:.4f}")
+        ax.set_xlabel("x [m]")
+        ax.set_ylabel("y [m]")
+        ax.set_facecolor("#d9d9d9")
+    fig.colorbar(image, ax=fig.axes[:2], label="RSS [dBm] (shared scale)", shrink=0.9)
+
+    ax = fig.add_subplot(grid[0, 2])
+    cands = sorted(record["candidates"], key=lambda c: c["iteration"])
+    powers = [c["parameters"][TX] for c in cands]
+    values = [c["objective"]["value"] if c["objective"] else np.nan for c in cands]
+    ax.plot(powers, values, linestyle=":", color="#94a3b8", marker="o", markerfacecolor="#1d4ed8", markeredgecolor="#1d4ed8")
+    ax.axhline(cmp["baseline_objective"], linestyle="--", color="#f59e0b", label="Baseline J")
+    ax.scatter([cmp["optimized_parameters"][TX]], [cmp["optimized_objective"]], s=160, facecolors="none",
+               edgecolors="#16a34a", linewidths=2, label="BEST", zorder=3)
+    ax.set_xlabel("TX Power [dBm]")
+    ax.set_ylabel(f"Objective J ({record['objective']['id']})")
+    ax.set_title("Candidate evaluations\n(Grid Search, not a convergence curve)")
+    ax.grid(alpha=0.3)
+    ax.legend(loc="best")
+
+    fig.suptitle(
+        f"{record['optimization_id']} · Grid Search (engineering baseline, not learning) · "
+        "Sionna RT simulation · Not measured · Not acceptance evidence",
+        fontsize=11,
+    )
+    fig.savefig(out, dpi=110)
+
+
+def _readme(record: dict[str, Any]) -> str:
+    cmp = record["comparison"]
+    rel = cmp["relative_improvement_percent"]
+    rows = []
+    for c in [record["baseline"], *record["candidates"]]:
+        comp = c["objective"]["components"] if c["objective"] else {}
+        tags = " ".join(t for t, on in [
+            ("(基线)", c["is_baseline"]),
+            ("BEST", c["candidate_id"] == cmp["optimized_candidate_id"]),
+            ("Reused Baseline", c["reused_baseline"]),
+        ] if on)
+        rows.append(
+            f"| {c['candidate_id']} {tags} | {c['parameters'][TX]:g} dBm | "
+            f"{comp.get('sinr_coverage_ratio', float('nan')):.4%} | {comp.get('normalized_power_cost', float('nan')):.3f} | "
+            f"{c['objective']['value']:.6f} | `{c['experiment_id']}` |"
+        )
+    lam = record["objective"]["params"].get("lambda_power")
+    return f"""# Reference Evidence / 参考运行证据 — Optimization Loop
+
+| 项目 | 值 |
+| --- | --- |
+| Optimization ID | `{record['optimization_id']}` |
+| Optimizer | Grid Search |
+| Category | Engineering Baseline |
+| Learning Algorithm | No |
+| Simulation | Sionna RT |
+| Measured Data | No |
+| Purpose | Optimization Loop Validation |
+| Acceptance Evidence | No |
+| Scenario | `{record['scenario_id']}` |
+| Objective | `{record['objective']['id']}` v{record['objective']['version']}（λ = {lam} [A]，SINR 阈值 0 dB [A]） |
+| Seed | {record['seed']}（基线与全部候选相同 / same for all） |
+| Generated by | 浏览器 Web UI → `POST /api/v1/optimizations`（真实 Sionna RT 2.1.0） |
+
+## 结果 / Result
+
+| 项目 | 基线 Baseline | 最优 Best ({cmp['optimized_candidate_id']}) |
+| --- | --- | --- |
+| Experiment | `{cmp['baseline_experiment_id']}` | `{cmp['optimized_experiment_id']}` |
+| TX Power | {cmp['baseline_parameters'][TX]:g} dBm | {cmp['optimized_parameters'][TX]:g} dBm |
+| Objective J | {cmp['baseline_objective']:.6f} | {cmp['optimized_objective']:.6f} |
+
+- 绝对改善 Absolute improvement ΔJ = {cmp['absolute_improvement']:+.6f}
+- 相对改善 Relative improvement = {f"{rel:+.2f}%" if rel is not None else "N/A（基线 ≈ 0）"}
+
+## 候选 / Candidates
+
+| Candidate | TX Power | SINR Coverage | Power Cost c_P | Objective J | Experiment |
+| --- | --- | --- | --- | --- | --- |
+{chr(10).join(rows)}
+
+## Objective Design Limitation / 目标函数设计局限
+
+在该场景中，SINR ≥ 0 dB 覆盖比例随发射功率只缓慢增加（每 2 dB 约 +0.2～0.6 个百分点，
+38→46 dBm 合计约 +1.6 个百分点），而功率代价项 λ·c_P 在搜索空间内变化 0.10（相当于 10 个百分点覆盖），
+因此 **最低功率候选胜出**，
+其 SINR 覆盖比例反而低于基线。ΔJ > 0 仅表示在 `PROPAGATION_UTILITY_V0_1` 定义下的目标值改善，
+**不代表覆盖、吞吐率或用户体验改善**。按规范未为获得"好看"的结果调整 λ、阈值或随机种子；
+如需改变权衡，应发布新版本目标函数（V0_2），而不是修改 V0_1。
+
+## 文件 / Files
+
+- `optimization.json` — 优化仓库中的 `OptimizationRecord`（候选、事件、溯源）
+- `comparison.png` — 基线与最优候选 RSS 无线电地图（共用色标）及候选目标值
+  （由各实验的真实 `radio_map.npz` 绘制；npz 未复制到本目录）
+
+当前优化目标为传播层工程目标函数，用于验证参数优化闭环。该指标不是项目最终吞吐率、边缘用户速率或优化速度验收指标。
+"""
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument("optimization_id")
+    parser.add_argument("--data-dir", type=Path, default=Path("data"))
+    parser.add_argument("--out", type=Path, default=Path("reference/optimization"))
+    args = parser.parse_args()
+
+    source = args.data_dir / "optimizations" / args.optimization_id / "optimization.json"
+    record = json.loads(source.read_text(encoding="utf-8"))
+    if record["status"] != "succeeded" or record["comparison"] is None:
+        raise SystemExit(f"{args.optimization_id} did not succeed; nothing to export")
+
+    target = args.out / args.optimization_id
+    target.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(source, target / "optimization.json")
+    _plot(record, args.data_dir, target / "comparison.png")
+    (target / "README.md").write_text(_readme(record), encoding="utf-8")
+    print(f"exported {target}")
+
+
+if __name__ == "__main__":
+    main()

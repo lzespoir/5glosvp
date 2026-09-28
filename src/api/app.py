@@ -13,10 +13,11 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from experiments import ExperimentService
+from optimization import OptimizationService
 
 from . import __version__
 from .errors import install_error_handlers
-from .routes import experiments, health, scenarios
+from .routes import experiments, health, optimizations, scenarios
 from .schemas import API_PREFIX
 
 
@@ -24,7 +25,9 @@ def create_app(
     service: ExperimentService,
     cors_origins: list[str] | None = None,
     testing: bool = False,
+    optimization_service: OptimizationService | None = None,
 ) -> FastAPI:
+    """optimization_service 为 None 时不挂载优化相关路由。"""
     @asynccontextmanager
     async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
         yield
@@ -33,13 +36,14 @@ def create_app(
     app = FastAPI(
         title="5G Learning Optimization Simulation & Validation Platform API",
         description=(
-            "5G 网络学习优化仿真验证平台 API（Day 2）。当前所有结果均为仿真生成数据"
+            "5G 网络学习优化仿真验证平台 API（Day 4）。当前所有结果均为仿真生成数据"
             "（Simulation Generated），不是实测或现网数据。"
         ),
         version=__version__,
         lifespan=lifespan,
     )
     app.state.service = service
+    app.state.optimization_service = optimization_service
     app.state.testing = testing
 
     if cors_origins:
@@ -53,4 +57,6 @@ def create_app(
     install_error_handlers(app)
     for router in (health.router, scenarios.router, experiments.router):
         app.include_router(router, prefix=API_PREFIX)
+    if optimization_service is not None:
+        app.include_router(optimizations.router, prefix=API_PREFIX)
     return app

@@ -16,6 +16,12 @@ from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from experiments import ArtifactNotFoundError, ExperimentNotFoundError, ScenarioNotFoundError
+from optimization import (
+    InvalidParameterSpaceError,
+    ObjectiveNotFoundError,
+    OptimizationNotFoundError,
+    OptimizerNotFoundError,
+)
 from simulation import BackendUnavailableError
 
 from .schemas import ErrorBody, ErrorResponse
@@ -32,6 +38,11 @@ class ErrorCode(str, Enum):
     INVALID_REQUEST = "INVALID_REQUEST"
     NOT_FOUND = "NOT_FOUND"
     INTERNAL_ERROR = "INTERNAL_ERROR"
+    OPTIMIZER_NOT_FOUND = "OPTIMIZER_NOT_FOUND"
+    OBJECTIVE_NOT_FOUND = "OBJECTIVE_NOT_FOUND"
+    OPTIMIZATION_NOT_FOUND = "OPTIMIZATION_NOT_FOUND"
+    INVALID_PARAMETER_SPACE = "INVALID_PARAMETER_SPACE"
+    OPTIMIZATION_FAILED = "OPTIMIZATION_FAILED"
 
 
 # code → (HTTP status, 中文, English)
@@ -44,6 +55,11 @@ _ERRORS: dict[ErrorCode, tuple[int, str, str]] = {
     ErrorCode.INVALID_REQUEST: (422, "请求参数无效", "Invalid request"),
     ErrorCode.NOT_FOUND: (404, "资源不存在", "Resource not found"),
     ErrorCode.INTERNAL_ERROR: (500, "服务器内部错误", "Internal server error"),
+    ErrorCode.OPTIMIZER_NOT_FOUND: (404, "优化器不存在", "Optimizer not found"),
+    ErrorCode.OBJECTIVE_NOT_FOUND: (404, "目标函数不存在", "Objective not found"),
+    ErrorCode.OPTIMIZATION_NOT_FOUND: (404, "优化实验不存在", "Optimization not found"),
+    ErrorCode.INVALID_PARAMETER_SPACE: (422, "搜索空间无效", "Invalid parameter space"),
+    ErrorCode.OPTIMIZATION_FAILED: (500, "优化运行失败", "Optimization failed"),
 }
 
 
@@ -60,6 +76,10 @@ _EXCEPTION_CODES: list[tuple[type[Exception], ErrorCode]] = [
     (ExperimentNotFoundError, ErrorCode.EXPERIMENT_NOT_FOUND),
     (ArtifactNotFoundError, ErrorCode.ARTIFACT_NOT_FOUND),
     (BackendUnavailableError, ErrorCode.BACKEND_UNAVAILABLE),
+    (OptimizerNotFoundError, ErrorCode.OPTIMIZER_NOT_FOUND),
+    (ObjectiveNotFoundError, ErrorCode.OBJECTIVE_NOT_FOUND),
+    (OptimizationNotFoundError, ErrorCode.OPTIMIZATION_NOT_FOUND),
+    (InvalidParameterSpaceError, ErrorCode.INVALID_PARAMETER_SPACE),
 ]
 
 

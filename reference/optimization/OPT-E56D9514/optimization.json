@@ -1,0 +1,328 @@
+{
+  "optimization_id": "OPT-E56D9514",
+  "name": "TX Power Grid Search · 2026-09-28 14:12:35",
+  "status": "succeeded",
+  "scenario_id": "SIONNA-DEMO-001",
+  "scenario_name_zh": "Sionna RT 内置场景技术验证",
+  "scenario_name_en": "Sionna RT Built-in Scene Technical Validation",
+  "simulation_backend": "sionna_rt",
+  "optimizer_id": "grid_search",
+  "objective": {
+    "id": "PROPAGATION_UTILITY_V0_1",
+    "version": "0.1",
+    "direction": "maximize",
+    "params": {
+      "lambda_power": 0.1
+    }
+  },
+  "parameter_space": {
+    "tx_power_dbm": [
+      38.0,
+      40.0,
+      42.0,
+      44.0,
+      46.0
+    ]
+  },
+  "baseline_parameters": {
+    "tx_power_dbm": 44.0
+  },
+  "seed": 20260927,
+  "created_at": "2026-09-28T06:12:36.464313+00:00",
+  "started_at": "2026-09-28T06:12:36.496596+00:00",
+  "finished_at": "2026-09-28T06:12:40.590741+00:00",
+  "baseline": {
+    "candidate_id": "BASELINE",
+    "iteration": 0,
+    "parameters": {
+      "tx_power_dbm": 44.0
+    },
+    "status": "evaluated",
+    "experiment_id": "EXP-D4827EC5",
+    "is_baseline": true,
+    "reused_baseline": false,
+    "objective": {
+      "objective_id": "PROPAGATION_UTILITY_V0_1",
+      "objective_version": "0.1",
+      "value": 0.49435908691834946,
+      "components": {
+        "sinr_coverage_ratio": 0.5693590869183495,
+        "sinr_threshold_db": 0.0,
+        "covered_cells": 12970.0,
+        "num_cells": 22780.0,
+        "tx_power_dbm": 44.0,
+        "power_min_dbm": 38.0,
+        "power_max_dbm": 46.0,
+        "normalized_power_cost": 0.75,
+        "lambda_power": 0.1,
+        "power_cost_term": 0.07500000000000001
+      }
+    },
+    "runtime_seconds": 0.7628675290034153,
+    "error": null
+  },
+  "candidates": [
+    {
+      "candidate_id": "CAND-001",
+      "iteration": 1,
+      "parameters": {
+        "tx_power_dbm": 38.0
+      },
+      "status": "evaluated",
+      "experiment_id": "EXP-065078D4",
+      "is_baseline": false,
+      "reused_baseline": false,
+      "objective": {
+        "objective_id": "PROPAGATION_UTILITY_V0_1",
+        "objective_version": "0.1",
+        "value": 0.5553555750658472,
+        "components": {
+          "sinr_coverage_ratio": 0.5553555750658472,
+          "sinr_threshold_db": 0.0,
+          "covered_cells": 12651.0,
+          "num_cells": 22780.0,
+          "tx_power_dbm": 38.0,
+          "power_min_dbm": 38.0,
+          "power_max_dbm": 46.0,
+          "normalized_power_cost": 0.0,
+          "lambda_power": 0.1,
+          "power_cost_term": 0.0
+        }
+      },
+      "runtime_seconds": 0.7080302410176955,
+      "error": null
+    },
+    {
+      "candidate_id": "CAND-002",
+      "iteration": 2,
+      "parameters": {
+        "tx_power_dbm": 40.0
+      },
+      "status": "evaluated",
+      "experiment_id": "EXP-76B1FC17",
+      "is_baseline": false,
+      "reused_baseline": false,
+      "objective": {
+        "objective_id": "PROPAGATION_UTILITY_V0_1",
+        "objective_version": "0.1",
+        "value": 0.536369622475856,
+        "components": {
+          "sinr_coverage_ratio": 0.561369622475856,
+          "sinr_threshold_db": 0.0,
+          "covered_cells": 12788.0,
+          "num_cells": 22780.0,
+          "tx_power_dbm": 40.0,
+          "power_min_dbm": 38.0,
+          "power_max_dbm": 46.0,
+          "normalized_power_cost": 0.25,
+          "lambda_power": 0.1,
+          "power_cost_term": 0.025
+        }
+      },
+      "runtime_seconds": 0.7383710130234249,
+      "error": null
+    },
+    {
+      "candidate_id": "CAND-003",
+      "iteration": 3,
+      "parameters": {
+        "tx_power_dbm": 42.0
+      },
+      "status": "evaluated",
+      "experiment_id": "EXP-41C73299",
+      "is_baseline": false,
+      "reused_baseline": false,
+      "objective": {
+        "objective_id": "PROPAGATION_UTILITY_V0_1",
+        "objective_version": "0.1",
+        "value": 0.5165496049165934,
+        "components": {
+          "sinr_coverage_ratio": 0.5665496049165935,
+          "sinr_threshold_db": 0.0,
+          "covered_cells": 12906.0,
+          "num_cells": 22780.0,
+          "tx_power_dbm": 42.0,
+          "power_min_dbm": 38.0,
+          "power_max_dbm": 46.0,
+          "normalized_power_cost": 0.5,
+          "lambda_power": 0.1,
+          "power_cost_term": 0.05
+        }
+      },
+      "runtime_seconds": 0.6936174540314823,
+      "error": null
+    },
+    {
+      "candidate_id": "CAND-004",
+      "iteration": 4,
+      "parameters": {
+        "tx_power_dbm": 44.0
+      },
+      "status": "evaluated",
+      "experiment_id": "EXP-D4827EC5",
+      "is_baseline": false,
+      "reused_baseline": true,
+      "objective": {
+        "objective_id": "PROPAGATION_UTILITY_V0_1",
+        "objective_version": "0.1",
+        "value": 0.49435908691834946,
+        "components": {
+          "sinr_coverage_ratio": 0.5693590869183495,
+          "sinr_threshold_db": 0.0,
+          "covered_cells": 12970.0,
+          "num_cells": 22780.0,
+          "tx_power_dbm": 44.0,
+          "power_min_dbm": 38.0,
+          "power_max_dbm": 46.0,
+          "normalized_power_cost": 0.75,
+          "lambda_power": 0.1,
+          "power_cost_term": 0.07500000000000001
+        }
+      },
+      "runtime_seconds": 0.0,
+      "error": null
+    },
+    {
+      "candidate_id": "CAND-005",
+      "iteration": 5,
+      "parameters": {
+        "tx_power_dbm": 46.0
+      },
+      "status": "evaluated",
+      "experiment_id": "EXP-A09D8AE7",
+      "is_baseline": false,
+      "reused_baseline": false,
+      "objective": {
+        "objective_id": "PROPAGATION_UTILITY_V0_1",
+        "objective_version": "0.1",
+        "value": 0.47155399473222126,
+        "components": {
+          "sinr_coverage_ratio": 0.5715539947322212,
+          "sinr_threshold_db": 0.0,
+          "covered_cells": 13020.0,
+          "num_cells": 22780.0,
+          "tx_power_dbm": 46.0,
+          "power_min_dbm": 38.0,
+          "power_max_dbm": 46.0,
+          "normalized_power_cost": 1.0,
+          "lambda_power": 0.1,
+          "power_cost_term": 0.1
+        }
+      },
+      "runtime_seconds": 0.9361338319722563,
+      "error": null
+    }
+  ],
+  "best_candidate_id": "CAND-001",
+  "comparison": {
+    "baseline_experiment_id": "EXP-D4827EC5",
+    "optimized_experiment_id": "EXP-065078D4",
+    "optimized_candidate_id": "CAND-001",
+    "baseline_parameters": {
+      "tx_power_dbm": 44.0
+    },
+    "optimized_parameters": {
+      "tx_power_dbm": 38.0
+    },
+    "baseline_objective": 0.49435908691834946,
+    "optimized_objective": 0.5553555750658472,
+    "absolute_improvement": 0.06099648814749775,
+    "relative_improvement_percent": 12.338498423833403
+  },
+  "runtime": {
+    "baseline_seconds": 0.7914791580406018,
+    "candidate_evaluation_seconds": 3.2718274730141275,
+    "total_seconds": 4.094213888049126
+  },
+  "provenance": {
+    "optimizer": "grid_search",
+    "optimizer_category": "engineering_baseline",
+    "learning_algorithm": false,
+    "simulation_backend": "sionna_rt",
+    "source_type": "simulation",
+    "measured": false,
+    "objective_id": "PROPAGATION_UTILITY_V0_1",
+    "objective_version": "0.1",
+    "scenario_id": "SIONNA-DEMO-001",
+    "seed": 20260927,
+    "evidence_level": "Synthetic / Simulation Validation",
+    "common_random_numbers": "Baseline and all candidates use the same scenario seed",
+    "search_space_source": "[A] Assumption — engineering demonstration search space",
+    "objective_assumptions": {
+      "lambda_power": "[A] Assumption — engineering demonstration parameter (default 0.10), not a standard value",
+      "sinr_threshold_db": "[A] Assumption — SINR ≥ 0 dB counts as covered; fixed in V0.1",
+      "power_bounds": "P_min / P_max = min / max TX power over the search space and the baseline"
+    }
+  },
+  "error": null,
+  "events": [
+    {
+      "event": "optimization_created",
+      "at": "2026-09-28T06:12:36.464425+00:00",
+      "candidate_id": null,
+      "experiment_id": null
+    },
+    {
+      "event": "baseline_evaluated",
+      "at": "2026-09-28T06:12:37.290549+00:00",
+      "candidate_id": "BASELINE",
+      "experiment_id": "EXP-D4827EC5"
+    },
+    {
+      "event": "candidate_evaluated",
+      "at": "2026-09-28T06:12:38.027212+00:00",
+      "candidate_id": "CAND-001",
+      "experiment_id": "EXP-065078D4"
+    },
+    {
+      "event": "candidate_evaluated",
+      "at": "2026-09-28T06:12:38.798583+00:00",
+      "candidate_id": "CAND-002",
+      "experiment_id": "EXP-76B1FC17"
+    },
+    {
+      "event": "candidate_evaluated",
+      "at": "2026-09-28T06:12:39.529563+00:00",
+      "candidate_id": "CAND-003",
+      "experiment_id": "EXP-41C73299"
+    },
+    {
+      "event": "candidate_evaluated",
+      "at": "2026-09-28T06:12:39.567222+00:00",
+      "candidate_id": "CAND-004",
+      "experiment_id": "EXP-D4827EC5"
+    },
+    {
+      "event": "candidate_evaluated",
+      "at": "2026-09-28T06:12:40.543227+00:00",
+      "candidate_id": "CAND-005",
+      "experiment_id": "EXP-A09D8AE7"
+    },
+    {
+      "event": "best_candidate_selected",
+      "at": "2026-09-28T06:12:40.590700+00:00",
+      "candidate_id": "CAND-001",
+      "experiment_id": "EXP-065078D4"
+    },
+    {
+      "event": "optimization_completed",
+      "at": "2026-09-28T06:12:40.590787+00:00",
+      "candidate_id": null,
+      "experiment_id": null
+    }
+  ],
+  "status_history": [
+    {
+      "status": "created",
+      "at": "2026-09-28T06:12:36.464407+00:00"
+    },
+    {
+      "status": "running",
+      "at": "2026-09-28T06:12:36.496643+00:00"
+    },
+    {
+      "status": "succeeded",
+      "at": "2026-09-28T06:12:40.590765+00:00"
+    }
+  ]
+}

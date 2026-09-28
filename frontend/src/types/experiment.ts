@@ -74,10 +74,14 @@ export interface ExperimentMetrics {
   [key: string]: unknown;
 }
 
+export type ExperimentPurpose = 'manual' | 'optimization_baseline' | 'optimization_candidate';
+
 export interface ExperimentResponse {
   experiment_id: string;
   name: string;
   status: ExperimentStatus;
+  purpose?: ExperimentPurpose;
+  optimization_id?: string | null;
   scenario: ScenarioRef;
   backend: BackendRef;
   created_at: string;

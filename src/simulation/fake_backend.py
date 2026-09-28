@@ -22,6 +22,7 @@ from .artifacts import export_artifacts
 from .base import SimulationBackend
 from .errors import SimulationRunError
 from .models import (
+    METRIC_UNITS,
     ProvenanceTag,
     RadioMapData,
     RuntimeInfo,
@@ -34,6 +35,12 @@ from .models import (
 
 FAKE_BACKEND_ID = "fake"
 FAKE_BACKEND_VERSION = "0.0.0-test"
+
+# 夹具常数（非物理参数）/ Fixture constants, not physical parameters
+FIXTURE_PATH_GAIN_OFFSET_DB = -120.0
+FIXTURE_PATH_GAIN_SLOPE_DB = 4.0
+FIXTURE_NOISE_DBM = -90.0
+FIXTURE_DEFAULT_POWER_DBM = 44.0
 
 
 def _utc_now() -> str:
@@ -102,6 +109,7 @@ class FakeBackend(SimulationBackend):
             },
             metrics={
                 "radio_map": radio_map.statistics(),
+                "radio_map_layers": radio_map.layer_statistics(),
                 "throughput": not_available("not implemented"),
             },
             warnings=["FakeBackend output is a test fixture, not a simulation result"],
@@ -109,17 +117,26 @@ class FakeBackend(SimulationBackend):
         )
 
     def _fixture_radio_map(self, config: ScenarioConfig) -> RadioMapData:
+        """
+        确定性夹具：path_gain 随格点距离线性下降，右上角 2×2 格点无路径（NaN）；
+        rss = path_gain + 发射功率，sinr = rss − 夹具噪声底，因此 rss/sinr 随发射功率平移。
+        """
         ny, nx = self._grid_shape
         xs, ys = np.meshgrid(np.arange(nx, dtype=np.float64), np.arange(ny, dtype=np.float64))
-        values = -50.0 - xs - ys
+        path_gain = FIXTURE_PATH_GAIN_OFFSET_DB - FIXTURE_PATH_GAIN_SLOPE_DB * (xs + ys)
+        path_gain[(xs >= nx - 2) & (ys >= ny - 2)] = np.nan
+        power = config.transmitters[0].power_dbm
+        rss = path_gain + (FIXTURE_DEFAULT_POWER_DBM if power is None else power)
+        layers = {"rss": rss, "path_gain": path_gain, "sinr": rss - FIXTURE_NOISE_DBM}
+        metric = config.radio_map.metric
         return RadioMapData(
-            metric=config.radio_map.metric, unit="dB", values=values,
+            metric=metric, unit=METRIC_UNITS[metric], values=layers[metric],
             x=xs, y=ys, z=np.zeros_like(xs),
             center=[nx / 2, ny / 2, 0.0], size=[float(nx), float(ny)],
             orientation=[0.0, 0.0, 0.0], cell_size=[1.0, 1.0],
             transmitter_positions=np.array([t.position for t in config.transmitters]),
             transmitter_ids=[t.id for t in config.transmitters],
-            extra_layers={config.radio_map.metric: values},
+            extra_layers=layers,
         )
 
     def export(self, result: SimulationResult, output_dir: Path) -> None:
