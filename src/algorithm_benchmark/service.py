@@ -14,6 +14,7 @@ from .models import (
     BenchmarkProtocol, BenchmarkResult, BenchmarkRun, utc_now,
 )
 from .research_catalog import RESEARCH_CATALOG
+from .provenance import runtime_environment
 from user_association.service import UserAssociationService
 
 
@@ -127,7 +128,13 @@ class BenchmarkService:
             provenance={"data_source": "simulation", "provider": "nvidia_sionna", "verification": "independent_verified",
                         "evidence_level": "simulation_evidence", "channel_hash": channel.channel_hash,
                         "channel_realization_id": "CH-MULTICELL-" + channel.channel_hash[:8].upper(),
-                        "git_commit": self.git_commit, "repeats": 1, "comparison_eligible": True},
+                        "git_commit": self.git_commit, "repeats": 1, "comparison_eligible": True,
+                        "runtime_environment": runtime_environment(),
+                        "runtime_semantics": {
+                            "measured_fields": ["total_wall_time", "simulation_evaluation_time", "optimizer_overhead_time"],
+                            "total_wall_time_includes": "simulator evaluations and optimizer overhead",
+                            "algorithm_compute_only": False,
+                        }},
             runs=run_records, results=result_records,
         )
         self._export(benchmark, protocol, channel.provider_versions)

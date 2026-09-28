@@ -1,4 +1,5 @@
 import { Alert, Button, Card, Col, Collapse, Descriptions, Empty, Row, Space, Statistic, Table, Tag, Typography } from 'antd';
+import { Link } from 'react-router-dom';
 
 import { useBenchmarkAlgorithms, useBenchmarkProtocols, useBenchmarks, useCreateBenchmark } from '../../api/benchmarks';
 
@@ -50,7 +51,8 @@ export function BenchmarkCenterPage() {
           { title: 'Evaluations', dataIndex: 'evaluations_used' }, { title: 'Stop reason', dataIndex: 'stop_reason' },
         ]} />
       </Card>}
-      {!create.data && latest && <Card title={`Latest benchmark · ${latest.benchmark_id}`}><Text>已保存 benchmark reference；可再次运行生成同协议的新 run。</Text></Card>}
+      {!create.data && latest && <Card title={`Latest benchmark · ${latest.benchmark_id}`}><Space orientation="vertical"><Text>已保存 benchmark reference；可再次运行生成同协议的新 run。</Text><Link to={`/benchmarks/${latest.benchmark_id}`}>Open persisted benchmark detail</Link></Space></Card>}
+      {create.data && <Link to={`/benchmarks/${create.data.benchmark_id}`}>Open persisted benchmark detail</Link>}
       {create.isError && <Alert type="error" message="Benchmark run failed" description={create.error instanceof Error ? create.error.message : 'Unknown error'} />}
     </Space>
   );

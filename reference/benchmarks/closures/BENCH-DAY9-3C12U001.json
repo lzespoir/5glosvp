@@ -1,0 +1,52 @@
+{
+  "closure_id": "DAY9.1-CLOSURE-BENCH-DAY9-3C12U001",
+  "base_commit": "e2004d5",
+  "benchmark_id": "BENCH-DAY9-3C12U001",
+  "protocol_id": "ALGORITHM_BENCHMARK_V0_1",
+  "reference_benchmark_modified": false,
+  "frozen_channel_regenerated": false,
+  "runtime_semantics": {
+    "measured_fields": ["total_wall_time", "simulation_evaluation_time", "optimizer_overhead_time"],
+    "total_wall_time_includes": "simulator evaluations and optimizer overhead",
+    "algorithm_compute_only": false,
+    "ui_label": "Total wall time (includes simulator evaluations)"
+  },
+  "runtime_environment": {
+    "hostname": "omniversetest69",
+    "environment_id": "5glosvp",
+    "os": "Linux-5.15.0-191-generic-x86_64-with-glibc2.35",
+    "cpu_model": "Intel(R) Xeon(R) Gold 6240 CPU @ 2.60GHz",
+    "cpu_count": 72,
+    "gpu_model": "NVIDIA GeForce RTX 3090",
+    "gpu_count": 2,
+    "python_version": "3.11.16",
+    "sionna_version": "2.1.0",
+    "sionna_rt_version": "2.1.0",
+    "torch_version": "2.14.0",
+    "cuda_available": false,
+    "cuda_note": "Two GPUs are visible to nvidia-smi; CUDA initialization is unavailable because the installed NVIDIA driver is too old for this Torch build."
+  },
+  "td_009": {
+    "id": "TD-009",
+    "title": "Deterministic Replay of Sionna RT",
+    "observation": "Re-running Sionna RT with the same nominal configuration may produce a different channel artifact/hash.",
+    "policy": "Same seed/configuration is not sufficient evidence of the same channel realization. Comparable benchmark runs must reuse the same frozen artifact_id and artifact_hash. Independent Sionna RT regeneration per algorithm is forbidden for directly comparable runs. Seed remains provenance metadata only."
+  },
+  "browser_e2e": {
+    "status": "PASS",
+    "scope": ["Overview", "Comparison", "Convergence", "Runs", "Run Drilldown", "Evidence"],
+    "console_errors": 0,
+    "screenshots": [
+      "Comparison page captured during live smoke",
+      "Evidence page captured during live smoke"
+    ],
+    "verified_routes": [
+      "/benchmarks/BENCH-DAY9-3C12U001",
+      "/benchmarks/BENCH-DAY9-3C12U001/comparison",
+      "/benchmarks/BENCH-DAY9-3C12U001/convergence",
+      "/benchmarks/BENCH-DAY9-3C12U001/runs",
+      "/benchmarks/BENCH-DAY9-3C12U001/runs/BRUN-RANDOM-SEARCH-V0-1-R01",
+      "/benchmarks/BENCH-DAY9-3C12U001/evidence"
+    ]
+  }
+}
