@@ -46,6 +46,7 @@ class _Strict(BaseModel):
 
 
 class AlgorithmCategory(str, Enum):
+    CLASSICAL_OPTIMIZATION = "classical_optimization"
     ENGINEERING_BASELINE = "engineering_baseline"
     RESEARCH_DEMO = "research_demo"
     RESEARCH = "research"

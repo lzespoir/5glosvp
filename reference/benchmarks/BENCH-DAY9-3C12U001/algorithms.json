@@ -1,0 +1,217 @@
+{
+  "runnable": [
+    {
+      "algorithm_id": "association_baseline_v0_1",
+      "name": "Day 8 Association Baseline",
+      "version": "0.1",
+      "category": "engineering_baseline",
+      "provider": "5GLOSVP platform (built-in)",
+      "learning_algorithm": false,
+      "training_required": false,
+      "gradient_required": false,
+      "black_box_support": true,
+      "supported_parameter_types": [
+        "categorical_vector"
+      ],
+      "supported_constraint_types": [
+        "p5_floor"
+      ],
+      "supported_objective_directions": [
+        "maximize"
+      ],
+      "deterministic": true,
+      "supports_seed": true,
+      "sdk_version": "0.1",
+      "runnable": true,
+      "compatibility": {
+        "algorithm_id": "association_baseline_v0_1",
+        "algorithm_version": "0.1",
+        "parameter_types": [
+          "categorical_vector"
+        ],
+        "constraint_types": [
+          "p5_floor"
+        ],
+        "objective_directions": [
+          "maximize"
+        ],
+        "batch": false,
+        "iterative_feedback": true,
+        "training_required": false,
+        "gradient_required": false,
+        "black_box_support": true,
+        "multi_objective_support": false,
+        "deterministic": true,
+        "supports_seed": true,
+        "sdk_version": "0.1",
+        "status": "compatible",
+        "reason": ""
+      }
+    },
+    {
+      "algorithm_id": "random_search_v0_1",
+      "name": "Random Search",
+      "version": "0.1",
+      "category": "engineering_baseline",
+      "provider": "5GLOSVP platform (built-in)",
+      "learning_algorithm": false,
+      "training_required": false,
+      "gradient_required": false,
+      "black_box_support": true,
+      "supported_parameter_types": [
+        "categorical_vector"
+      ],
+      "supported_constraint_types": [
+        "p5_floor"
+      ],
+      "supported_objective_directions": [
+        "maximize"
+      ],
+      "deterministic": false,
+      "supports_seed": true,
+      "sdk_version": "0.1",
+      "runnable": true,
+      "compatibility": {
+        "algorithm_id": "random_search_v0_1",
+        "algorithm_version": "0.1",
+        "parameter_types": [
+          "categorical_vector"
+        ],
+        "constraint_types": [
+          "p5_floor"
+        ],
+        "objective_directions": [
+          "maximize"
+        ],
+        "batch": false,
+        "iterative_feedback": true,
+        "training_required": false,
+        "gradient_required": false,
+        "black_box_support": true,
+        "multi_objective_support": false,
+        "deterministic": false,
+        "supports_seed": true,
+        "sdk_version": "0.1",
+        "status": "compatible",
+        "reason": ""
+      }
+    },
+    {
+      "algorithm_id": "first_improvement_local_search_v0_1",
+      "name": "First-Improvement Local Search",
+      "version": "0.1",
+      "category": "classical_optimization",
+      "provider": "5GLOSVP platform (built-in)",
+      "learning_algorithm": false,
+      "training_required": false,
+      "gradient_required": false,
+      "black_box_support": true,
+      "supported_parameter_types": [
+        "categorical_vector"
+      ],
+      "supported_constraint_types": [
+        "p5_floor"
+      ],
+      "supported_objective_directions": [
+        "maximize"
+      ],
+      "deterministic": true,
+      "supports_seed": true,
+      "sdk_version": "0.1",
+      "runnable": true,
+      "compatibility": {
+        "algorithm_id": "first_improvement_local_search_v0_1",
+        "algorithm_version": "0.1",
+        "parameter_types": [
+          "categorical_vector"
+        ],
+        "constraint_types": [
+          "p5_floor"
+        ],
+        "objective_directions": [
+          "maximize"
+        ],
+        "batch": false,
+        "iterative_feedback": true,
+        "training_required": false,
+        "gradient_required": false,
+        "black_box_support": true,
+        "multi_objective_support": false,
+        "deterministic": true,
+        "supports_seed": true,
+        "sdk_version": "0.1",
+        "status": "compatible",
+        "reason": ""
+      }
+    }
+  ],
+  "research": [
+    {
+      "reference_id": "ZO-PGD",
+      "algorithm_family": "zero-order policy gradient",
+      "paper_title": "Zeroth-Order Policy Optimization for Black-Box Network Control",
+      "authors": [
+        "Research candidate"
+      ],
+      "year": 2024,
+      "problem_types": [
+        "continuous_network_parameter"
+      ],
+      "parameter_types": [
+        "continuous",
+        "vector"
+      ],
+      "requires_training": false,
+      "black_box": true,
+      "implementation_status": "not_integrated",
+      "notes": "Catalog reference only; deliberately not forced onto categorical user association.",
+      "source": "internal research catalog",
+      "doi": null
+    },
+    {
+      "reference_id": "SOLUTION-MAPPING-L2O",
+      "algorithm_family": "solution mapping / learning to optimize",
+      "paper_title": "Learning to Optimize Combinatorial Network Decisions",
+      "authors": [
+        "Research candidate"
+      ],
+      "year": 2024,
+      "problem_types": [
+        "mixed_network_optimization"
+      ],
+      "parameter_types": [
+        "mixed",
+        "categorical_vector"
+      ],
+      "requires_training": true,
+      "black_box": true,
+      "implementation_status": "not_integrated",
+      "notes": "Research candidate; no runnable implementation is registered.",
+      "source": "internal research catalog",
+      "doi": null
+    },
+    {
+      "reference_id": "LEARNING-ASSISTED-BNB",
+      "algorithm_family": "learning-assisted branch-and-bound",
+      "paper_title": "Learning-Assisted Branch-and-Bound for Resource Management",
+      "authors": [
+        "Research candidate"
+      ],
+      "year": 2024,
+      "problem_types": [
+        "mixed_integer_resource_management"
+      ],
+      "parameter_types": [
+        "integer",
+        "categorical",
+        "mixed"
+      ],
+      "requires_training": true,
+      "black_box": false,
+      "implementation_status": "not_integrated",
+      "notes": "Future candidate; platform must not present it as an official implementation.",
+      "source": "internal research catalog",
+      "doi": null
+    }
+  ]
+}

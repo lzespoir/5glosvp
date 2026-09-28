@@ -1,0 +1,669 @@
+[
+  {
+    "benchmark_run_id": "BRUN-ASSOCIATION-BASELINE-V0-1-R01",
+    "benchmark_id": "BENCH-DAY9-3C12U001",
+    "algorithm_id": "association_baseline_v0_1",
+    "algorithm_version": "0.1",
+    "algorithm_config": {},
+    "seed": 20260928,
+    "optimization_id": "OPT-BENCH-275FC203",
+    "status": "completed",
+    "runtime": {
+      "optimizer_overhead_time": 5.7266840420197695,
+      "simulation_evaluation_time": 1.2000903250882402,
+      "total_wall_time": 6.92677436710801
+    },
+    "evaluations_used": 0,
+    "best_candidate": {
+      "candidate_id": "BASELINE",
+      "association": {
+        "assignments": {
+          "UE-003": "CELL-001",
+          "UE-004": "CELL-001",
+          "UE-005": "CELL-001",
+          "UE-006": "CELL-001",
+          "UE-007": "CELL-001",
+          "UE-008": "CELL-001",
+          "UE-009": "CELL-002",
+          "UE-010": "CELL-003",
+          "UE-012": "CELL-002",
+          "UE-014": "CELL-003",
+          "UE-015": "CELL-002",
+          "UE-017": "CELL-002"
+        }
+      },
+      "association_hash": "11f6f62088685b847f466403dfaeefb0c4138ae7dc1bb16d853d652fcb897c39",
+      "network_throughput_mbps": 2045.6758506814976,
+      "average_ue_throughput_mbps": 170.47298755679148,
+      "p5_ue_throughput_mbps": 49.24711635053457,
+      "cell_metrics": [
+        {
+          "cell_id": "CELL-001",
+          "associated_ue_count": 6,
+          "throughput_mbps": 459.0758609223785,
+          "average_ue_throughput_mbps": 76.51264348706309
+        },
+        {
+          "cell_id": "CELL-002",
+          "associated_ue_count": 4,
+          "throughput_mbps": 883.4784289185094,
+          "average_ue_throughput_mbps": 220.86960722962735
+        },
+        {
+          "cell_id": "CELL-003",
+          "associated_ue_count": 2,
+          "throughput_mbps": 703.1215608406096,
+          "average_ue_throughput_mbps": 351.5607804203048
+        }
+      ],
+      "ue_metrics": [
+        {
+          "ue_id": "UE-003",
+          "serving_cell_id": "CELL-001",
+          "throughput_mbps": 32.5942599013115,
+          "link_gain_db": -105.66077002225643,
+          "sinr_db": 4.592298289763713,
+          "resource_share": 0.16666666666666666
+        },
+        {
+          "ue_id": "UE-004",
+          "serving_cell_id": "CELL-001",
+          "throughput_mbps": 67.7710994590018,
+          "link_gain_db": -100.24337455601484,
+          "sinr_db": 11.973371518529447,
+          "resource_share": 0.16666666666666666
+        },
+        {
+          "ue_id": "UE-005",
+          "serving_cell_id": "CELL-001",
+          "throughput_mbps": 65.01523931262477,
+          "link_gain_db": -100.27541734510002,
+          "sinr_db": 11.4420022161274,
+          "resource_share": 0.16666666666666666
+        },
+        {
+          "ue_id": "UE-006",
+          "serving_cell_id": "CELL-001",
+          "throughput_mbps": 80.26991032590503,
+          "link_gain_db": -96.61722921865706,
+          "sinr_db": 14.341230219017069,
+          "resource_share": 0.16666666666666666
+        },
+        {
+          "ue_id": "UE-007",
+          "serving_cell_id": "CELL-001",
+          "throughput_mbps": 115.85986244673367,
+          "link_gain_db": -97.72928511897923,
+          "sinr_db": 20.891146794664262,
+          "resource_share": 0.16666666666666666
+        },
+        {
+          "ue_id": "UE-008",
+          "serving_cell_id": "CELL-001",
+          "throughput_mbps": 97.56548947680176,
+          "link_gain_db": -89.5436904711151,
+          "sinr_db": 17.5463376639256,
+          "resource_share": 0.16666666666666666
+        },
+        {
+          "ue_id": "UE-009",
+          "serving_cell_id": "CELL-002",
+          "throughput_mbps": 155.0005048103662,
+          "link_gain_db": -112.37074556162236,
+          "sinr_db": 18.604441632605738,
+          "resource_share": 0.25
+        },
+        {
+          "ue_id": "UE-010",
+          "serving_cell_id": "CELL-003",
+          "throughput_mbps": 254.57113474965007,
+          "link_gain_db": -104.78263803002204,
+          "sinr_db": 15.1974204587197,
+          "resource_share": 0.5
+        },
+        {
+          "ue_id": "UE-012",
+          "serving_cell_id": "CELL-002",
+          "throughput_mbps": 62.87218071808071,
+          "link_gain_db": -124.23988227969205,
+          "sinr_db": 6.735304914536053,
+          "resource_share": 0.25
+        },
+        {
+          "ue_id": "UE-014",
+          "serving_cell_id": "CELL-003",
+          "throughput_mbps": 448.5504260909596,
+          "link_gain_db": -93.54854911887165,
+          "sinr_db": 26.99676343608775,
+          "resource_share": 0.5
+        },
+        {
+          "ue_id": "UE-015",
+          "serving_cell_id": "CELL-002",
+          "throughput_mbps": 374.9022588160687,
+          "link_gain_db": -85.83258995374706,
+          "sinr_db": 45.14259724048105,
+          "resource_share": 0.25
+        },
+        {
+          "ue_id": "UE-017",
+          "serving_cell_id": "CELL-002",
+          "throughput_mbps": 290.7034845739937,
+          "link_gain_db": -93.7646838439322,
+          "sinr_db": 35.00281522737216,
+          "resource_share": 0.25
+        }
+      ],
+      "p5_floor_mbps": null,
+      "p5_margin_mbps": null,
+      "feasible": true,
+      "channel_reused": true,
+      "runtime_seconds": 1.2000903250882402
+    },
+    "feasible": true,
+    "stop_reason": "completed",
+    "convergence": [
+      {
+        "evaluation_index": 0,
+        "elapsed_time": 1.2000903250882402,
+        "current_objective": 2045.6758506814976,
+        "best_feasible_objective": 2045.6758506814976,
+        "current_feasible": true,
+        "best_candidate_id": "BASELINE"
+      }
+    ],
+    "verification": {
+      "protocol_hash": "abf31fc8a19efe47a792890757e0bf604e45bca41511efd3fbe38b4791cfd377",
+      "channel_hash": "fbd449d7dc9b6b717658750d8de664fd5ffd30744bf3068f19b2e63fda613437",
+      "independent_verified": true
+    }
+  },
+  {
+    "benchmark_run_id": "BRUN-RANDOM-SEARCH-V0-1-R01",
+    "benchmark_id": "BENCH-DAY9-3C12U001",
+    "algorithm_id": "random_search_v0_1",
+    "algorithm_version": "0.1",
+    "algorithm_config": {
+      "seed": 20260928
+    },
+    "seed": 20260928,
+    "optimization_id": "OPT-BENCH-F46EF207",
+    "status": "completed",
+    "runtime": {
+      "optimizer_overhead_time": 1.6399551898939535,
+      "simulation_evaluation_time": 10.811195777147077,
+      "total_wall_time": 12.45115096704103
+    },
+    "evaluations_used": 8,
+    "best_candidate": {
+      "candidate_id": "BASELINE",
+      "association": {
+        "assignments": {
+          "UE-003": "CELL-001",
+          "UE-004": "CELL-001",
+          "UE-005": "CELL-001",
+          "UE-006": "CELL-001",
+          "UE-007": "CELL-001",
+          "UE-008": "CELL-001",
+          "UE-009": "CELL-002",
+          "UE-010": "CELL-003",
+          "UE-012": "CELL-002",
+          "UE-014": "CELL-003",
+          "UE-015": "CELL-002",
+          "UE-017": "CELL-002"
+        }
+      },
+      "association_hash": "11f6f62088685b847f466403dfaeefb0c4138ae7dc1bb16d853d652fcb897c39",
+      "network_throughput_mbps": 2045.6661443858347,
+      "average_ue_throughput_mbps": 170.47217869881956,
+      "p5_ue_throughput_mbps": 49.24081398086931,
+      "cell_metrics": [
+        {
+          "cell_id": "CELL-001",
+          "associated_ue_count": 6,
+          "throughput_mbps": 459.0715059493066,
+          "average_ue_throughput_mbps": 76.51191765821777
+        },
+        {
+          "cell_id": "CELL-002",
+          "associated_ue_count": 4,
+          "throughput_mbps": 883.4730778716814,
+          "average_ue_throughput_mbps": 220.86826946792036
+        },
+        {
+          "cell_id": "CELL-003",
+          "associated_ue_count": 2,
+          "throughput_mbps": 703.1215605648467,
+          "average_ue_throughput_mbps": 351.56078028242337
+        }
+      ],
+      "ue_metrics": [
+        {
+          "ue_id": "UE-003",
+          "serving_cell_id": "CELL-001",
+          "throughput_mbps": 32.59426094209756,
+          "link_gain_db": -105.66077001490211,
+          "sinr_db": 4.5922985430453185,
+          "resource_share": 0.16666666666666666
+        },
+        {
+          "ue_id": "UE-004",
+          "serving_cell_id": "CELL-001",
+          "throughput_mbps": 67.77110219701164,
+          "link_gain_db": -100.24337409223976,
+          "sinr_db": 11.973372044458184,
+          "resource_share": 0.16666666666666666
+        },
+        {
+          "ue_id": "UE-005",
+          "serving_cell_id": "CELL-001",
+          "throughput_mbps": 65.01088301062552,
+          "link_gain_db": -100.27635678913627,
+          "sinr_db": 11.44115893217495,
+          "resource_share": 0.16666666666666666
+        },
+        {
+          "ue_id": "UE-006",
+          "serving_cell_id": "CELL-001",
+          "throughput_mbps": 80.26991038210734,
+          "link_gain_db": -96.61722921865706,
+          "sinr_db": 14.34123022954181,
+          "resource_share": 0.16666666666666666
+        },
+        {
+          "ue_id": "UE-007",
+          "serving_cell_id": "CELL-001",
+          "throughput_mbps": 115.8598599406628,
+          "link_gain_db": -97.729285120899,
+          "sinr_db": 20.891146338336046,
+          "resource_share": 0.16666666666666666
+        },
+        {
+          "ue_id": "UE-008",
+          "serving_cell_id": "CELL-001",
+          "throughput_mbps": 97.56548947680176,
+          "link_gain_db": -89.5436904711151,
+          "sinr_db": 17.5463376639256,
+          "resource_share": 0.16666666666666666
+        },
+        {
+          "ue_id": "UE-009",
+          "serving_cell_id": "CELL-002",
+          "throughput_mbps": 155.00662964004405,
+          "link_gain_db": -112.36999788954849,
+          "sinr_db": 18.60518930467962,
+          "resource_share": 0.25
+        },
+        {
+          "ue_id": "UE-010",
+          "serving_cell_id": "CELL-003",
+          "throughput_mbps": 254.571134715322,
+          "link_gain_db": -104.78263802678443,
+          "sinr_db": 15.19742045659049,
+          "resource_share": 0.5
+        },
+        {
+          "ue_id": "UE-012",
+          "serving_cell_id": "CELL-002",
+          "throughput_mbps": 62.86072101259165,
+          "link_gain_db": -124.24155484796194,
+          "sinr_db": 6.73363234626617,
+          "resource_share": 0.25
+        },
+        {
+          "ue_id": "UE-014",
+          "serving_cell_id": "CELL-003",
+          "throughput_mbps": 448.55042584952474,
+          "link_gain_db": -93.548549117409,
+          "sinr_db": 26.996763421522893,
+          "resource_share": 0.5
+        },
+        {
+          "ue_id": "UE-015",
+          "serving_cell_id": "CELL-002",
+          "throughput_mbps": 374.902242645052,
+          "link_gain_db": -85.83259190099108,
+          "sinr_db": 45.14259529323703,
+          "resource_share": 0.25
+        },
+        {
+          "ue_id": "UE-017",
+          "serving_cell_id": "CELL-002",
+          "throughput_mbps": 290.7034845739937,
+          "link_gain_db": -93.7646838439322,
+          "sinr_db": 35.00281522737216,
+          "resource_share": 0.25
+        }
+      ],
+      "p5_floor_mbps": null,
+      "p5_margin_mbps": null,
+      "feasible": true,
+      "channel_reused": true,
+      "runtime_seconds": 1.1408557700924575
+    },
+    "feasible": true,
+    "stop_reason": "budget_exhausted",
+    "convergence": [
+      {
+        "evaluation_index": 0,
+        "elapsed_time": 1.1408557700924575,
+        "current_objective": 2045.6661443858347,
+        "best_feasible_objective": 2045.6661443858347,
+        "current_feasible": true,
+        "best_candidate_id": "BASELINE"
+      },
+      {
+        "evaluation_index": 1,
+        "elapsed_time": 2.2135769710876048,
+        "current_objective": null,
+        "best_feasible_objective": 2045.6661443858347,
+        "current_feasible": false,
+        "best_candidate_id": "BASELINE"
+      },
+      {
+        "evaluation_index": 2,
+        "elapsed_time": 3.349266248056665,
+        "current_objective": null,
+        "best_feasible_objective": 2045.6661443858347,
+        "current_feasible": false,
+        "best_candidate_id": "BASELINE"
+      },
+      {
+        "evaluation_index": 3,
+        "elapsed_time": 4.6098017119802535,
+        "current_objective": null,
+        "best_feasible_objective": 2045.6661443858347,
+        "current_feasible": false,
+        "best_candidate_id": "BASELINE"
+      },
+      {
+        "evaluation_index": 4,
+        "elapsed_time": 5.755276461015455,
+        "current_objective": null,
+        "best_feasible_objective": 2045.6661443858347,
+        "current_feasible": false,
+        "best_candidate_id": "BASELINE"
+      },
+      {
+        "evaluation_index": 5,
+        "elapsed_time": 7.187221291009337,
+        "current_objective": null,
+        "best_feasible_objective": 2045.6661443858347,
+        "current_feasible": false,
+        "best_candidate_id": "BASELINE"
+      },
+      {
+        "evaluation_index": 6,
+        "elapsed_time": 8.281321971095167,
+        "current_objective": null,
+        "best_feasible_objective": 2045.6661443858347,
+        "current_feasible": false,
+        "best_candidate_id": "BASELINE"
+      },
+      {
+        "evaluation_index": 7,
+        "elapsed_time": 9.533687896095216,
+        "current_objective": null,
+        "best_feasible_objective": 2045.6661443858347,
+        "current_feasible": false,
+        "best_candidate_id": "BASELINE"
+      },
+      {
+        "evaluation_index": 8,
+        "elapsed_time": 10.811195777147077,
+        "current_objective": null,
+        "best_feasible_objective": 2045.6661443858347,
+        "current_feasible": false,
+        "best_candidate_id": "BASELINE"
+      }
+    ],
+    "verification": {
+      "protocol_hash": "abf31fc8a19efe47a792890757e0bf604e45bca41511efd3fbe38b4791cfd377",
+      "channel_hash": "fbd449d7dc9b6b717658750d8de664fd5ffd30744bf3068f19b2e63fda613437",
+      "independent_verified": true
+    }
+  },
+  {
+    "benchmark_run_id": "BRUN-FIRST-IMPROVEMENT-LOCAL-SEARCH-V0-1-R01",
+    "benchmark_id": "BENCH-DAY9-3C12U001",
+    "algorithm_id": "first_improvement_local_search_v0_1",
+    "algorithm_version": "0.1",
+    "algorithm_config": {},
+    "seed": 20260928,
+    "optimization_id": "OPT-BENCH-0F092FF5",
+    "status": "completed",
+    "runtime": {
+      "optimizer_overhead_time": 1.6527644268935546,
+      "simulation_evaluation_time": 10.073525868123397,
+      "total_wall_time": 11.726290295016952
+    },
+    "evaluations_used": 8,
+    "best_candidate": {
+      "candidate_id": "BASELINE",
+      "association": {
+        "assignments": {
+          "UE-003": "CELL-001",
+          "UE-004": "CELL-001",
+          "UE-005": "CELL-001",
+          "UE-006": "CELL-001",
+          "UE-007": "CELL-001",
+          "UE-008": "CELL-001",
+          "UE-009": "CELL-002",
+          "UE-010": "CELL-003",
+          "UE-012": "CELL-002",
+          "UE-014": "CELL-003",
+          "UE-015": "CELL-002",
+          "UE-017": "CELL-002"
+        }
+      },
+      "association_hash": "11f6f62088685b847f466403dfaeefb0c4138ae7dc1bb16d853d652fcb897c39",
+      "network_throughput_mbps": 2045.68830999162,
+      "average_ue_throughput_mbps": 170.474025832635,
+      "p5_ue_throughput_mbps": 49.24700482532627,
+      "cell_metrics": [
+        {
+          "cell_id": "CELL-001",
+          "associated_ue_count": 6,
+          "throughput_mbps": 459.0769538114658,
+          "average_ue_throughput_mbps": 76.5128256352443
+        },
+        {
+          "cell_id": "CELL-002",
+          "associated_ue_count": 4,
+          "throughput_mbps": 883.4829754090233,
+          "average_ue_throughput_mbps": 220.87074385225583
+        },
+        {
+          "cell_id": "CELL-003",
+          "associated_ue_count": 2,
+          "throughput_mbps": 703.128380771131,
+          "average_ue_throughput_mbps": 351.5641903855655
+        }
+      ],
+      "ue_metrics": [
+        {
+          "ue_id": "UE-003",
+          "serving_cell_id": "CELL-001",
+          "throughput_mbps": 32.59425993153196,
+          "link_gain_db": -105.66077001490211,
+          "sinr_db": 4.592298297118046,
+          "resource_share": 0.16666666666666666
+        },
+        {
+          "ue_id": "UE-004",
+          "serving_cell_id": "CELL-001",
+          "throughput_mbps": 67.77109945589883,
+          "link_gain_db": -100.24337455601484,
+          "sinr_db": 11.973371517933415,
+          "resource_share": 0.16666666666666666
+        },
+        {
+          "ue_id": "UE-005",
+          "serving_cell_id": "CELL-001",
+          "throughput_mbps": 65.01186854565083,
+          "link_gain_db": -100.27616600910478,
+          "sinr_db": 11.441349710971167,
+          "resource_share": 0.16666666666666666
+        },
+        {
+          "ue_id": "UE-006",
+          "serving_cell_id": "CELL-001",
+          "throughput_mbps": 80.27437645736441,
+          "link_gain_db": -96.61639288011375,
+          "sinr_db": 14.342066567097136,
+          "resource_share": 0.16666666666666666
+        },
+        {
+          "ue_id": "UE-007",
+          "serving_cell_id": "CELL-001",
+          "throughput_mbps": 115.85985994421797,
+          "link_gain_db": -97.72928512025163,
+          "sinr_db": 20.891146338983404,
+          "resource_share": 0.16666666666666666
+        },
+        {
+          "ue_id": "UE-008",
+          "serving_cell_id": "CELL-001",
+          "throughput_mbps": 97.56548947680176,
+          "link_gain_db": -89.5436904711151,
+          "sinr_db": 17.5463376639256,
+          "resource_share": 0.16666666666666666
+        },
+        {
+          "ue_id": "UE-009",
+          "serving_cell_id": "CELL-002",
+          "throughput_mbps": 155.00526998088776,
+          "link_gain_db": -112.37016386612395,
+          "sinr_db": 18.60502332810416,
+          "resource_share": 0.25
+        },
+        {
+          "ue_id": "UE-010",
+          "serving_cell_id": "CELL-003",
+          "throughput_mbps": 254.5779589057982,
+          "link_gain_db": -104.78263803002204,
+          "sinr_db": 15.197843728252545,
+          "resource_share": 0.5
+        },
+        {
+          "ue_id": "UE-012",
+          "serving_cell_id": "CELL-002",
+          "throughput_mbps": 62.87197792024889,
+          "link_gain_db": -124.23991187748516,
+          "sinr_db": 6.735275316742935,
+          "resource_share": 0.25
+        },
+        {
+          "ue_id": "UE-014",
+          "serving_cell_id": "CELL-003",
+          "throughput_mbps": 448.5504218653328,
+          "link_gain_db": -93.54854927659491,
+          "sinr_db": 26.996763181171673,
+          "resource_share": 0.5
+        },
+        {
+          "ue_id": "UE-015",
+          "serving_cell_id": "CELL-002",
+          "throughput_mbps": 374.902242933893,
+          "link_gain_db": -85.83259186621008,
+          "sinr_db": 45.14259532801802,
+          "resource_share": 0.25
+        },
+        {
+          "ue_id": "UE-017",
+          "serving_cell_id": "CELL-002",
+          "throughput_mbps": 290.7034845739937,
+          "link_gain_db": -93.7646838439322,
+          "sinr_db": 35.00281522737216,
+          "resource_share": 0.25
+        }
+      ],
+      "p5_floor_mbps": null,
+      "p5_margin_mbps": null,
+      "feasible": true,
+      "channel_reused": true,
+      "runtime_seconds": 1.1735862570349127
+    },
+    "feasible": true,
+    "stop_reason": "budget_exhausted",
+    "convergence": [
+      {
+        "evaluation_index": 0,
+        "elapsed_time": 1.1735862570349127,
+        "current_objective": 2045.68830999162,
+        "best_feasible_objective": 2045.68830999162,
+        "current_feasible": true,
+        "best_candidate_id": "BASELINE"
+      },
+      {
+        "evaluation_index": 1,
+        "elapsed_time": 2.278577418997884,
+        "current_objective": null,
+        "best_feasible_objective": 2045.68830999162,
+        "current_feasible": false,
+        "best_candidate_id": "BASELINE"
+      },
+      {
+        "evaluation_index": 2,
+        "elapsed_time": 3.3517094700364396,
+        "current_objective": null,
+        "best_feasible_objective": 2045.68830999162,
+        "current_feasible": false,
+        "best_candidate_id": "BASELINE"
+      },
+      {
+        "evaluation_index": 3,
+        "elapsed_time": 4.511929090018384,
+        "current_objective": null,
+        "best_feasible_objective": 2045.68830999162,
+        "current_feasible": false,
+        "best_candidate_id": "BASELINE"
+      },
+      {
+        "evaluation_index": 4,
+        "elapsed_time": 5.577503549051471,
+        "current_objective": null,
+        "best_feasible_objective": 2045.68830999162,
+        "current_feasible": false,
+        "best_candidate_id": "BASELINE"
+      },
+      {
+        "evaluation_index": 5,
+        "elapsed_time": 6.64549051807262,
+        "current_objective": null,
+        "best_feasible_objective": 2045.68830999162,
+        "current_feasible": false,
+        "best_candidate_id": "BASELINE"
+      },
+      {
+        "evaluation_index": 6,
+        "elapsed_time": 7.793183088069782,
+        "current_objective": null,
+        "best_feasible_objective": 2045.68830999162,
+        "current_feasible": false,
+        "best_candidate_id": "BASELINE"
+      },
+      {
+        "evaluation_index": 7,
+        "elapsed_time": 8.998322011088021,
+        "current_objective": null,
+        "best_feasible_objective": 2045.68830999162,
+        "current_feasible": false,
+        "best_candidate_id": "BASELINE"
+      },
+      {
+        "evaluation_index": 8,
+        "elapsed_time": 10.073525868123397,
+        "current_objective": null,
+        "best_feasible_objective": 2045.68830999162,
+        "current_feasible": false,
+        "best_candidate_id": "BASELINE"
+      }
+    ],
+    "verification": {
+      "protocol_hash": "abf31fc8a19efe47a792890757e0bf604e45bca41511efd3fbe38b4791cfd377",
+      "channel_hash": "fbd449d7dc9b6b717658750d8de664fd5ffd30744bf3068f19b2e63fda613437",
+      "independent_verified": true
+    }
+  }
+]

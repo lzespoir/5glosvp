@@ -31,6 +31,7 @@ const NAV_ITEMS: NonNullable<MenuProps['items']> = [
   { key: '/overview', icon: <DashboardOutlined />, label: navLabel('平台概览', 'Overview') },
   { key: '/scenarios', icon: <EnvironmentOutlined />, label: navLabel('场景中心', 'Scenario Center') },
   { key: '/user-association', icon: <ClusterOutlined />, label: navLabel('用户关联', 'User Association') },
+  { key: '/benchmarks', icon: <FunctionOutlined />, label: navLabel('算法对比', 'Benchmark') },
   { key: '/system', icon: <ClusterOutlined />, label: navLabel('系统级仿真', 'System Simulation') },
   { key: '/optimizations', icon: <FunctionOutlined />, label: navLabel('优化中心', 'Optimization Center') },
   { key: '/algorithms', icon: <NodeIndexOutlined />, label: navLabel('算法中心', 'Algorithm Center') },
@@ -39,7 +40,7 @@ const NAV_ITEMS: NonNullable<MenuProps['items']> = [
 ];
 
 function selectedNavKey(pathname: string): string {
-  const keys = ['/overview', '/scenarios', '/user-association', '/system', '/optimizations', '/algorithms', '/experiments', '/acceptance'];
+  const keys = ['/overview', '/scenarios', '/user-association', '/benchmarks', '/system', '/optimizations', '/algorithms', '/experiments', '/acceptance'];
   const match = keys.find((k) =>
     pathname.startsWith(k),
   );
@@ -119,7 +120,7 @@ export function PlatformLayout() {
             <Outlet />
           </Content>
           <Footer className="platform__footer">
-            V0.3{health ? ` · API v${health.version}` : ''} · Simulation Generated Data · 仿真生成数据，非实测/现网数据
+            V0.3{health ? ` · API v${health.version}` : ''} · Data Source: Simulation Generated · 数据来源：仿真生成
           </Footer>
         </Layout>
       </Layout>

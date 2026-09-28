@@ -1,0 +1,18 @@
+{
+  "data_source": "simulation",
+  "provider": "nvidia_sionna",
+  "verification": "independent_verified",
+  "evidence_level": "simulation_evidence",
+  "channel_hash": "fbd449d7dc9b6b717658750d8de664fd5ffd30744bf3068f19b2e63fda613437",
+  "channel_realization_id": "CH-MULTICELL-FBD449D7",
+  "git_commit": null,
+  "repeats": 1,
+  "comparison_eligible": true,
+  "provider_versions": {
+    "sionna": "2.1.0",
+    "sionna-rt": "2.1.0",
+    "mitsuba": "3.9.1",
+    "drjit": "1.5.0",
+    "torch": "2.14.0"
+  }
+}

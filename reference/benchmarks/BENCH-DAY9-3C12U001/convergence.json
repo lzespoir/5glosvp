@@ -1,0 +1,160 @@
+{
+  "BRUN-ASSOCIATION-BASELINE-V0-1-R01": [
+    {
+      "evaluation_index": 0,
+      "elapsed_time": 1.2000903250882402,
+      "current_objective": 2045.6758506814976,
+      "best_feasible_objective": 2045.6758506814976,
+      "current_feasible": true,
+      "best_candidate_id": "BASELINE"
+    }
+  ],
+  "BRUN-RANDOM-SEARCH-V0-1-R01": [
+    {
+      "evaluation_index": 0,
+      "elapsed_time": 1.1408557700924575,
+      "current_objective": 2045.6661443858347,
+      "best_feasible_objective": 2045.6661443858347,
+      "current_feasible": true,
+      "best_candidate_id": "BASELINE"
+    },
+    {
+      "evaluation_index": 1,
+      "elapsed_time": 2.2135769710876048,
+      "current_objective": null,
+      "best_feasible_objective": 2045.6661443858347,
+      "current_feasible": false,
+      "best_candidate_id": "BASELINE"
+    },
+    {
+      "evaluation_index": 2,
+      "elapsed_time": 3.349266248056665,
+      "current_objective": null,
+      "best_feasible_objective": 2045.6661443858347,
+      "current_feasible": false,
+      "best_candidate_id": "BASELINE"
+    },
+    {
+      "evaluation_index": 3,
+      "elapsed_time": 4.6098017119802535,
+      "current_objective": null,
+      "best_feasible_objective": 2045.6661443858347,
+      "current_feasible": false,
+      "best_candidate_id": "BASELINE"
+    },
+    {
+      "evaluation_index": 4,
+      "elapsed_time": 5.755276461015455,
+      "current_objective": null,
+      "best_feasible_objective": 2045.6661443858347,
+      "current_feasible": false,
+      "best_candidate_id": "BASELINE"
+    },
+    {
+      "evaluation_index": 5,
+      "elapsed_time": 7.187221291009337,
+      "current_objective": null,
+      "best_feasible_objective": 2045.6661443858347,
+      "current_feasible": false,
+      "best_candidate_id": "BASELINE"
+    },
+    {
+      "evaluation_index": 6,
+      "elapsed_time": 8.281321971095167,
+      "current_objective": null,
+      "best_feasible_objective": 2045.6661443858347,
+      "current_feasible": false,
+      "best_candidate_id": "BASELINE"
+    },
+    {
+      "evaluation_index": 7,
+      "elapsed_time": 9.533687896095216,
+      "current_objective": null,
+      "best_feasible_objective": 2045.6661443858347,
+      "current_feasible": false,
+      "best_candidate_id": "BASELINE"
+    },
+    {
+      "evaluation_index": 8,
+      "elapsed_time": 10.811195777147077,
+      "current_objective": null,
+      "best_feasible_objective": 2045.6661443858347,
+      "current_feasible": false,
+      "best_candidate_id": "BASELINE"
+    }
+  ],
+  "BRUN-FIRST-IMPROVEMENT-LOCAL-SEARCH-V0-1-R01": [
+    {
+      "evaluation_index": 0,
+      "elapsed_time": 1.1735862570349127,
+      "current_objective": 2045.68830999162,
+      "best_feasible_objective": 2045.68830999162,
+      "current_feasible": true,
+      "best_candidate_id": "BASELINE"
+    },
+    {
+      "evaluation_index": 1,
+      "elapsed_time": 2.278577418997884,
+      "current_objective": null,
+      "best_feasible_objective": 2045.68830999162,
+      "current_feasible": false,
+      "best_candidate_id": "BASELINE"
+    },
+    {
+      "evaluation_index": 2,
+      "elapsed_time": 3.3517094700364396,
+      "current_objective": null,
+      "best_feasible_objective": 2045.68830999162,
+      "current_feasible": false,
+      "best_candidate_id": "BASELINE"
+    },
+    {
+      "evaluation_index": 3,
+      "elapsed_time": 4.511929090018384,
+      "current_objective": null,
+      "best_feasible_objective": 2045.68830999162,
+      "current_feasible": false,
+      "best_candidate_id": "BASELINE"
+    },
+    {
+      "evaluation_index": 4,
+      "elapsed_time": 5.577503549051471,
+      "current_objective": null,
+      "best_feasible_objective": 2045.68830999162,
+      "current_feasible": false,
+      "best_candidate_id": "BASELINE"
+    },
+    {
+      "evaluation_index": 5,
+      "elapsed_time": 6.64549051807262,
+      "current_objective": null,
+      "best_feasible_objective": 2045.68830999162,
+      "current_feasible": false,
+      "best_candidate_id": "BASELINE"
+    },
+    {
+      "evaluation_index": 6,
+      "elapsed_time": 7.793183088069782,
+      "current_objective": null,
+      "best_feasible_objective": 2045.68830999162,
+      "current_feasible": false,
+      "best_candidate_id": "BASELINE"
+    },
+    {
+      "evaluation_index": 7,
+      "elapsed_time": 8.998322011088021,
+      "current_objective": null,
+      "best_feasible_objective": 2045.68830999162,
+      "current_feasible": false,
+      "best_candidate_id": "BASELINE"
+    },
+    {
+      "evaluation_index": 8,
+      "elapsed_time": 10.073525868123397,
+      "current_objective": null,
+      "best_feasible_objective": 2045.68830999162,
+      "current_feasible": false,
+      "best_candidate_id": "BASELINE"
+    }
+  ]
+}

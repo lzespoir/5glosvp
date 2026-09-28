@@ -1,0 +1,7 @@
+{
+  "status": "independently_verified",
+  "comparable": true,
+  "failed_checks": [],
+  "tamper_tests": "PASS",
+  "tamper_failures": []
+}

@@ -2,6 +2,7 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 
 import { PlatformLayout } from './layouts/PlatformLayout';
 import { AcceptancePage } from './pages/Acceptance';
+import { BenchmarkCenterPage } from './pages/BenchmarkCenter';
 import { AlgorithmsPage } from './pages/Algorithms';
 import { AlgorithmDetailPage } from './pages/Algorithms/AlgorithmDetail';
 import { IntegrationGuidePage } from './pages/Algorithms/IntegrationGuide';
@@ -24,6 +25,7 @@ export function App() {
         <Route path="overview" element={<OverviewPage />} />
         <Route path="scenarios" element={<ScenariosPage />} />
         <Route path="user-association" element={<UserAssociationPage />} />
+        <Route path="benchmarks" element={<BenchmarkCenterPage />} />
         <Route path="experiments" element={<ExperimentsPage />} />
         <Route path="experiments/:experimentId" element={<ExperimentDetailPage />} />
         <Route path="optimizations" element={<OptimizationsPage />} />

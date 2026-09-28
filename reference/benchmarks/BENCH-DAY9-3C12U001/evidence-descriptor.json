@@ -1,0 +1,19 @@
+{
+  "evidence_type": "algorithm_benchmark",
+  "benchmark_id": "BENCH-DAY9-3C12U001",
+  "protocol_id": "ALGORITHM_BENCHMARK_V0_1",
+  "protocol_hash": "abf31fc8a19efe47a792890757e0bf604e45bca41511efd3fbe38b4791cfd377",
+  "run_ids": [
+    "BRUN-ASSOCIATION-BASELINE-V0-1-R01",
+    "BRUN-RANDOM-SEARCH-V0-1-R01",
+    "BRUN-FIRST-IMPROVEMENT-LOCAL-SEARCH-V0-1-R01"
+  ],
+  "verified": true,
+  "comparison_eligible": true,
+  "comparison_reason": "same frozen protocol",
+  "acceptance_eligible": false,
+  "data_source": "simulation",
+  "provider": "nvidia_sionna",
+  "verification": "independent_verified",
+  "evidence_level": "simulation_evidence"
+}

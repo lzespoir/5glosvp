@@ -1,0 +1,71 @@
+[
+  {
+    "benchmark_run_id": "BRUN-ASSOCIATION-BASELINE-V0-1-R01",
+    "algorithm_id": "association_baseline_v0_1",
+    "algorithm_version": "0.1",
+    "category": "engineering_baseline",
+    "learning_algorithm": false,
+    "seed": 20260928,
+    "objective": 2045.6758506814976,
+    "network_throughput_mbps": 2045.6758506814976,
+    "average_ue_throughput_mbps": 170.47298755679148,
+    "p5_ue_throughput_mbps": 49.24711635053457,
+    "feasible": true,
+    "evaluations_used": 0,
+    "runtime": {
+      "optimizer_overhead_time": 5.7266840420197695,
+      "simulation_evaluation_time": 1.2000903250882402,
+      "total_wall_time": 6.92677436710801
+    },
+    "stop_reason": "completed",
+    "verification": "independent verification passed",
+    "comparison_eligible": true,
+    "comparison_reason": "same protocol/scenario/baseline/channel/objective/constraint/KPI/budget"
+  },
+  {
+    "benchmark_run_id": "BRUN-RANDOM-SEARCH-V0-1-R01",
+    "algorithm_id": "random_search_v0_1",
+    "algorithm_version": "0.1",
+    "category": "engineering_baseline",
+    "learning_algorithm": false,
+    "seed": 20260928,
+    "objective": 2045.6661443858347,
+    "network_throughput_mbps": 2045.6661443858347,
+    "average_ue_throughput_mbps": 170.47217869881956,
+    "p5_ue_throughput_mbps": 49.24081398086931,
+    "feasible": true,
+    "evaluations_used": 8,
+    "runtime": {
+      "optimizer_overhead_time": 1.6399551898939535,
+      "simulation_evaluation_time": 10.811195777147077,
+      "total_wall_time": 12.45115096704103
+    },
+    "stop_reason": "budget_exhausted",
+    "verification": "independent verification passed",
+    "comparison_eligible": true,
+    "comparison_reason": "same protocol/scenario/baseline/channel/objective/constraint/KPI/budget"
+  },
+  {
+    "benchmark_run_id": "BRUN-FIRST-IMPROVEMENT-LOCAL-SEARCH-V0-1-R01",
+    "algorithm_id": "first_improvement_local_search_v0_1",
+    "algorithm_version": "0.1",
+    "category": "classical_optimization",
+    "learning_algorithm": false,
+    "seed": 20260928,
+    "objective": 2045.68830999162,
+    "network_throughput_mbps": 2045.68830999162,
+    "average_ue_throughput_mbps": 170.474025832635,
+    "p5_ue_throughput_mbps": 49.24700482532627,
+    "feasible": true,
+    "evaluations_used": 8,
+    "runtime": {
+      "optimizer_overhead_time": 1.6527644268935546,
+      "simulation_evaluation_time": 10.073525868123397,
+      "total_wall_time": 11.726290295016952
+    },
+    "stop_reason": "budget_exhausted",
+    "verification": "independent verification passed",
+    "comparison_eligible": true,
+    "comparison_reason": "same protocol/scenario/baseline/channel/objective/constraint/KPI/budget"
+  }
+]
