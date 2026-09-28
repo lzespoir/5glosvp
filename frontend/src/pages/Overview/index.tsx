@@ -1,9 +1,9 @@
 import {
   ArrowRightOutlined,
-  AuditOutlined,
   ClusterOutlined,
   EnvironmentOutlined,
   FunctionOutlined,
+  NodeIndexOutlined,
 } from '@ant-design/icons';
 import { Badge, Button, Card, Col, Descriptions, Empty, Row, Skeleton, Space, Statistic, Table, Tag } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
@@ -27,8 +27,8 @@ const RECENT_LIMIT = 20;
 const QUICK_START: { titleZh: string; titleEn: string; desc: string; to: string | null; icon: ReactNode }[] = [
   { titleZh: '运行传播仿真', titleEn: 'Run Propagation Simulation', desc: 'Sionna RT 无线电地图', to: '/scenarios', icon: <EnvironmentOutlined /> },
   { titleZh: '运行系统仿真', titleEn: 'Run System Simulation', desc: '多 UE 下行吞吐率与网络 KPI', to: '/system', icon: <ClusterOutlined /> },
-  { titleZh: '运行参数优化', titleEn: 'Run Parameter Optimization', desc: '传播层目标函数网格搜索', to: '/optimizations', icon: <FunctionOutlined /> },
-  { titleZh: '验收验证', titleEn: 'Acceptance Validation', desc: '尚未开放', to: null, icon: <AuditOutlined /> },
+  { titleZh: '运行参数优化', titleEn: 'Run Parameter Optimization', desc: '传播层 / 系统级参数优化', to: '/optimizations', icon: <FunctionOutlined /> },
+  { titleZh: '算法中心', titleEn: 'Algorithm Center', desc: '算法目录、能力声明与接入说明', to: '/algorithms', icon: <NodeIndexOutlined /> },
 ];
 
 export const recentColumns: ColumnsType<ExperimentResponse> = [

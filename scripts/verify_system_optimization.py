@@ -61,6 +61,20 @@ def traffic_sha256(model: dict) -> str:
     return hashlib.sha256(json.dumps(model, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
 
 
+def in_space(definition: dict, value: float) -> bool:
+    """按参数定义独立检查取值（离散：属于候选值；连续：位于 bounds 内，含开闭区间）。"""
+    if not isinstance(value, (int, float)) or isinstance(value, bool) or not math.isfinite(value):
+        return False
+    if definition["type"] == "discrete" and value not in definition["choices"]:
+        return False
+    b = definition.get("bounds")
+    if b is None:
+        return True
+    above = value >= b["lower"] if b.get("lower_inclusive", True) else value > b["lower"]
+    below = value <= b["upper"] if b.get("upper_inclusive", True) else value < b["upper"]
+    return above and below
+
+
 def recompute_kpis(exp_dir: Path) -> tuple[dict[str, float], dict[str, float], dict]:
     """由 slot_trace.npz 独立复算 UE / 网络 / 平均 / P5 吞吐率。"""
     art = exp_dir / "artifacts"
@@ -96,11 +110,24 @@ def verify(opt_dir: Path, experiments_dir: Path) -> dict:
     check("baseline_exists", baseline is not None and baseline["status"] == "evaluated",
           baseline["candidate_id"] if baseline else "missing")
     check("candidates_exist", len(candidates) > 0, f"{len(candidates)} candidates")
-    check("candidate_count", len(candidates) == len(record["candidate_values"]),
-          f"{len(candidates)} vs candidate_values {record['candidate_values']}")
-    check("parameter_values", [c["parameters"][pid] for c in candidates] == record["candidate_values"]
-          and baseline["parameters"] == record["baseline_parameters"],
-          f"{pid}: baseline {baseline['parameters'][pid]}, candidates {[c['parameters'][pid] for c in candidates]}")
+    cand_values = [c["parameters"][pid] for c in candidates]
+    space = record.get("parameter_space")
+    budget = record.get("evaluation_budget")
+    if space is None:  # Day 6 记录：Grid Search 按候选列表逐个评价
+        check("candidate_count", len(candidates) == len(record["candidate_values"]),
+              f"{len(candidates)} vs candidate_values {record['candidate_values']}")
+        values_ok = cand_values == record["candidate_values"]
+    else:  # Day 7：候选由算法生成，必须位于参数空间内且不超过平台预算
+        (definition,) = [p for p in space["parameters"] if p["id"] == pid]
+        check("candidate_count", budget is not None and len(candidates) == budget["evaluations_used"]
+              <= budget["max_evaluations"],
+              f"{len(candidates)} candidates, budget used {budget and budget['evaluations_used']}"
+              f"/{budget and budget['max_evaluations']}")
+        values_ok = all(in_space(definition, v) for v in cand_values)
+        if definition["type"] == "discrete" and len(candidates) == len(definition["choices"]):
+            values_ok = values_ok and cand_values == definition["choices"]
+    check("parameter_values", values_ok and baseline["parameters"] == record["baseline_parameters"],
+          f"{pid}: baseline {baseline['parameters'][pid]}, candidates {cand_values}")
     ids = [c["candidate_id"] for c in evaluations]
     check("unique_candidate_ids", len(set(ids)) == len(ids), ", ".join(ids))
 
@@ -133,7 +160,8 @@ def verify(opt_dir: Path, experiments_dir: Path) -> dict:
             config = yaml.safe_load((exp_dir / "artifacts" / "config.yaml").read_text(encoding="utf-8"))
             kpis, per_ue, result = recompute_kpis(exp_dir)
             link = exp.get("evaluation_context") or {}
-            expected_cid = baseline["candidate_id"] if c.get("reused_baseline") else cid
+            expected_cid = c.get("reused_candidate_id") or (baseline["candidate_id"] if c.get("reused_baseline")
+                                                             else cid)
             check(f"{cid}.{exp_id}.experiment_link",
                   exp["optimization_id"] == opt_id and exp["optimization_candidate_id"] == expected_cid
                   and exp["status"] == "succeeded",
@@ -219,7 +247,8 @@ def verify(opt_dir: Path, experiments_dir: Path) -> dict:
     prov = record["provenance"]
     check("provenance", prov.get("measured") is False and prov.get("huawei_data") is False
           and prov.get("acceptance_evidence") is False and prov.get("learning_algorithm") is False
-          and prov.get("optimizer") == "grid_search" and prov.get("evaluation_context") == ctx["context_id"],
+          and prov.get("optimizer") == record["optimizer_id"]
+          and prov.get("evaluation_context") == ctx["context_id"],
           f"source_type={prov.get('source_type')} learning_algorithm={prov.get('learning_algorithm')}")
     check("not_test_fixture", prov.get("source_type") == "simulation" and prov.get("model_type") != "test_fixture",
           str(prov.get("model_type")))

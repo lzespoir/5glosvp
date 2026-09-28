@@ -37,8 +37,19 @@ export function SystemCandidateTable({ optimizationId, parameterId, baseline, ca
           {c.is_baseline && <Tag color="gold">Baseline</Tag>}
           {c.candidate_id === bestCandidateId && <Tag color="success">Best</Tag>}
           {c.reused_baseline && <Tag>Reused Baseline</Tag>}
+          {c.cache_hit && !c.reused_baseline && (
+            <Tooltip title="同一冻结上下文中已评价过相同参数：复用该评价，不重复仿真（仍消耗 1 次预算）">
+              <Tag color="cyan">Cache Hit → {c.reused_candidate_id}</Tag>
+            </Tooltip>
+          )}
         </>
       ),
+    },
+    {
+      title: '轮次 Round',
+      key: 'round',
+      align: 'right',
+      render: (_, c) => (c.is_baseline ? 0 : c.algorithm_round ?? '—'),
     },
     { title: `参数 ${parameterId}`, key: 'param', align: 'right', render: (_, c) => formatParameter(c.parameters[parameterId]) },
     {

@@ -24,8 +24,12 @@
   `SYSTEM_BENCHMARK_V0_1` 协议下比较 Sionna SYS 调度参数 `scheduler_beta` 的候选，基线与所有候选共享同一 UE 集合、同一信道实现（一次 RT，sha256 可复核）、
   同一业务与时隙数，目标 `NETWORK_THROUGHPUT_MAX_V0_1`，平均 / P5 UE 吞吐率作为次要 KPI 同时展示（负向变化不隐藏）。
   Fair system-level optimization: one frozen channel realization shared by baseline and all candidates, versioned objective and benchmark protocol.
+- **Day 7**：Algorithm Integration Framework V0.5 —— 平台负责问题、参数空间、评估预算、缓存、公平评价、Trace 与证据；算法只负责
+  `suggest → observe`。Algorithm SDK `0.1` + 静态注册表（Grid Search 适配为 `engineering_baseline`）+ 第一个科研算法接入位
+  `research_demo_optimizer`（自适应局部搜索，**接入验证用，不是学习算法、不是项目科研成果、不用于验收**），在同一冻结协议下真实运行 Sionna SYS。
+  Algorithm SDK, registry, parameter space, evaluation budget, cache, trace and evidence descriptor; a research demo slot proves the integration path.
 
-设计任务书：[`design/001.md`](design/001.md)（Day 1）、[`design/DAY1_FIX_and_DAY2_API.md`](design/DAY1_FIX_and_DAY2_API.md)（Day 1.1 + Day 2）、[`design/DAY3_FRONTEND.md`](design/DAY3_FRONTEND.md)（Day 3）、[`design/DAY4_OPTIMIZATION.md`](design/DAY4_OPTIMIZATION.md)（Day 4）、[`design/DAY5_SYSTEM_LEVEL_KPI.md`](design/DAY5_SYSTEM_LEVEL_KPI.md)（Day 5）、[`design/DAY6_SYSTEM_OPTIMIZATION.md`](design/DAY6_SYSTEM_OPTIMIZATION.md)（Day 6）。
+设计任务书：[`design/001.md`](design/001.md)（Day 1）、[`design/DAY1_FIX_and_DAY2_API.md`](design/DAY1_FIX_and_DAY2_API.md)（Day 1.1 + Day 2）、[`design/DAY3_FRONTEND.md`](design/DAY3_FRONTEND.md)（Day 3）、[`design/DAY4_OPTIMIZATION.md`](design/DAY4_OPTIMIZATION.md)（Day 4）、[`design/DAY5_SYSTEM_LEVEL_KPI.md`](design/DAY5_SYSTEM_LEVEL_KPI.md)（Day 5）、[`design/DAY6_SYSTEM_OPTIMIZATION.md`](design/DAY6_SYSTEM_OPTIMIZATION.md)（Day 6）、[`design/DAY7_ALGORITHM_INTERGRATION.md`](design/DAY7_ALGORITHM_INTERGRATION.md)（Day 7）。
 
 ## 当前能力 / Current Capabilities
 
@@ -35,12 +39,14 @@
 | 参数优化 Optimization（Grid Search，传播层目标函数） | ✓ |
 | 系统级仿真 System-Level Simulation（Sionna SYS，多 UE 下行吞吐率 KPI） | ✓ |
 | 系统级优化 System Optimization（Grid Search，冻结公平评价协议） | ✓ |
+| 算法接入 Algorithm Integration（SDK 0.1、注册表、参数空间、预算、缓存、Trace、证据描述符） | ✓ |
+| 项目科研 / 学习优化算法 Research / Learning Algorithm | Not Yet（仅有接入验证用 Research Demo） |
 | 实测数据验证 Measured Data Validation | Not Yet |
 | 验收 KPI Acceptance KPI | Not Yet |
 
 ## 当前状态 / Current Status
 
-**Day 1 技术探针 + Day 1.1 修复 + Day 2 Experiment API + Day 3 Web 前端 V0.1 + Day 4 Optimization Loop V0.2 + Day 5 System-Level KPI V0.3 + Day 6 System Optimization V0.4：完成 / DONE**
+**Day 1 技术探针 + Day 1.1 修复 + Day 2 Experiment API + Day 3 Web 前端 V0.1 + Day 4 Optimization Loop V0.2 + Day 5 System-Level KPI V0.3 + Day 6 System Optimization V0.4 + Day 7 Algorithm Integration V0.5：完成 / DONE**
 
 | 项目 / Item | 值 / Value |
 | --- | --- |
@@ -429,6 +435,46 @@ python scripts/verify_system_optimization.py OPT-XXXXXXXX --out verification.jso
 python scripts/export_system_optimization_reference.py OPT-XXXXXXXX   # → reference/system_optimization/OPT-XXXXXXXX/
 ```
 
+### 算法接入 API / Algorithm Integration API（Day 7）
+
+| Method | Path | 说明 |
+| --- | --- | --- |
+| GET | `/api/v1/algorithms` | 注册表中的算法（metadata、capabilities、`sdk_version`、category、`learning_algorithm`、`acceptance_eligible`） |
+| GET | `/api/v1/algorithms/{id}` | 详情：超参数 schema（与网络变量分离）、推荐配置、使用限制；未知 id → 404 `ALGORITHM_NOT_FOUND` |
+| POST | `/api/v1/algorithms/{id}/validate` | 算法—问题兼容性：不兼容 200 + `compatible=false` + 错误代码；参数空间本身无效 422 |
+| GET | `/api/v1/evidence` | 证据描述符：`verification_status`（`verified` 仅指独立复核）与 `acceptance_eligible`（当前恒为 false，附原因） |
+| POST | `/api/v1/system-optimizations` | 新增 `algorithm_id`、`parameter_space`、`algorithm_hyperparameters`、`evaluation_budget`；不兼容 → 422（如 `ALGORITHM_PARAMETER_TYPE_NOT_SUPPORTED`）。Day 6 请求（`optimizer_id` + `candidate_values`）保持兼容 |
+
+```bash
+curl -X POST http://127.0.0.1:8000/api/v1/system-optimizations -H 'Content-Type: application/json' -d '{
+  "problem_type": "system", "name": "research demo", "scenario_id": "SYSTEM-DEMO-001",
+  "algorithm_id": "research_demo_optimizer", "objective_id": "NETWORK_THROUGHPUT_MAX_V0_1",
+  "parameter_space": {"parameters": [{"id": "scheduler_beta", "type": "continuous", "bounds": [0.05, 0.99]}]},
+  "algorithm_hyperparameters": {}, "evaluation_budget": {"max_evaluations": 8},
+  "benchmark_protocol_id": "SYSTEM_BENCHMARK_V0_1"}'
+```
+
+执行流程（`AlgorithmDriver`，ask/tell）：`should_stop` → 剩余预算 → `suggest` → 超出预算的建议记为 rejected → 参数空间校验 →
+平台评估（缓存键 = 上下文哈希 + 参数 + 后端版本；缓存命中也消耗预算，基线不计）→ `observe` → 记录 Trace 轮次。
+停止原因：`completed` / `converged` / `max_iterations` / `no_improvement` / `budget_exhausted` / `failed` / `cancelled`。最优由平台按目标选出，
+算法推荐（recommendation）单独记录并标注是否与平台最优一致。算法不能访问 Sionna、KPI 引擎或仓库，不能绕过预算。
+
+新增产物：`algorithm-metadata.json`、`parameter-space.json`、`algorithm-config.json`、`algorithm-trace.json`、`evidence-descriptor.json`。
+
+文档：[`docs/algorithms/algorithm-integration-contract-v0.1.md`](docs/algorithms/algorithm-integration-contract-v0.1.md)、
+[`docs/algorithms/how-to-integrate-an-algorithm.md`](docs/algorithms/how-to-integrate-an-algorithm.md)、
+[`src/algorithms/examples/research_demo_optimizer/README.md`](src/algorithms/examples/research_demo_optimizer/README.md)。
+
+独立复核（在 Day 6 复核之上重算缓存键、配置哈希、预算、Trace，并独立重放 Research Demo / Grid 的决策；不 import `src/`）：
+
+```bash
+python scripts/verify_algorithm_run.py OPT-XXXXXXXX --out verification.json
+python scripts/export_algorithm_reference.py OPT-XXXXXXXX   # → reference/algorithm_integration/OPT-XXXXXXXX/
+```
+
+前端：算法中心（目录、详情、接入指南 `/algorithms/guide`）、创建流程从注册表选择算法（连续 / 离散参数空间编辑、Recommended / Advanced、
+即时兼容性反馈）、详情页 Algorithm 卡片与 Algorithm Trace（Grid 仍显示 Candidate History，不画伪收敛曲线）、验收中心诚实占位（离散状态，无百分比）。
+
 ## 输出 / Outputs
 
 ### CLI：`outputs/EXP-XXXXXXXX/`
@@ -511,6 +557,7 @@ data/experiments/
 
 - [`reference/day6_horizon_study/`](reference/day6_horizon_study/README.md)：Day 6 Horizon Study（200/500/1000 slots，warm-up，确定性，RT 漂移），`SYSTEM_BENCHMARK_V0_1` 的依据。
 - [`reference/system_optimization/`](reference/system_optimization/)：从浏览器运行的真实系统级优化（`README.md`、`optimization.json`、`evaluation-context.json`、`benchmark-protocol.json`、`candidate-summary.json`、`verification.json`、图与截图）。Optimizer：Grid Search；Learning Algorithm：No。
+- [`reference/algorithm_integration/`](reference/algorithm_integration/)：从浏览器运行的真实 Research Demo 算法接入（`README.md`、`algorithm-metadata.json`、`parameter-space.json`、`algorithm-config.json`、`algorithm-trace.json`、`optimization.json`、`evaluation-context.json`、`evidence-descriptor.json`、`verification.json`、截图）。Algorithm：Research Demo Optimizer；Learning Algorithm：No；Project Research Deliverable：No。
 
 类型：Simulation Generated；Measured Data：NO；Huawei Data：NO；Acceptance Evidence：NO。
 
@@ -554,6 +601,9 @@ data/experiments/
 - **系统级优化**：只有一个优化变量（`scheduler_beta`）、一个场景、一个信道实现；`SYSTEM_BENCHMARK_V0_1` 下 500 slots 的绝对 KPI 相对 1000 slots 仍有至多 3.2% 偏差；
   observed variability 6.9% 来自 3 次运行，是经验界而非置信区间。不同优化运行各自做一次 RT，彼此之间的差异可能来自 RT 漂移，不能当作优化收益。
   一次参考运行（基线 + 4 个 SYS 评估 × 500 slots）在 CPU 上约 7–9 分钟；后台线程执行，进程重启时未完成的运行标记为 `INTERRUPTED`。
+- **算法接入 V0.5**：注册表为静态（无动态插件 / 上传）；只支持单变量问题与 continuous / discrete 参数；每次评估串行；评估缓存只在同一公共评估上下文内有效
+  （不跨运行复用）。Research Demo 是确定性局部搜索，只用于证明接入链路，不要求优于 Grid Search；Trace 中的 best-so-far 不代表收敛性结论。
+  验收中心仅为占位，`acceptance_eligible` 恒为 false。
 
 ## 下一步 / Next Step
 
@@ -571,6 +621,13 @@ Day 6 新增冻结概念：`SearchProblem`（优化器与问题类型解耦）�
 
 **Day 7 Ready**：学习优化算法可作为新的 `Optimizer`（`supported_problem_types` 含 `system`）接入同一 `SearchProblem` / 公共评估上下文 / 冻结协议，
 与 Grid Search 基线在相同条件下对比。验收中心、边缘用户速率验收口径、RSRP 与实测数据验证仍未实现。
+
+Day 7 新增冻结概念：Algorithm SDK `0.1`（`AlgorithmMetadata`、`AlgorithmCapabilities`、`HyperparameterDefinition`、`Algorithm`
+生命周期 `initialize / suggest / observe / should_stop / finalize / state_metadata`）、`AlgorithmRegistry`、`ParameterSpace`、`EvaluationBudget`、
+`AlgorithmDriver`、`AlgorithmTrace` 与 `StopReason`、评估缓存键、`EvidenceDescriptor`（verification ≠ acceptance）。
+
+**Day 8 Ready**：Day 8 的用户关联（user association）问题可作为新的问题类型 / 参数空间接入，现有算法经兼容性检查后复用同一 Driver、预算、缓存、
+Trace 与证据链；Day 8 功能本身与验收 KPI 判定未在 Day 7 实现。
 
 ## 目录结构 / Repository Layout
 
@@ -590,10 +647,12 @@ Day 6 新增冻结概念：`SearchProblem`（优化器与问题类型解耦）�
 │   ├── day5_spike/          # 系统级技术探针
 │   ├── system/              # EXP-XXXXXXXX/ 系统级参考证据 + screenshots/
 │   ├── day6_horizon_study/  # SYSTEM_BENCHMARK_V0_1 依据
-│   └── system_optimization/ # OPT-XXXXXXXX/ 系统级优化参考证据 + screenshots/
+│   ├── system_optimization/ # OPT-XXXXXXXX/ 系统级优化参考证据 + screenshots/
+│   └── algorithm_integration/ # OPT-XXXXXXXX/ 算法接入参考证据 + screenshots/
 ├── docs/objectives/         # 目标函数定义（版本化）
 ├── docs/benchmark/          # 评价协议（版本化）
 ├── docs/kpi/                # KPI 定义（版本化）
+├── docs/algorithms/         # 算法接入契约与接入指南
 ├── docs/system/  docs/architecture/  docs/assumptions.md
 ├── frontend/
 │   ├── package.json  vite.config.ts  tsconfig.json  index.html
@@ -603,7 +662,8 @@ Day 6 新增冻结概念：`SearchProblem`（优化器与问题类型解耦）�
 │       │                 RuntimePanel, RuntimeChart, ProvenancePanel, StatusTimeline, ArtifactsPanel, ErrorState,
 │       │                 ObjectiveHistoryChart, SystemModelBadge, NetworkView, UeThroughputChart)
 │       └── pages/       (Overview, Scenarios, System, SystemExperimentDetail, Optimizations, OptimizationDetail,
-│                         SystemOptimizationDetail, Experiments, ExperimentDetail, ComingSoon)
+│                         SystemOptimizationDetail, Experiments, ExperimentDetail, Algorithms, Acceptance,
+│                         ComingSoon)
 ├── src/
 │   ├── simulation/
 │   │   ├── base.py  models.py  errors.py  registry.py
@@ -621,11 +681,17 @@ Day 6 新增冻结概念：`SearchProblem`（优化器与问题类型解耦）�
 │   │   └── objectives/propagation_utility.py
 │   ├── system_optimization/
 │   │   ├── models.py  objectives.py  parameters.py  protocols.py  context.py
-│   │   └── service.py  store.py  artifacts.py  errors.py
+│   │   └── service.py  store.py  artifacts.py  errors.py  cache.py  evidence.py
+│   ├── algorithms/
+│   │   ├── sdk.py  registry.py  parameter_space.py  compatibility.py  driver.py  trace.py  errors.py
+│   │   ├── builtin/grid_search.py
+│   │   └── examples/research_demo_optimizer/
+│   ├── evidence/models.py
 │   └── api/
 │       ├── app.py  main.py  settings.py  schemas.py  optimization_schemas.py  system_schemas.py
-│       │   system_optimization_schemas.py  errors.py  deps.py
-│       └── routes/  (health.py, scenarios.py, experiments.py, optimizations.py, system.py, system_optimization.py)
+│       │   system_optimization_schemas.py  algorithm_schemas.py  errors.py  deps.py
+│       └── routes/  (health.py, scenarios.py, experiments.py, optimizations.py, system.py, system_optimization.py,
+│                     algorithms.py)
 ├── scripts/
 │   ├── check_environment.py
 │   ├── run_sionna_demo.py
@@ -636,7 +702,9 @@ Day 6 新增冻结概念：`SearchProblem`（优化器与问题类型解耦）�
 │   ├── export_system_reference.py
 │   ├── day6_horizon_study.py
 │   ├── verify_system_optimization.py
-│   └── export_system_optimization_reference.py
+│   ├── export_system_optimization_reference.py
+│   ├── verify_algorithm_run.py
+│   └── export_algorithm_reference.py
 ├── tests/
 │   ├── conftest.py
 │   ├── test_models.py
@@ -651,6 +719,7 @@ Day 6 新增冻结概念：`SearchProblem`（优化器与问题类型解耦）�
 │   ├── test_api_system.py
 │   ├── test_system_sionna.py
 │   ├── test_system_optimization.py  test_api_system_optimization.py  test_verify_system_optimization.py
-│   └── test_system_optimization_sionna.py
+│   ├── test_system_optimization_sionna.py
+│   └── test_algorithms.py  test_algorithm_integration.py  test_api_algorithms.py  test_verify_algorithm_run.py
 └── outputs/.gitkeep
 ```

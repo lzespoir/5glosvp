@@ -128,5 +128,5 @@ def test_invalid_request(client):
 
 
 def test_propagation_routes_unaffected(client):
-    assert client.get(f"{API}/health").json()["version"] == "0.4.0"
+    assert client.get(f"{API}/health").json()["version"] == "0.5.0"
     assert client.get(f"{API}/experiments").status_code == 200

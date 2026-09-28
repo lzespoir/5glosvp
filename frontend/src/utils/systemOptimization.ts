@@ -153,3 +153,15 @@ export function boundsText(def: ParameterDefinition): string {
   if (!b) return EMPTY;
   return `${b.lower_inclusive ? '[' : '('}${b.lower}, ${b.upper}${b.upper_inclusive ? ']' : ')'}`;
 }
+
+/** 迭代算法（有 trace 且不是工程基线）显示 Algorithm Trace；Grid Search 保持 Candidate History。 */
+export function isIterativeRun(r: SystemOptimizationResponse): boolean {
+  return !!r.algorithm_trace && !!r.algorithm && r.algorithm.algorithm_category !== 'engineering_baseline';
+}
+
+export function parameterSpaceText(r: SystemOptimizationResponse): string {
+  const def = r.parameter_space?.parameters.find((p) => p.id === r.parameter.id);
+  if (!def) return r.candidate_values.join(', ');
+  if (def.type === 'discrete') return `离散 Discrete {${(def.choices ?? []).join(', ')}}`;
+  return `${def.type === 'continuous' ? '连续 Continuous' : def.type} ${boundsText(def)}`;
+}

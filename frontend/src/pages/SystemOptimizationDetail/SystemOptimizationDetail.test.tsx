@@ -2,6 +2,7 @@ import { fireEvent, screen, within } from '@testing-library/react';
 import type { AxiosResponse } from 'axios';
 
 import { apiClient } from '../../api/client';
+import { fixtureDemoOptimization } from '../../test/algorithmFixtures';
 import { renderWithProviders } from '../../test/render';
 import { fixtureSystemOptimization, OPT_ID } from '../../test/systemOptimizationFixtures';
 import type { SystemOptimizationResponse } from '../../types/systemOptimization';
@@ -9,6 +10,7 @@ import { SystemOptimizationDetailPage } from './index';
 
 vi.mock('./CandidateHistoryChart', () => ({ CandidateHistoryChart: () => <div data-testid="history-chart" /> }));
 vi.mock('./PerUeComparison', () => ({ PerUeComparison: () => <div data-testid="per-ue" /> }));
+vi.mock('./AlgorithmTraceChart', () => ({ AlgorithmTraceChart: () => <div data-testid="trace-chart" /> }));
 
 const FORBIDDEN = ['5G 网络性能提升', '项目指标提升', '现网提升'];
 
@@ -93,5 +95,35 @@ describe('SystemOptimizationDetailPage', () => {
     renderDetail(fixtureSystemOptimization());
     expect(await screen.findByText(OPT_ID)).toBeTruthy();
     expect(screen.getAllByText(/SYSTEM_BENCHMARK_V0_1 v0.1/).length).toBeGreaterThan(0);
+  });
+
+  it('Research Demo: algorithm panel, budget, stop reason, trace rounds and evidence (not acceptance)', async () => {
+    const { container } = renderDetail(fixtureDemoOptimization());
+    const panel = await screen.findByTestId('algorithm-run-panel');
+    expect(within(panel).getByText('Research Demo Optimizer（自适应局部搜索）')).toBeTruthy();
+    expect(within(panel).getByText('Not Learning Algorithm')).toBeTruthy();
+    expect(within(panel).getByText('Not Project Research Deliverable')).toBeTruthy();
+    expect(within(panel).getByText('initial_step = 0.2')).toBeTruthy();
+    expect(screen.getByTestId('evaluation-budget').textContent).toContain('2 / 2');
+    expect(screen.getByTestId('stop-reason').textContent).toContain('Budget Exhausted');
+    expect(screen.getByTestId('algorithm-trace')).toBeTruthy();
+    expect(screen.getByTestId('trace-chart')).toBeTruthy();
+    const rounds = screen.getByTestId('algorithm-trace-table');
+    expect(within(rounds).getByText('move 0.9 → 0.7 (improved)')).toBeTruthy();
+    const evidence = screen.getByTestId('evidence-panel');
+    expect(within(evidence).getByText('Platform Checks Passed')).toBeTruthy();
+    expect(within(evidence).getByText('接入验证算法 Integration demo')).toBeTruthy();
+    expect(screen.getByText(/不是项目科研成果/)).toBeTruthy();
+    expect(screen.queryByText('Candidate History')).toBeNull();
+    for (const phrase of ['AI Optimizer', 'Intelligent Optimizer', 'Learning Optimizer']) {
+      expect(container.textContent).not.toContain(phrase);
+    }
+  });
+
+  it('Grid Search keeps Candidate History and shows no algorithm trace', async () => {
+    renderDetail(fixtureSystemOptimization());
+    expect(await screen.findByText('Candidate History')).toBeTruthy();
+    expect(screen.queryByTestId('algorithm-trace')).toBeNull();
+    expect(screen.getByTestId('algorithm-run-panel').textContent).toContain('Day 6');
   });
 });

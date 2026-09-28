@@ -15,6 +15,7 @@ from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
+from algorithms import AlgorithmCompatibilityError, AlgorithmNotFoundError
 from experiments import ArtifactNotFoundError, ExperimentNotFoundError, ScenarioNotFoundError
 from optimization import (
     InvalidParameterSpaceError,
@@ -72,6 +73,14 @@ class ErrorCode(str, Enum):
     BENCHMARK_PROTOCOL_NOT_FOUND = "BENCHMARK_PROTOCOL_NOT_FOUND"
     SYSTEM_OPTIMIZATION_BUSY = "SYSTEM_OPTIMIZATION_BUSY"
     UNSUPPORTED_PROBLEM_TYPE = "UNSUPPORTED_PROBLEM_TYPE"
+    ALGORITHM_NOT_FOUND = "ALGORITHM_NOT_FOUND"
+    ALGORITHM_PROBLEM_TYPE_NOT_SUPPORTED = "ALGORITHM_PROBLEM_TYPE_NOT_SUPPORTED"
+    ALGORITHM_PARAMETER_TYPE_NOT_SUPPORTED = "ALGORITHM_PARAMETER_TYPE_NOT_SUPPORTED"
+    ALGORITHM_PARAMETER_COUNT_NOT_SUPPORTED = "ALGORITHM_PARAMETER_COUNT_NOT_SUPPORTED"
+    ALGORITHM_CONSTRAINTS_NOT_SUPPORTED = "ALGORITHM_CONSTRAINTS_NOT_SUPPORTED"
+    ALGORITHM_MULTI_OBJECTIVE_NOT_SUPPORTED = "ALGORITHM_MULTI_OBJECTIVE_NOT_SUPPORTED"
+    INVALID_HYPERPARAMETER = "INVALID_HYPERPARAMETER"
+    INVALID_EVALUATION_BUDGET = "INVALID_EVALUATION_BUDGET"
 
 
 # code → (HTTP status, 中文, English)
@@ -106,6 +115,22 @@ _ERRORS: dict[ErrorCode, tuple[int, str, str]] = {
         409, "已有系统级优化正在运行，请稍后重试", "Another system optimization is running; retry later"
     ),
     ErrorCode.UNSUPPORTED_PROBLEM_TYPE: (422, "优化器不支持该问题类型", "Optimizer does not support this problem type"),
+    ErrorCode.ALGORITHM_NOT_FOUND: (404, "算法不存在", "Algorithm not found"),
+    ErrorCode.ALGORITHM_PROBLEM_TYPE_NOT_SUPPORTED: (
+        422, "算法不支持该问题类型", "Algorithm does not support this problem type"
+    ),
+    ErrorCode.ALGORITHM_PARAMETER_TYPE_NOT_SUPPORTED: (
+        422, "算法不支持该参数类型", "Algorithm does not support this parameter type"
+    ),
+    ErrorCode.ALGORITHM_PARAMETER_COUNT_NOT_SUPPORTED: (
+        422, "参数数量超出算法支持范围", "Too many parameters for this algorithm"
+    ),
+    ErrorCode.ALGORITHM_CONSTRAINTS_NOT_SUPPORTED: (422, "算法不支持参数约束", "Algorithm does not support constraints"),
+    ErrorCode.ALGORITHM_MULTI_OBJECTIVE_NOT_SUPPORTED: (
+        422, "算法不支持多目标", "Algorithm does not support multiple objectives"
+    ),
+    ErrorCode.INVALID_HYPERPARAMETER: (422, "算法超参数无效", "Invalid algorithm hyperparameter"),
+    ErrorCode.INVALID_EVALUATION_BUDGET: (422, "评价预算无效", "Invalid evaluation budget"),
 }
 
 
@@ -138,6 +163,7 @@ _EXCEPTION_CODES: list[tuple[type[Exception], ErrorCode]] = [
     (BenchmarkProtocolNotFoundError, ErrorCode.BENCHMARK_PROTOCOL_NOT_FOUND),
     (SystemOptimizationBusyError, ErrorCode.SYSTEM_OPTIMIZATION_BUSY),
     (UnsupportedProblemTypeError, ErrorCode.UNSUPPORTED_PROBLEM_TYPE),
+    (AlgorithmNotFoundError, ErrorCode.ALGORITHM_NOT_FOUND),
 ]
 
 
@@ -149,6 +175,12 @@ def install_error_handlers(app: FastAPI) -> None:
             return error_response(_code, {"reason": str(exc)})
 
         app.add_exception_handler(exc_type, _handler)
+
+    @app.exception_handler(AlgorithmCompatibilityError)
+    def _incompatible(request: Request, exc: AlgorithmCompatibilityError) -> JSONResponse:
+        code = ErrorCode(exc.code.value)
+        logger.info("%s %s -> %s: %s", request.method, request.url.path, code.value, exc)
+        return error_response(code, {"reason": str(exc), "errors": [e.model_dump(mode="json") for e in exc.errors]})
 
     @app.exception_handler(RequestValidationError)
     def _validation(request: Request, exc: RequestValidationError) -> JSONResponse:

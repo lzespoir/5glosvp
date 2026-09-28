@@ -8,7 +8,7 @@ from typing import Any
 import yaml
 
 from evaluation.kpi import default_kpi_registry
-from optimization import default_optimizer_registry
+from algorithms import default_algorithm_registry
 from system_optimization import (
     BenchmarkProtocolRegistry,
     FileSystemOptimizationStore,
@@ -97,7 +97,7 @@ def fake_registry(bits_scale=beta_tradeoff_scale, capabilities=None, fail_beta: 
     return registry
 
 
-def make_optimization_service(tmp_path, registry=None, protocol=None, **scenario_overrides: Any):
+def make_optimization_service(tmp_path, registry=None, protocol=None, algorithms=None, **scenario_overrides: Any):
     write_scenario(tmp_path / "configs", **scenario_overrides)
     experiments = SystemExperimentService(
         store=FileSystemExperimentStore(tmp_path / "system_experiments"),
@@ -109,7 +109,7 @@ def make_optimization_service(tmp_path, registry=None, protocol=None, **scenario
     return SystemOptimizationService(
         experiments=experiments,
         store=FileSystemOptimizationStore(tmp_path / "system_optimizations"),
-        optimizers=default_optimizer_registry(),
+        algorithms=algorithms or default_algorithm_registry(),
         objectives=default_system_objective_registry(),
         protocols=BenchmarkProtocolRegistry([protocol or make_test_protocol()]),
         parameters=default_system_parameter_catalog(),

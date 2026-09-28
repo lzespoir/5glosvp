@@ -21,8 +21,8 @@ export default defineConfig(({ mode }) => {
       proxy: { '/api': { target: proxyTarget, changeOrigin: true } },
     },
     build: {
-      // antd 单库压缩后约 1.1 MB，无法再拆分
-      chunkSizeWarningLimit: 1200,
+      // antd 单库压缩后约 1.2 MB，无法再拆分
+      chunkSizeWarningLimit: 1300,
       rolldownOptions: {
         output: {
           codeSplitting: {

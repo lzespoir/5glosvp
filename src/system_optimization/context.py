@@ -161,7 +161,7 @@ def fairness_report(
     experiments: dict[str, SystemExperimentRecord],
 ) -> FairnessReport:
     """基线与全部成功候选是否在同一冻结条件下评价（失败候选不参与比较，不计入）。"""
-    evaluated = [c for c in evaluations if c.fairness is not None and not c.reused_baseline]
+    evaluated = [c for c in evaluations if c.fairness is not None and not c.reused]
     ev = [c.fairness for c in evaluated if c.fairness is not None]
     ctx_gain = context.channel_realization.mean_channel_gain_db
     horizon = context.simulation_horizon

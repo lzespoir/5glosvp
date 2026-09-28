@@ -5,6 +5,7 @@ import {
   EnvironmentOutlined,
   ExperimentOutlined,
   FunctionOutlined,
+  NodeIndexOutlined,
 } from '@ant-design/icons';
 import { Alert, Badge, Layout, Menu, Space, Tooltip } from 'antd';
 import type { MenuProps } from 'antd';
@@ -31,12 +32,14 @@ const NAV_ITEMS: NonNullable<MenuProps['items']> = [
   { key: '/scenarios', icon: <EnvironmentOutlined />, label: navLabel('场景中心', 'Scenario Center') },
   { key: '/system', icon: <ClusterOutlined />, label: navLabel('系统级仿真', 'System Simulation') },
   { key: '/optimizations', icon: <FunctionOutlined />, label: navLabel('优化中心', 'Optimization Center') },
+  { key: '/algorithms', icon: <NodeIndexOutlined />, label: navLabel('算法中心', 'Algorithm Center') },
   { key: '/experiments', icon: <ExperimentOutlined />, label: navLabel('实验中心', 'Experiment Center') },
   { key: '/acceptance', icon: <AuditOutlined />, label: navLabel('验收中心', 'Acceptance Center') },
 ];
 
 function selectedNavKey(pathname: string): string {
-  const match = ['/overview', '/scenarios', '/system', '/optimizations', '/experiments', '/acceptance'].find((k) =>
+  const keys = ['/overview', '/scenarios', '/system', '/optimizations', '/algorithms', '/experiments', '/acceptance'];
+  const match = keys.find((k) =>
     pathname.startsWith(k),
   );
   return match ?? '/overview';

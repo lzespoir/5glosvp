@@ -2,15 +2,17 @@
 
 from __future__ import annotations
 
-from typing import Literal
+from typing import Any, Literal, assert_never
 from urllib.parse import quote
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
-from optimization.base import Optimizer
+from algorithms import AlgorithmCategory, AlgorithmMetadata, HyperparameterDefinition
+from evidence import EvidenceDescriptor
 from optimization.models import Direction
+from optimization.optimizers.grid_search import GRID_SEARCH_ID
 from optimization.parameters import ParameterDefinition
-from system_optimization.models import BenchmarkProtocol, SystemOptimizationRecord
+from system_optimization.models import BenchmarkProtocol, ParameterSpec, SystemOptimizationRecord
 from system_optimization.objectives import SystemObjective
 from system_optimization.parameters import SystemParameter
 
@@ -24,26 +26,51 @@ OPTIMIZER_NOTICE_ZH = "Grid Search 为工程基线优化器，不属于项目学
 OPTIMIZER_NOTICE_EN = (
     "Grid Search is an engineering baseline optimizer, not the project's learning optimization algorithm."
 )
+RESEARCH_DEMO_NOTICE_ZH = "Research Demo Optimizer 为算法接入验证算法，不是项目科研成果，也不是学习优化算法。"
+RESEARCH_DEMO_NOTICE_EN = (
+    "Research Demo Optimizer is an algorithm-integration validation algorithm; it is neither a project research "
+    "deliverable nor a learning optimization algorithm."
+)
+RESEARCH_NOTICE_ZH = "科研算法结果仍为仿真验证结果，不构成验收结论。"
+RESEARCH_NOTICE_EN = "Research algorithm results are simulation validation results, not acceptance conclusions."
+
+
+def algorithm_notice(category: AlgorithmCategory) -> tuple[str, str]:
+    match category:
+        case AlgorithmCategory.ENGINEERING_BASELINE:
+            return OPTIMIZER_NOTICE_ZH, OPTIMIZER_NOTICE_EN
+        case AlgorithmCategory.RESEARCH_DEMO:
+            return RESEARCH_DEMO_NOTICE_ZH, RESEARCH_DEMO_NOTICE_EN
+        case AlgorithmCategory.RESEARCH | AlgorithmCategory.EXTERNAL:
+            return RESEARCH_NOTICE_ZH, RESEARCH_NOTICE_EN
+        case _:
+            assert_never(category)
+
+
+def record_category(r: SystemOptimizationRecord) -> AlgorithmCategory:
+    if r.algorithm is not None:
+        return r.algorithm.algorithm_category
+    return AlgorithmCategory(r.provenance.get("optimizer_category", AlgorithmCategory.ENGINEERING_BASELINE.value))
 
 
 class SystemOptimizerView(BaseModel):
     id: str
     name_zh: str
     name_en: str
-    category: str
+    version: str
+    category: AlgorithmCategory
     learning_algorithm: bool
     description_zh: str
     description_en: str
     supported_problem_types: list[str]
-    hyperparameters: list[ParameterDefinition]
+    hyperparameters: list[HyperparameterDefinition]
 
     @classmethod
-    def from_optimizer(cls, o: Optimizer) -> SystemOptimizerView:
-        i = o.info
-        return cls(id=i.id, name_zh=i.name_zh, name_en=i.name_en, category=i.category,
-                   learning_algorithm=i.learning_algorithm, description_zh=i.description_zh,
-                   description_en=i.description_en, supported_problem_types=list(i.supported_problem_types),
-                   hyperparameters=list(i.hyperparameters))
+    def from_metadata(cls, m: AlgorithmMetadata) -> SystemOptimizerView:
+        return cls(id=m.algorithm_id, name_zh=m.name_zh, name_en=m.name_en, version=m.version, category=m.category,
+                   learning_algorithm=m.learning_algorithm, description_zh=m.description_zh,
+                   description_en=m.description_en, supported_problem_types=list(m.supported_problem_types),
+                   hyperparameters=list(m.hyperparameter_schema))
 
 
 class SystemObjectiveView(BaseModel):
@@ -83,12 +110,16 @@ class SystemParameterView(BaseModel):
     affects_propagation: bool
     recommended_values: list[float]
     recommended_values_source: str
+    recommended_search_bounds: list[float]
+    recommended_search_bounds_source: str
 
     @classmethod
     def from_parameter(cls, p: SystemParameter) -> SystemParameterView:
         return cls(definition=p.definition, affects_propagation=p.affects_propagation,
                    recommended_values=list(p.recommended_values),
-                   recommended_values_source=p.recommended_values_source)
+                   recommended_values_source=p.recommended_values_source,
+                   recommended_search_bounds=list(p.recommended_search_bounds),
+                   recommended_search_bounds_source=p.recommended_search_bounds_source)
 
 
 class SystemOptimizerList(BaseModel):
@@ -104,19 +135,51 @@ class SystemParameterList(BaseModel):
 
 
 class ParameterSelection(BaseModel):
+    """Day 6 兼容字段：一个参数 + Grid Search 候选值。"""
+
     id: str = Field(description="Optimization variable id, e.g. scheduler_beta")
     candidate_values: list[float] = Field(min_length=1, description="Grid Search candidate values")
+
+
+class ParameterSpaceRequest(BaseModel):
+    parameters: list[ParameterSpec] = Field(min_length=1)
+
+
+class EvaluationBudgetRequest(BaseModel):
+    max_evaluations: int = Field(description="Platform-enforced number of candidate evaluations (baseline excluded)")
 
 
 class SystemOptimizationCreateRequest(BaseModel):
     problem_type: Literal["system"] = "system"
     name: str = Field(min_length=1, max_length=120)
     scenario_id: str
-    optimizer_id: str = "grid_search"
+    algorithm_id: str | None = None
+    algorithm_hyperparameters: dict[str, Any] = Field(default_factory=dict)
+    parameter_space: ParameterSpaceRequest | None = None
+    evaluation_budget: EvaluationBudgetRequest | None = None
     objective_id: str
-    parameter: ParameterSelection
     benchmark_protocol_id: str
     backend_id: str | None = None
+    # Day 6 兼容字段
+    optimizer_id: str | None = None
+    parameter: ParameterSelection | None = None
+
+    @model_validator(mode="after")
+    def _check(self) -> SystemOptimizationCreateRequest:
+        if (self.parameter is None) == (self.parameter_space is None):
+            raise ValueError("provide exactly one of parameter_space or (legacy) parameter")
+        if self.algorithm_id and self.optimizer_id and self.algorithm_id != self.optimizer_id:
+            raise ValueError("algorithm_id and legacy optimizer_id disagree")
+        return self
+
+    def resolved_algorithm_id(self) -> str:
+        return self.algorithm_id or self.optimizer_id or GRID_SEARCH_ID
+
+    def resolved_parameter_space(self) -> list[ParameterSpec]:
+        if self.parameter_space is not None:
+            return list(self.parameter_space.parameters)
+        assert self.parameter is not None
+        return [ParameterSpec(id=self.parameter.id, type="discrete", choices=list(self.parameter.candidate_values))]
 
 
 class SystemOptimizationArtifactView(BaseModel):
@@ -132,9 +195,12 @@ class SystemOptimizationResponse(SystemOptimizationRecord):
     scientific_boundary_en: str = SCIENTIFIC_BOUNDARY_EN
     optimizer_notice_zh: str = OPTIMIZER_NOTICE_ZH
     optimizer_notice_en: str = OPTIMIZER_NOTICE_EN
+    evidence_descriptor: EvidenceDescriptor | None = None
 
     @classmethod
-    def from_record(cls, r: SystemOptimizationRecord) -> SystemOptimizationResponse:
+    def from_record(
+        cls, r: SystemOptimizationRecord, evidence: EvidenceDescriptor | None = None
+    ) -> SystemOptimizationResponse:
         links = [
             SystemOptimizationArtifactView(
                 name=a.name, media_type=a.media_type, description=a.description,
@@ -142,7 +208,9 @@ class SystemOptimizationResponse(SystemOptimizationRecord):
             )
             for a in r.artifacts
         ]
-        return cls(**r.model_dump(), artifact_links=links)
+        notice_zh, notice_en = algorithm_notice(record_category(r))
+        return cls(**r.model_dump(), artifact_links=links, optimizer_notice_zh=notice_zh,
+                   optimizer_notice_en=notice_en, evidence_descriptor=evidence)
 
 
 class SystemOptimizationList(BaseModel):

@@ -33,6 +33,9 @@ class SystemParameter:
     # Grid Search 演示候选（工程演示值，不是标准或现网配置）
     recommended_values: tuple[float, ...]
     recommended_values_source: str
+    # 连续搜索的推荐闭区间（位于定义值域之内）
+    recommended_search_bounds: tuple[float, float]
+    recommended_search_bounds_source: str
 
 
 def _apply_beta(scenario: SystemScenario, value: float) -> SystemScenario:
@@ -75,6 +78,11 @@ SCHEDULER_BETA_PARAMETER = SystemParameter(
     recommended_values_source=(
         "[A] Engineering demonstration grid; spans memory lengths ≈1–100 slots. "
         "0.0 is not allowed by the Sionna API, 0.1 is the lowest demo value."
+    ),
+    recommended_search_bounds=(0.05, 0.99),
+    recommended_search_bounds_source=(
+        "[A] Engineering demonstration interval inside the open Sionna domain (0, 1); "
+        "upper end equals the largest Grid Search demo value."
     ),
 )
 

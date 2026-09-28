@@ -1,11 +1,12 @@
 """
 系统级优化服务 / System optimization service.
 
-    GridSearchOptimizer → CandidateEvaluator → SystemOptimizationService → SystemExperimentService → Backend
+    Algorithm (SDK) → AlgorithmDriver → 评价回调 → SystemOptimizationService → SystemExperimentService → Backend
 
-职责：校验问题 → 冻结评价上下文（一次 RT 信道实现）→ 基线 → 候选（同一上下文）→ KPI → 目标值
-→ 选择最优 → 对比（含次要 KPI 负向变化）→ 公平性检查 → 持久化与证据。
-Optimizer 与 Objective 都不接触仿真引擎；本服务只通过 SystemExperimentService 运行实验。
+职责：校验问题与算法兼容性 → 冻结评价上下文（一次 RT 信道实现）→ 基线 → 算法迭代
+（suggest → 同一上下文评价 → observe，平台执行预算与缓存去重）→ KPI → 目标值 → 选择最优
+→ 对比（含次要 KPI 负向变化）→ 公平性检查 → 持久化与证据。
+算法与目标函数都不接触仿真引擎；本服务只通过 SystemExperimentService 运行实验。
 """
 
 from __future__ import annotations
@@ -13,17 +14,36 @@ from __future__ import annotations
 import logging
 import threading
 import time
-from collections.abc import Callable, Mapping
+from collections.abc import Callable
+from typing import Any
 
 import numpy as np
+from pydantic import ValidationError
 
+from algorithms import (
+    ALGORITHM_SDK_VERSION,
+    Algorithm,
+    AlgorithmCompatibilityError,
+    AlgorithmDriver,
+    AlgorithmMetadata,
+    AlgorithmProblem,
+    AlgorithmRegistry,
+    CompatibilityReport,
+    EvaluationResult,
+    EvaluationStatus,
+    HyperparameterValue,
+    ParameterSpace,
+    StopReason,
+    canonical_sha256,
+    check_compatibility,
+)
 from evaluation.kpi import (
     AVG_UE_THROUGHPUT_V0_1,
     NETWORK_THROUGHPUT_V0_1,
     P5_UE_THROUGHPUT_V0_1,
     UE_THROUGHPUT_V0_1,
 )
-from optimization.base import CandidateEvaluator, Optimizer
+from evidence import EvidenceDescriptor
 from optimization.errors import InvalidParameterSpaceError
 from optimization.models import (
     BASELINE_CANDIDATE_ID,
@@ -31,13 +51,11 @@ from optimization.models import (
     CandidateStatus,
     Direction,
     ObjectiveSpec,
-    OptimizationCandidate,
     OptimizationStatus,
     candidate_id_for,
     new_optimization_id,
 )
-from optimization.optimizers.grid_search import GRID_SEARCH_VERSION
-from optimization.registry import OptimizerRegistry
+from optimization.parameters import ParameterDefinition, ParameterType, ParameterValue, ValueGeneration
 from system_simulation import MODEL_LABELS, SystemExperimentService
 from system_simulation.base import Capability, ChannelRealization
 from system_simulation.models import (
@@ -49,6 +67,7 @@ from system_simulation.models import (
 from system_simulation.realization import save_channel
 
 from .artifacts import export_evidence
+from .cache import EvaluationCache, evaluation_cache_key
 from .context import apply_protocol, build_context, context_link, fairness_evidence, fairness_report
 from .errors import (
     SystemOptimizationArtifactNotFoundError,
@@ -56,11 +75,15 @@ from .errors import (
     SystemOptimizationNotFoundError,
     UnsupportedProblemTypeError,
 )
+from .evidence import describe_system_optimization
 from .models import (
     PROBLEM_TYPE_SYSTEM,
+    AlgorithmRunInfo,
     BenchmarkProtocol,
+    EvaluationBudget,
     KpiChange,
     KpiStatistic,
+    ParameterSpec,
     SystemComparison,
     SystemOptimizationCandidate,
     SystemOptimizationError,
@@ -79,6 +102,8 @@ from .store import FileSystemOptimizationStore
 logger = logging.getLogger(__name__)
 
 MAX_SYSTEM_CANDIDATES = 8
+DEFAULT_EVALUATION_BUDGET = 8
+MAX_EVALUATION_BUDGET = 12
 RELATIVE_EPS = 1e-9
 TIE_BREAK_RULE = "Equal objective → baseline parameter value first, then candidate definition order"
 SECONDARY_KPIS = (NETWORK_THROUGHPUT_V0_1, AVG_UE_THROUGHPUT_V0_1, P5_UE_THROUGHPUT_V0_1)
@@ -87,6 +112,7 @@ KPI_FIELDS = {
     AVG_UE_THROUGHPUT_V0_1: "average_ue_throughput_mbps",
     P5_UE_THROUGHPUT_V0_1: "p5_ue_throughput_mbps",
 }
+EVIDENCE_API_PREFIX = "/api/v1"
 
 Runner = Callable[[Callable[[], None]], None]
 
@@ -146,31 +172,35 @@ def build_system_comparison(
     )
 
 
-class _SystemSearchProblem:
-    """SearchProblem：候选 = 用户给定的参数值；基线作为现任解参与选择。"""
+def select_best(record: SystemOptimizationRecord, direction: Direction) -> SystemOptimizationCandidate:
+    """平台最优选择（与算法无关）：目标值最优；相同时基线参数值优先，其次候选顺序。"""
+    scored = [c for c in record.all_evaluations() if c.objective is not None]
+    if not scored:
+        raise ValueError("No evaluated candidates to select from")
+    sign = 1.0 if direction is Direction.MAXIMIZE else -1.0
 
-    def __init__(self, record: SystemOptimizationRecord, direction: Direction) -> None:
-        self._record = record
-        self._direction = direction
-        self._pid = record.parameter.id
+    def key(c: SystemOptimizationCandidate) -> tuple[float, ...]:
+        assert c.objective is not None
+        is_baseline_value = c.parameters == record.baseline_parameters
+        return (sign * c.objective.value, 1.0 if is_baseline_value else 0.0, -float(c.iteration))
 
-    @property
-    def direction(self) -> Direction:
-        return self._direction
-
-    def candidate_parameters(self) -> list[dict[str, float]]:
-        return [{self._pid: float(v)} for v in self._record.candidate_values]  # type: ignore[arg-type]
-
-    def incumbents(self) -> list[OptimizationCandidate]:
-        return [self._record.baseline] if self._record.baseline is not None else []
-
-    def tie_break_key(self, candidate: OptimizationCandidate) -> tuple[float, ...]:
-        is_baseline_value = candidate.parameters == self._record.baseline_parameters
-        return (1.0 if is_baseline_value else 0.0, -float(candidate.iteration))
+    return max(scored, key=key)
 
 
-class _ContextEvaluator(CandidateEvaluator):
-    """在同一冻结上下文中运行基线 / 候选；候选失败被记录后继续（不抛出）。"""
+def evaluation_result(c: SystemOptimizationCandidate, direction: Direction) -> EvaluationResult:
+    """平台候选 → 算法看到的规范化评价结果（不含实验 / 产物路径）。"""
+    secondary = {k: getattr(c, f).mean for k, f in KPI_FIELDS.items() if getattr(c, f) is not None}
+    return EvaluationResult(
+        candidate_id=c.candidate_id, parameters=dict(c.parameters),
+        objective=c.objective.value if c.objective else None, objective_direction=direction,
+        secondary_metrics=secondary,
+        status=EvaluationStatus.EVALUATED if c.status is CandidateStatus.EVALUATED else EvaluationStatus.FAILED,
+        runtime_seconds=c.runtime_seconds, cache_hit=c.cache_hit,
+    )
+
+
+class _ContextEvaluator:
+    """在同一冻结上下文中运行基线 / 候选；缓存去重；候选失败被记录后继续（不抛出）。"""
 
     def __init__(
         self,
@@ -179,57 +209,79 @@ class _ContextEvaluator(CandidateEvaluator):
         scenario: SystemScenario,
         channel: ChannelRealization,
         objective: SystemObjective,
-        parameter: SystemParameter,
+        parameters: list[SystemParameter],
     ) -> None:
         self._service = service
         self._record = record
         self._scenario = scenario
         self._channel = channel
         self._objective = objective
-        self._parameter = parameter
+        self._parameters = {p.definition.id: p for p in parameters}
+        self.cache = EvaluationCache()
         self.experiments: dict[str, SystemExperimentRecord] = {}
 
+    def _cache_key(self, parameters: dict[str, ParameterValue]) -> str:
+        record = self._record
+        assert record.evaluation_context is not None
+        return evaluation_cache_key(record.evaluation_context, parameters, record.backend_id,
+                                    record.provenance.get("backend_version"))
+
     def evaluate_baseline(self) -> SystemOptimizationCandidate:
-        candidate = self._run(BASELINE_CANDIDATE_ID, 0, self._record.baseline_parameters, is_baseline=True)
+        params = dict(self._record.baseline_parameters)
+        candidate = self._run(BASELINE_CANDIDATE_ID, 0, params, is_baseline=True)
+        candidate.evaluation_cache_key = self._cache_key(params)
+        self.cache.put(candidate.evaluation_cache_key, candidate)
         self._record.baseline = candidate
         self._service.persist_event(self._record, "baseline_evaluated", candidate)
         return candidate
 
-    def evaluate(self, parameters: Mapping[str, float], iteration: int) -> SystemOptimizationCandidate:
+    def evaluate(self, parameters: dict[str, ParameterValue], round_: int) -> SystemOptimizationCandidate:
         record = self._record
+        budget = record.evaluation_budget
+        assert budget is not None
+        iteration = len(record.candidates) + 1
         candidate_id = candidate_id_for(iteration)
         progress = record.progress
         progress.stage = SystemOptimizationStage.EVALUATING_CANDIDATE
         progress.current_candidate_id = candidate_id
-        progress.current_parameter_value = float(parameters[self._parameter.definition.id])
+        progress.current_parameter_value = float(next(iter(parameters.values())))  # type: ignore[arg-type]
         self._service.persist(record)
-        baseline = record.baseline
-        reusable = baseline is not None and baseline.status is CandidateStatus.EVALUATED
-        if reusable and baseline is not None and dict(parameters) == baseline.parameters:
-            # 同一冻结上下文 + 确定性 SYS：与基线参数相同的候选直接复用基线实验
-            candidate = baseline.model_copy(update={
+        key = self._cache_key(parameters)
+        hit = self.cache.get(key)
+        if hit is not None:
+            # 同一冻结上下文 + 同一参数 + 同一后端配置 + 确定性 SYS → 复用已有评价，不再仿真
+            candidate = hit.model_copy(deep=True, update={
                 "candidate_id": candidate_id, "iteration": iteration, "is_baseline": False,
-                "reused_baseline": True, "runtime_seconds": 0.0,
+                "reused_baseline": hit.is_baseline, "cache_hit": True, "reused_candidate_id": hit.candidate_id,
+                "runtime_seconds": 0.0, "algorithm_round": round_, "evaluation_cache_key": key,
             })
+            budget.cache_hits += 1
         else:
             candidate = self._run(candidate_id, iteration, parameters, is_baseline=False)
+            candidate.algorithm_round = round_
+            candidate.evaluation_cache_key = key
+            budget.simulations_run += 1
+            self.cache.put(key, candidate)
+        budget.evaluations_used += 1
         record.candidates.append(candidate)
         progress.completed_candidates += 1
         event = "candidate_failed" if candidate.status is CandidateStatus.FAILED else "candidate_evaluated"
         self._service.persist_event(record, event, candidate)
         return candidate
 
-    def _run(self, candidate_id: str, iteration: int, parameters: Mapping[str, float],
+    def _run(self, candidate_id: str, iteration: int, parameters: dict[str, ParameterValue],
              is_baseline: bool) -> SystemOptimizationCandidate:
         record = self._record
         context = record.evaluation_context
         assert context is not None
-        pid = self._parameter.definition.id
-        value = float(parameters[pid])
-        scenario = self._parameter.apply(self._scenario, value)
+        scenario = self._scenario
+        for pid, value in parameters.items():
+            scenario = self._parameters[pid].apply(scenario, float(value))  # type: ignore[arg-type]
+        label_params = ", ".join(f"{k}={float(v):g}" for k, v in parameters.items())  # type: ignore[arg-type]
         protocol = record.benchmark_protocol
         candidate = SystemOptimizationCandidate(
-            candidate_id=candidate_id, iteration=iteration, parameters=dict(parameters),
+            candidate_id=candidate_id, iteration=iteration,
+            parameters={k: float(v) for k, v in parameters.items()},  # type: ignore[arg-type]
             status=CandidateStatus.EVALUATED, is_baseline=is_baseline, evaluation_context_id=context.context_id,
         )
         t0 = time.perf_counter()
@@ -239,7 +291,7 @@ class _ContextEvaluator(CandidateEvaluator):
                 label = "baseline" if is_baseline else candidate_id
                 suffix = f" · repeat {repeat + 1}/{protocol.num_repeats}" if protocol.num_repeats > 1 else ""
                 exp = self._service.experiments.run_in_context(
-                    f"{record.optimization_id} {label} · {pid}={value:g}{suffix}",
+                    f"{record.optimization_id} {label} · {label_params}{suffix}",
                     scenario, record.backend_id, self._channel,
                     purpose=SystemExperimentPurpose.OPTIMIZATION_BASELINE if is_baseline
                     else SystemExperimentPurpose.OPTIMIZATION_CANDIDATE,
@@ -298,22 +350,24 @@ class SystemOptimizationService:
         self,
         experiments: SystemExperimentService,
         store: FileSystemOptimizationStore,
-        optimizers: OptimizerRegistry,
+        algorithms: AlgorithmRegistry,
         objectives: SystemObjectiveRegistry,
         protocols: BenchmarkProtocolRegistry,
         parameters: SystemParameterCatalog,
         git_commit: str | None = None,
         max_candidates: int = MAX_SYSTEM_CANDIDATES,
+        max_evaluations: int = MAX_EVALUATION_BUDGET,
         runner: Runner = _thread_runner,
     ) -> None:
         self.experiments = experiments
         self._store = store
-        self._optimizers = optimizers
+        self._algorithms = algorithms
         self._objectives = objectives
         self._protocols = protocols
         self._parameters = parameters
         self._git_commit = git_commit
         self._max_candidates = max_candidates
+        self._max_evaluations = max_evaluations
         self._runner = runner
         self._busy = threading.Lock()
         self._recover_interrupted()
@@ -326,8 +380,16 @@ class SystemOptimizationService:
     def max_candidates(self) -> int:
         return self._max_candidates
 
-    def list_optimizers(self) -> list[Optimizer]:
-        return [o for o in self._optimizers.list() if PROBLEM_TYPE_SYSTEM in o.info.supported_problem_types]
+    @property
+    def max_evaluations(self) -> int:
+        return self._max_evaluations
+
+    @property
+    def algorithms(self) -> AlgorithmRegistry:
+        return self._algorithms
+
+    def list_optimizers(self) -> list[AlgorithmMetadata]:
+        return [m for m in self._algorithms.list() if PROBLEM_TYPE_SYSTEM in m.supported_problem_types]
 
     def list_objectives(self) -> list[SystemObjective]:
         return self._objectives.list()
@@ -347,12 +409,111 @@ class SystemOptimizationService:
     def list(self, limit: int = 50, offset: int = 0) -> tuple[list[SystemOptimizationRecord], int]:
         return self._store.list(limit=limit, offset=offset), self._store.count()
 
+    def list_all(self) -> list[SystemOptimizationRecord]:
+        return self._store.list_all()
+
+    def evidence(self, record: SystemOptimizationRecord) -> EvidenceDescriptor:
+        return describe_system_optimization(record, EVIDENCE_API_PREFIX)
+
     def resolve_artifact(self, optimization_id: str, name: str):
         record = self.get(optimization_id)
         known = {a.name: a for a in record.artifacts}
         if name not in known:
             raise SystemOptimizationArtifactNotFoundError(f"Artifact not found: {name!r}")
         return known[name], self._store.resolve_artifact(optimization_id, name)
+
+    # ------------------------------------------------------------------
+    # Problem construction / compatibility
+    # ------------------------------------------------------------------
+
+    def build_parameter_space(self, specs: list[ParameterSpec]) -> tuple[ParameterSpace, list[SystemParameter]]:
+        """请求中的变量 → 平台 ParameterSpace（值域来自参数目录，只允许收窄，不允许放宽）。"""
+        if not specs:
+            raise InvalidParameterSpaceError("At least one optimization variable is required")
+        definitions: list[ParameterDefinition] = []
+        parameters: list[SystemParameter] = []
+        for spec in specs:
+            parameter = self._parameters.get(spec.id)
+            if parameter.affects_propagation:
+                raise InvalidParameterSpaceError(
+                    f"Parameter '{spec.id}' changes propagation; it cannot share a frozen channel realization"
+                )
+            base = parameter.definition.model_dump()
+            if spec.type == "discrete":
+                if spec.lower is not None or spec.upper is not None:
+                    raise InvalidParameterSpaceError(f"discrete parameter '{spec.id}' takes choices, not bounds")
+                values = self._validate_candidates(parameter, spec.choices or [])
+                data = {**base, "type": ParameterType.DISCRETE, "choices": values, "default": None,
+                        "value_generation": [ValueGeneration.ENUMERATED]}
+            else:
+                if spec.choices:
+                    raise InvalidParameterSpaceError(f"continuous parameter '{spec.id}' takes bounds, not choices")
+                lo = spec.lower if spec.lower is not None else parameter.recommended_search_bounds[0]
+                hi = spec.upper if spec.upper is not None else parameter.recommended_search_bounds[1]
+                try:
+                    parameter.definition.validate_value(lo)
+                    parameter.definition.validate_value(hi)
+                except ValueError as e:
+                    raise InvalidParameterSpaceError(f"search bounds must lie inside the parameter domain: {e}") from e
+                default = base.get("default")
+                data = {**base, "bounds": {"lower": lo, "upper": hi},
+                        "default": default if isinstance(default, (int, float)) and lo <= default <= hi else None,
+                        "value_generation": [ValueGeneration.ALGORITHM_GENERATED]}
+            try:
+                definitions.append(ParameterDefinition.model_validate(data))
+            except ValidationError as e:
+                raise InvalidParameterSpaceError(str(e.errors()[0].get("msg", e))) from e
+            parameters.append(parameter)
+        try:
+            space = ParameterSpace(parameters=definitions, metadata={"source": "system parameter catalog"})
+        except ValidationError as e:
+            raise InvalidParameterSpaceError(str(e.errors()[0].get("msg", e))) from e
+        return space, parameters
+
+    def _default_budget(self, metadata: AlgorithmMetadata, space: ParameterSpace) -> int:
+        if not metadata.capabilities.supports_iterative_feedback and all(
+            p.type is ParameterType.DISCRETE for p in space.parameters
+        ):
+            n = 1
+            for p in space.parameters:
+                n *= len(p.choices or [])
+            return n
+        return DEFAULT_EVALUATION_BUDGET
+
+    def _problem(
+        self,
+        space: ParameterSpace,
+        objective: SystemObjective,
+        baseline_parameters: dict[str, ParameterValue],
+        max_evaluations: int,
+    ) -> AlgorithmProblem:
+        return AlgorithmProblem(
+            problem_type=PROBLEM_TYPE_SYSTEM, parameter_space=space, objective_id=objective.info.id,
+            objective_direction=objective.info.direction, objective_count=1,
+            baseline_parameters=baseline_parameters, max_evaluations=max_evaluations,
+        )
+
+    def validate_algorithm(
+        self,
+        algorithm_id: str,
+        parameter_space: list[ParameterSpec],
+        objective_id: str,
+        algorithm_hyperparameters: dict[str, Any] | None = None,
+        max_evaluations: int | None = None,
+        scenario_id: str | None = None,
+    ) -> CompatibilityReport:
+        algorithm = self._algorithms.create(algorithm_id)
+        objective = self._objectives.get(objective_id)
+        space, parameters = self.build_parameter_space(parameter_space)
+        if scenario_id is not None:
+            scenario = self.experiments.get_scenario(scenario_id)
+            baseline = {p.definition.id: p.read(scenario) for p in parameters}
+        else:
+            baseline = {p.definition.id: p.definition.default for p in parameters
+                        if p.definition.default is not None}
+        budget = max_evaluations if max_evaluations is not None else self._default_budget(algorithm.metadata(), space)
+        problem = self._problem(space, objective, baseline, budget)  # type: ignore[arg-type]
+        return check_compatibility(algorithm, problem, algorithm_hyperparameters or {}, self._max_evaluations)
 
     # ------------------------------------------------------------------
     # Create
@@ -369,25 +530,54 @@ class SystemOptimizationService:
         benchmark_protocol_id: str,
         backend_id: str | None = None,
     ) -> SystemOptimizationRecord:
+        """Day 6 兼容入口：optimizer_id + 一个参数的离散候选值。"""
+        return self.create_run(
+            name=name, scenario_id=scenario_id, algorithm_id=optimizer_id, objective_id=objective_id,
+            parameter_space=[ParameterSpec(id=parameter_id, type="discrete", choices=list(candidate_values))],
+            benchmark_protocol_id=benchmark_protocol_id, backend_id=backend_id,
+        )
+
+    def create_run(
+        self,
+        *,
+        name: str,
+        scenario_id: str,
+        algorithm_id: str,
+        objective_id: str,
+        parameter_space: list[ParameterSpec],
+        benchmark_protocol_id: str,
+        algorithm_hyperparameters: dict[str, Any] | None = None,
+        max_evaluations: int | None = None,
+        backend_id: str | None = None,
+    ) -> SystemOptimizationRecord:
         scenario = self.experiments.get_scenario(scenario_id)
-        optimizer = self._optimizers.create(optimizer_id)
-        if PROBLEM_TYPE_SYSTEM not in optimizer.info.supported_problem_types:
-            raise UnsupportedProblemTypeError(f"Optimizer '{optimizer_id}' does not support system problems")
+        algorithm = self._algorithms.create(algorithm_id)
+        meta = algorithm.metadata()
+        if PROBLEM_TYPE_SYSTEM not in meta.supported_problem_types:
+            raise UnsupportedProblemTypeError(f"Algorithm '{algorithm_id}' does not support system problems")
         objective = self._objectives.get(objective_id)
         protocol = self._protocols.get(benchmark_protocol_id)
-        parameter = self._parameters.get(parameter_id)
-        if parameter.affects_propagation:
-            raise InvalidParameterSpaceError(
-                f"Parameter '{parameter_id}' changes propagation; it cannot share a frozen channel realization"
-            )
-        values = self._validate_candidates(parameter, candidate_values)
+        space, parameters = self.build_parameter_space(parameter_space)
         backend = backend_id or scenario.backend
         descriptor, _, health = self.experiments.require_backend(
             backend, Capability.CHANNEL_REUSE, Capability.THROUGHPUT
         )
-        baseline_value = parameter.read(scenario)
-        parameter.definition.validate_value(baseline_value)
-        info = optimizer.info
+        baseline_parameters: dict[str, float] = {}
+        for p in parameters:
+            value = p.read(scenario)
+            p.definition.validate_value(value)
+            baseline_parameters[p.definition.id] = value
+        budget = max_evaluations if max_evaluations is not None else self._default_budget(meta, space)
+        problem = self._problem(space, objective, dict(baseline_parameters), budget)
+        user_hp = algorithm_hyperparameters or {}
+        report = check_compatibility(algorithm, problem, user_hp, self._max_evaluations)
+        if not report.compatible:
+            raise AlgorithmCompatibilityError(report.errors)
+        assert report.resolved_hyperparameters is not None
+        hyperparameters = report.resolved_hyperparameters
+        run_info = self._run_info(meta, hyperparameters, user_hp, space, budget)
+        primary = parameters[0]
+        first = space.parameters[0]
         obj = objective.info
 
         if not self._busy.acquire(blocking=False):
@@ -401,20 +591,33 @@ class SystemOptimizationService:
                 scenario_name_zh=scenario.name_zh,
                 scenario_name_en=scenario.name_en,
                 backend_id=descriptor.id,
-                optimizer_id=info.id,
-                optimizer_version=GRID_SEARCH_VERSION,
+                optimizer_id=meta.algorithm_id,
+                optimizer_version=meta.version,
                 objective=ObjectiveSpec(id=obj.id, version=obj.version, direction=obj.direction),
-                parameter=parameter.definition,
-                candidate_values=list(values),
-                baseline_parameters={parameter.definition.id: baseline_value},
+                parameter=primary.definition,
+                candidate_values=list(first.choices or []) if first.type is ParameterType.DISCRETE else [],
+                algorithm_hyperparameters=hyperparameters,
+                baseline_parameters=baseline_parameters,
                 benchmark_protocol=protocol,
                 seed=scenario.seed,
                 created_at=utc_now(),
+                algorithm=run_info,
+                parameter_space=space,
+                evaluation_budget=EvaluationBudget(max_evaluations=budget),
                 provenance={
-                    "optimizer": info.id,
-                    "optimizer_version": GRID_SEARCH_VERSION,
-                    "optimizer_category": info.category,
-                    "learning_algorithm": info.learning_algorithm,
+                    "algorithm": meta.algorithm_id,
+                    "algorithm_version": meta.version,
+                    "algorithm_provider": meta.provider,
+                    "algorithm_category": meta.category.value,
+                    "sdk_version": meta.sdk_version,
+                    "algorithm_config_hash": run_info.algorithm_config_hash,
+                    "parameter_space_hash": run_info.parameter_space_hash,
+                    "source_revision": run_info.source_revision,
+                    "optimizer": meta.algorithm_id,
+                    "optimizer_version": meta.version,
+                    "optimizer_category": meta.category.value,
+                    "learning_algorithm": meta.learning_algorithm,
+                    "project_research_deliverable": meta.project_research_deliverable,
                     "objective": obj.id,
                     "objective_version": obj.version,
                     "scenario": scenario.scenario_id,
@@ -433,33 +636,67 @@ class SystemOptimizationService:
                     "acceptance_evidence": False,
                     "evidence_level": "System Optimization Validation (simulation)"
                     if descriptor.source_type == "simulation" else "Software Test Fixture",
-                    "search_space_source": parameter.recommended_values_source,
-                    "parameter_source": parameter.definition.source,
+                    "search_space_source": self._search_space_source(primary, first),
+                    "parameter_source": primary.definition.source,
                 },
             )
-            record.progress.total_candidates = len(values)
+            record.progress.total_candidates = budget
             record.transition(OptimizationStatus.CREATED)
             record.add_event("optimization_created")
             self._store.create(record)
-            logger.info("%s CREATED system optimization scenario=%s %s=%s", record.optimization_id, scenario_id,
-                        parameter_id, values)
+            logger.info("%s CREATED system optimization scenario=%s algorithm=%s budget=%d space=%s",
+                        record.optimization_id, scenario_id, meta.algorithm_id, budget, space.ids)
         except BaseException:
             self._busy.release()
             raise
 
         def job() -> None:
             try:
-                self._execute(record, optimizer, objective, parameter, scenario)
+                self._execute(record, algorithm, problem, objective, parameters, scenario)
             finally:
                 self._busy.release()
 
         self._runner(job)
         return self.get(record.optimization_id)
 
+    def _run_info(
+        self,
+        meta: AlgorithmMetadata,
+        hyperparameters: dict[str, HyperparameterValue],
+        user_hyperparameters: dict[str, Any],
+        space: ParameterSpace,
+        budget: int,
+    ) -> AlgorithmRunInfo:
+        defaults = {h.id: h.default for h in meta.hyperparameter_schema}
+        config = {"algorithm_id": meta.algorithm_id, "algorithm_version": meta.version,
+                  "sdk_version": meta.sdk_version, "hyperparameters": hyperparameters, "max_evaluations": budget}
+        return AlgorithmRunInfo(
+            algorithm_id=meta.algorithm_id, algorithm_version=meta.version, algorithm_name_en=meta.name_en,
+            algorithm_name_zh=meta.name_zh, algorithm_provider=meta.provider, algorithm_category=meta.category,
+            sdk_version=meta.sdk_version or ALGORITHM_SDK_VERSION, learning_algorithm=meta.learning_algorithm,
+            project_research_deliverable=meta.project_research_deliverable, purpose_en=meta.purpose_en,
+            purpose_zh=meta.purpose_zh, hyperparameters=hyperparameters,
+            auto_configured=not user_hyperparameters or hyperparameters == defaults,
+            algorithm_config_hash=canonical_sha256(config), parameter_space_hash=space.sha256(),
+            source=meta.source, source_revision={"type": "git_commit", "value": self._git_commit},
+        )
+
+    @staticmethod
+    def _search_space_source(parameter: SystemParameter, definition: ParameterDefinition) -> str:
+        if definition.type is ParameterType.DISCRETE:
+            if tuple(definition.choices or []) == parameter.recommended_values:
+                return parameter.recommended_values_source
+            return "User-specified candidate values in the create request"
+        bounds = definition.bounds
+        if bounds is not None and (bounds.lower, bounds.upper) == parameter.recommended_search_bounds:
+            return parameter.recommended_search_bounds_source
+        return "User-specified search bounds in the create request"
+
     def persist(self, record: SystemOptimizationRecord) -> None:
         self._store.update(record)
 
-    def persist_event(self, record: SystemOptimizationRecord, event: str, candidate: OptimizationCandidate) -> None:
+    def persist_event(self, record: SystemOptimizationRecord, event: str,
+                      candidate: SystemOptimizationCandidate) -> None:
         record.add_event(event, candidate_id=candidate.candidate_id, experiment_id=candidate.experiment_id)
         self._store.update(record)
 
@@ -491,6 +728,10 @@ class SystemOptimizationService:
                     message="Optimization was interrupted (service restarted before completion)")
                 record.progress.stage = SystemOptimizationStage.FAILED
                 record.finished_at = utc_now()
+                if record.algorithm_trace is not None and record.algorithm_trace.stop_reason is None:
+                    record.algorithm_trace.stop_reason = StopReason.CANCELLED
+                    record.algorithm_trace.stop_detail = "service restarted before completion"
+                    record.stop_reason = StopReason.CANCELLED
                 record.transition(OptimizationStatus.FAILED)
                 record.add_event("optimization_interrupted")
                 self._store.update(record)
@@ -506,9 +747,10 @@ class SystemOptimizationService:
     def _execute(
         self,
         record: SystemOptimizationRecord,
-        optimizer: Optimizer,
+        algorithm: Algorithm,
+        problem: AlgorithmProblem,
         objective: SystemObjective,
-        parameter: SystemParameter,
+        parameters: list[SystemParameter],
         base_scenario: SystemScenario,
     ) -> None:
         t_start = time.perf_counter()
@@ -516,6 +758,7 @@ class SystemOptimizationService:
         record.transition(OptimizationStatus.RUNNING)
         failed_code = SystemOptimizationErrorCode.OPTIMIZATION_FAILED
         evaluator: _ContextEvaluator | None = None
+        direction = objective.info.direction
         try:
             failed_code = SystemOptimizationErrorCode.CONTEXT_PREPARATION_FAILED
             self._stage(record, SystemOptimizationStage.PREPARING_CONTEXT)
@@ -541,7 +784,7 @@ class SystemOptimizationService:
 
             failed_code = SystemOptimizationErrorCode.BASELINE_FAILED
             self._stage(record, SystemOptimizationStage.RUNNING_BASELINE)
-            evaluator = _ContextEvaluator(self, record, scenario, channel, objective, parameter)
+            evaluator = _ContextEvaluator(self, record, scenario, channel, objective, parameters)
             t0 = time.perf_counter()
             baseline = evaluator.evaluate_baseline()
             record.runtime.baseline_seconds = time.perf_counter() - t0
@@ -549,21 +792,41 @@ class SystemOptimizationService:
                 raise _OptimizationFailed(baseline.error.message if baseline.error else "baseline failed",
                                           BASELINE_CANDIDATE_ID)
 
-            failed_code = SystemOptimizationErrorCode.OPTIMIZATION_FAILED
+            failed_code = SystemOptimizationErrorCode.ALGORITHM_FAILED
             t1 = time.perf_counter()
-            problem = _SystemSearchProblem(record, objective.info.direction)
-            search = optimizer.optimize(problem, evaluator)
+            ev = evaluator
+
+            def evaluate(point: dict[str, ParameterValue], round_: int) -> EvaluationResult:
+                return evaluation_result(ev.evaluate(point, round_), direction)
+
+            def tie_break(result: EvaluationResult) -> tuple[float, ...]:
+                iterations = {c.candidate_id: c.iteration for c in record.all_evaluations()}
+                is_baseline_value = result.parameters == record.baseline_parameters
+                return (1.0 if is_baseline_value else 0.0, -float(iterations.get(result.candidate_id, 0)))
+
+            driver = AlgorithmDriver(algorithm, problem, dict(record.algorithm_hyperparameters), evaluate,
+                                     tie_break, on_update=lambda: self.persist(record))
+            record.algorithm_trace = driver.trace
+            trace = driver.run([evaluation_result(baseline, direction)])
+            record.stop_reason = trace.stop_reason
+            if record.evaluation_budget is not None:
+                record.evaluation_budget.rejected_suggestions = trace.rejected_suggestions
+            record.add_event(f"algorithm_stopped_{trace.stop_reason.value if trace.stop_reason else 'unknown'}")
             record.runtime.candidate_evaluation_seconds = time.perf_counter() - t1
+            failed_code = SystemOptimizationErrorCode.OPTIMIZATION_FAILED
+            if not record.candidates:
+                raise _OptimizationFailed("The algorithm produced no candidate evaluations", None)
             if all(c.status is CandidateStatus.FAILED for c in record.candidates):
                 failed_code = SystemOptimizationErrorCode.ALL_CANDIDATES_FAILED
                 raise _OptimizationFailed("All candidates failed; no comparison is possible", None)
 
             self._stage(record, SystemOptimizationStage.SELECTING_BEST)
-            best = next(c for c in record.all_evaluations() if c.candidate_id == search.best_candidate_id)
+            best = select_best(record, direction)
             record.best_candidate_id = best.candidate_id
+            recommended = trace.recommendation.parameters if trace.recommendation else None
+            record.recommendation_matches_best = None if recommended is None else recommended == best.parameters
             record.comparison = build_system_comparison(
-                baseline, best, objective.info.direction,
-                record.benchmark_protocol.observed_variability.relative_percent,
+                baseline, best, direction, record.benchmark_protocol.observed_variability.relative_percent,
             )
             record.fairness = fairness_report(ctx, record.all_evaluations(), evaluator.experiments)
             record.warnings = self._warnings(record)
@@ -572,10 +835,10 @@ class SystemOptimizationService:
             failed_code = SystemOptimizationErrorCode.EVIDENCE_EXPORT_FAILED
             self._stage(record, SystemOptimizationStage.PERSISTING_EVIDENCE)
             record.runtime.total_seconds = time.perf_counter() - t_start
-            record.artifacts = export_evidence(self._store.artifact_dir(record.optimization_id), record)
             record.finished_at = utc_now()
             record.progress.stage = SystemOptimizationStage.COMPLETED
             record.transition(OptimizationStatus.SUCCEEDED)
+            record.artifacts = self._export(record)
             record.add_event("optimization_completed")
         except Exception as exc:  # noqa: BLE001 - 任何失败都持久化为 FAILED，保留已有证据
             logger.exception("%s system optimization failed", record.optimization_id)
@@ -583,14 +846,21 @@ class SystemOptimizationService:
             if evaluator is not None and record.evaluation_context is not None:
                 record.fairness = fairness_report(record.evaluation_context, record.all_evaluations(),
                                                   evaluator.experiments)
+            if record.algorithm_trace is not None:
+                record.stop_reason = record.algorithm_trace.stop_reason or StopReason.FAILED
             try:
-                record.artifacts = export_evidence(self._store.artifact_dir(record.optimization_id), record)
+                record.artifacts = self._export(record)
             except Exception:  # noqa: BLE001
                 logger.exception("%s evidence export after failure failed", record.optimization_id)
         finally:
             record.runtime.total_seconds = time.perf_counter() - t_start
             self._store.update(record)
         logger.info("%s %s total=%.1f s", record.optimization_id, record.status.name, record.runtime.total_seconds)
+
+    def _export(self, record: SystemOptimizationRecord):
+        metadata = self._algorithms.metadata(record.optimizer_id) if record.algorithm is not None else None
+        return export_evidence(self._store.artifact_dir(record.optimization_id), record, metadata,
+                               self.evidence(record))
 
     @staticmethod
     def _warnings(record: SystemOptimizationRecord) -> list[str]:
@@ -632,4 +902,3 @@ class _OptimizationFailed(Exception):
     def __init__(self, message: str, candidate_id: str | None) -> None:
         super().__init__(message)
         self.candidate_id = candidate_id
-

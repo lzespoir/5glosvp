@@ -9,8 +9,19 @@ import { PageHeader } from '../../components/PageHeader';
 import { StatusTag } from '../../components/StatusTag';
 import type { SystemOptimizationResponse } from '../../types/systemOptimization';
 import { formatDateTime, formatSeconds } from '../../utils/format';
-import { findCandidate, progressText, RUNNING_STAGES, stageLabel } from '../../utils/systemOptimization';
+import {
+  findCandidate,
+  isIterativeRun,
+  parameterSpaceText,
+  progressText,
+  RUNNING_STAGES,
+  stageLabel,
+} from '../../utils/systemOptimization';
+import { AlgorithmRunPanel } from './AlgorithmRunPanel';
+import { AlgorithmTraceChart } from './AlgorithmTraceChart';
+import { AlgorithmTraceTable } from './AlgorithmTraceTable';
 import { CandidateHistoryChart } from './CandidateHistoryChart';
+import { EvidencePanel } from './EvidencePanel';
 import { EvaluationProtocolPanel } from './EvaluationProtocolPanel';
 import { HeroComparison } from './HeroComparison';
 import { PerUeComparison } from './PerUeComparison';
@@ -82,6 +93,10 @@ export function SystemOptimizationDetailPage() {
   const active = o.status === 'created' || o.status === 'running';
   const best = findCandidate(o, o.best_candidate_id);
   const ctx = o.evaluation_context;
+  const trace = o.algorithm_trace;
+  const iterative = isIterativeRun(o);
+  const algorithmLabel = o.algorithm ? `${o.algorithm.algorithm_name_en} v${o.algorithm.algorithm_version}`
+    : `${o.optimizer_id} v${o.optimizer_version}`;
 
   return (
     <>
@@ -94,7 +109,7 @@ export function SystemOptimizationDetailPage() {
             <code className="experiment-meta__id">{o.optimization_id}</code>
             <StatusTag status={o.status} showEn />
             <span>场景 Scenario：{o.scenario_name_zh} <span className="muted">{o.scenario_id}</span></span>
-            <span>优化器 Optimizer：{o.optimizer_id} v{o.optimizer_version}</span>
+            <span>算法 Algorithm：{algorithmLabel}</span>
             <span>目标 Objective：{o.objective.id} <Tag color="blue">v{o.objective.version}</Tag></span>
             <span>变量 Variable：<code>{o.parameter.id}</code></span>
             <span>协议 Protocol：{o.benchmark_protocol.protocol_id} v{o.benchmark_protocol.version}</span>
@@ -145,21 +160,57 @@ export function SystemOptimizationDetailPage() {
 
       <HeroComparison optimization={o} />
 
-      {(o.baseline || o.candidates.length > 0) && (
+      <Card size="small" title={sectionTitle('算法', 'Algorithm')} className="section-bottom">
+        <AlgorithmRunPanel optimization={o} />
+      </Card>
+
+      {iterative && trace && trace.evaluations.length > 0 && (
         <Row gutter={[16, 16]} className="section-bottom">
-          <Col xs={24} xl={best && o.baseline ? 12 : 24}>
-            <Card size="small" title={sectionTitle('候选评价历史', 'Candidate History')} className="fill-height">
+          <Col xs={24} xl={12}>
+            <Card size="small" title={sectionTitle('算法轨迹', 'Algorithm Trace')} className="fill-height"
+              data-testid="algorithm-trace">
+              <AlgorithmTraceChart trace={trace} parameterId={o.parameter.id} />
+              <div className="muted">
+                每个点是一次真实评价；阶梯线为平台规则下的当前最优（记录值，非拟合曲线）。Each point is a real evaluation.
+              </div>
+            </Card>
+          </Col>
+          <Col xs={24} xl={12}>
+            <Card size="small" title={sectionTitle('参数—目标', 'Parameter vs Objective')} className="fill-height">
               <CandidateHistoryChart
                 candidates={o.baseline ? [o.baseline, ...o.candidates] : o.candidates}
                 baseline={o.baseline}
                 bestCandidateId={o.best_candidate_id}
                 parameterId={o.parameter.id}
               />
-              <div className="muted">Grid Search 逐点评估，点之间不代表连续优化过程。Discrete evaluations only.</div>
             </Card>
           </Col>
+        </Row>
+      )}
+
+      {iterative && trace && trace.rounds.length > 0 && (
+        <Card size="small" title={sectionTitle('算法轮次', 'Algorithm Rounds')} className="section-bottom">
+          <AlgorithmTraceTable trace={trace} parameterId={o.parameter.id} />
+        </Card>
+      )}
+
+      {(o.baseline || o.candidates.length > 0) && (
+        <Row gutter={[16, 16]} className="section-bottom">
+          {!iterative && (
+            <Col xs={24} xl={best && o.baseline ? 12 : 24}>
+              <Card size="small" title={sectionTitle('候选评价历史', 'Candidate History')} className="fill-height">
+                <CandidateHistoryChart
+                  candidates={o.baseline ? [o.baseline, ...o.candidates] : o.candidates}
+                  baseline={o.baseline}
+                  bestCandidateId={o.best_candidate_id}
+                  parameterId={o.parameter.id}
+                />
+                <div className="muted">Grid Search 逐点评估，点之间不代表连续优化过程。Discrete evaluations only.</div>
+              </Card>
+            </Col>
+          )}
           {best && o.baseline && o.status === 'succeeded' && (
-            <Col xs={24} xl={12}>
+            <Col xs={24} xl={iterative ? 24 : 12}>
               <Card size="small" title={sectionTitle('逐 UE 对比', 'Per-UE Before / After')} className="fill-height">
                 <PerUeComparison baseline={o.baseline} best={best} />
               </Card>
@@ -193,7 +244,7 @@ export function SystemOptimizationDetailPage() {
               <Descriptions.Item label="变量 Variable">
                 {o.parameter.name_zh} {o.parameter.name_en} <span className="muted">({o.parameter.source})</span>
               </Descriptions.Item>
-              <Descriptions.Item label="候选 Candidates">{o.candidate_values.join(', ')}</Descriptions.Item>
+              <Descriptions.Item label="参数空间 Parameter Space">{parameterSpaceText(o)}</Descriptions.Item>
               <Descriptions.Item label="验收 KPI Acceptance KPI"><Tag>No</Tag></Descriptions.Item>
             </Descriptions>
           </Card>
@@ -220,7 +271,10 @@ export function SystemOptimizationDetailPage() {
           </Card>
         </Col>
         <Col xs={24} lg={12}>
-          <Card size="small" title={sectionTitle('证据文件', 'Artifacts')} className="fill-height">
+          <Card size="small" title={sectionTitle('证据状态', 'Evidence')} className="section-bottom">
+            <EvidencePanel descriptor={o.evidence_descriptor} />
+          </Card>
+          <Card size="small" title={sectionTitle('证据文件', 'Artifacts')}>
             <ArtifactsPanel
               artifacts={o.artifact_links.map((a) => ({ ...a, type: a.media_type.split('/').pop() ?? 'binary' }))}
             />

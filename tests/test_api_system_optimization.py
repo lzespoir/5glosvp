@@ -42,9 +42,10 @@ def _body(**overrides):
 
 def test_catalog_endpoints(client):
     optimizers = client.get(f"{API}/system-optimizers").json()["items"]
-    assert [o["id"] for o in optimizers] == ["grid_search"]
+    assert [o["id"] for o in optimizers] == ["grid_search", "research_demo_optimizer"]
     assert optimizers[0]["learning_algorithm"] is False and optimizers[0]["category"] == "engineering_baseline"
     assert optimizers[0]["hyperparameters"] == []
+    assert optimizers[1]["learning_algorithm"] is False and optimizers[1]["category"] == "research_demo"
     objectives = client.get(f"{API}/system-objectives").json()["items"]
     assert objectives[0]["id"] == "NETWORK_THROUGHPUT_MAX_V0_1" and objectives[0]["acceptance_kpi"] is False
     params = client.get(f"{API}/system-parameters").json()["items"]

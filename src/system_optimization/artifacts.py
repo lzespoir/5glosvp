@@ -13,6 +13,9 @@ from typing import Any
 import numpy as np
 from matplotlib.figure import Figure
 
+from algorithms import AlgorithmMetadata
+from evidence import EvidenceDescriptor
+
 from .models import SystemOptimizationArtifact, SystemOptimizationCandidate, SystemOptimizationRecord
 
 EVALUATION_CONTEXT = SystemOptimizationArtifact(
@@ -30,6 +33,21 @@ COMPARISON_PNG = SystemOptimizationArtifact(
 PER_UE_PNG = SystemOptimizationArtifact(
     name="per-ue-comparison.png", media_type="image/png",
     description="Per-UE throughput, baseline vs best / 单 UE 吞吐率对比")
+ALGORITHM_METADATA = SystemOptimizationArtifact(
+    name="algorithm-metadata.json", media_type="application/json",
+    description="Algorithm metadata, capabilities and hyperparameter schema / 算法元数据与能力声明")
+PARAMETER_SPACE = SystemOptimizationArtifact(
+    name="parameter-space.json", media_type="application/json",
+    description="Parameter space searched by the algorithm / 参数空间")
+ALGORITHM_CONFIG = SystemOptimizationArtifact(
+    name="algorithm-config.json", media_type="application/json",
+    description="Resolved hyperparameters, evaluation budget and provenance hashes / 算法配置与预算")
+ALGORITHM_TRACE = SystemOptimizationArtifact(
+    name="algorithm-trace.json", media_type="application/json",
+    description="suggest → evaluate → observe trace and stop reason / 算法轨迹与停止原因")
+EVIDENCE_DESCRIPTOR = SystemOptimizationArtifact(
+    name="evidence-descriptor.json", media_type="application/json",
+    description="Evidence descriptor (verification ≠ acceptance) / 证据描述符")
 
 
 def _json(path: Path, data: Any) -> None:
@@ -43,6 +61,9 @@ def candidate_summary(record: SystemOptimizationRecord) -> list[dict[str, Any]]:
             "candidate_id": c.candidate_id,
             "is_baseline": c.is_baseline,
             "reused_baseline": c.reused_baseline,
+            "cache_hit": c.cache_hit,
+            "reused_candidate_id": c.reused_candidate_id,
+            "algorithm_round": c.algorithm_round,
             "parameters": c.parameters,
             "status": c.status.value,
             "experiment_id": c.experiment_id,
@@ -80,11 +101,12 @@ def _comparison_png(path: Path, record: SystemOptimizationRecord) -> None:
             marker = "s" if c.is_baseline else "o"
             ax.errorbar([_param(c, pid)], [stat.mean], yerr=[[stat.mean - stat.min], [stat.max - stat.mean]],
                         fmt=marker, color=color, ms=8, capsize=3)
-            if c.reused_baseline:
+            if c.reused:
                 continue
-            label = c.candidate_id
-            if c.is_baseline:
-                label = " = ".join([c.candidate_id] + [o.candidate_id for o in evaluated if o.reused_baseline])
+            aliases = [o.candidate_id for o in evaluated
+                       if o.reused and (o.reused_candidate_id == c.candidate_id
+                                        or (c.is_baseline and o.reused_baseline))]
+            label = " = ".join([c.candidate_id, *aliases])
             ax.annotate(label, (_param(c, pid), stat.mean), textcoords="offset points", xytext=(5, 5),
                         fontsize=7)
         ax.set_title(title, fontsize=10)
@@ -120,7 +142,31 @@ def _per_ue_png(path: Path, record: SystemOptimizationRecord) -> None:
     fig.savefig(path, dpi=100)
 
 
-def export_evidence(directory: Path, record: SystemOptimizationRecord) -> list[SystemOptimizationArtifact]:
+def algorithm_config(record: SystemOptimizationRecord) -> dict[str, Any]:
+    info = record.algorithm
+    assert info is not None
+    return {
+        "algorithm_id": info.algorithm_id,
+        "algorithm_version": info.algorithm_version,
+        "sdk_version": info.sdk_version,
+        "hyperparameters": info.hyperparameters,
+        "auto_configured": info.auto_configured,
+        "evaluation_budget": record.evaluation_budget.model_dump() if record.evaluation_budget else None,
+        "algorithm_config_hash": info.algorithm_config_hash,
+        "parameter_space_hash": info.parameter_space_hash,
+        "source": info.source,
+        "source_revision": info.source_revision,
+        "stop_reason": record.stop_reason.value if record.stop_reason else None,
+        "recommendation_matches_best": record.recommendation_matches_best,
+    }
+
+
+def export_evidence(
+    directory: Path,
+    record: SystemOptimizationRecord,
+    algorithm_metadata: AlgorithmMetadata | None = None,
+    descriptor: EvidenceDescriptor | None = None,
+) -> list[SystemOptimizationArtifact]:
     directory.mkdir(parents=True, exist_ok=True)
     refs = []
     if record.evaluation_context is not None:
@@ -130,4 +176,19 @@ def export_evidence(directory: Path, record: SystemOptimizationRecord) -> list[S
     _json(directory / CANDIDATE_SUMMARY.name, candidate_summary(record))
     _comparison_png(directory / COMPARISON_PNG.name, record)
     _per_ue_png(directory / PER_UE_PNG.name, record)
-    return [*refs, BENCHMARK_PROTOCOL, CANDIDATE_SUMMARY, COMPARISON_PNG, PER_UE_PNG]
+    refs += [BENCHMARK_PROTOCOL, CANDIDATE_SUMMARY, COMPARISON_PNG, PER_UE_PNG]
+    if algorithm_metadata is not None and record.algorithm is not None:
+        _json(directory / ALGORITHM_METADATA.name, algorithm_metadata.model_dump(mode="json"))
+        refs.append(ALGORITHM_METADATA)
+        if record.parameter_space is not None:
+            _json(directory / PARAMETER_SPACE.name, record.parameter_space.model_dump(mode="json"))
+            refs.append(PARAMETER_SPACE)
+        _json(directory / ALGORITHM_CONFIG.name, algorithm_config(record))
+        refs.append(ALGORITHM_CONFIG)
+        if record.algorithm_trace is not None:
+            _json(directory / ALGORITHM_TRACE.name, record.algorithm_trace.model_dump(mode="json"))
+            refs.append(ALGORITHM_TRACE)
+    if descriptor is not None:
+        _json(directory / EVIDENCE_DESCRIPTOR.name, descriptor.model_dump(mode="json"))
+        refs.append(EVIDENCE_DESCRIPTOR)
+    return refs

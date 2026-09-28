@@ -29,7 +29,7 @@ _INLINE_MEDIA_TYPES = {"image/png", "application/json"}
 @router.get("/system-optimizers", response_model=SystemOptimizerList,
             summary="支持系统级问题的优化器 / Optimizers supporting system problems")
 def list_system_optimizers(service: ServiceDep) -> SystemOptimizerList:
-    return SystemOptimizerList(items=[SystemOptimizerView.from_optimizer(o) for o in service.list_optimizers()])
+    return SystemOptimizerList(items=[SystemOptimizerView.from_metadata(m) for m in service.list_optimizers()])
 
 
 @router.get("/system-objectives", response_model=SystemObjectiveList, summary="系统级目标 / System objectives")
@@ -57,20 +57,21 @@ def list_benchmark_protocols(service: ServiceDep) -> BenchmarkProtocolList:
                503: {"model": ErrorResponse}},
     summary="创建并后台运行系统级优化 / Create a system optimization (runs in background)",
     description=(
-        "校验通过后立即返回 202（status=created/running）；通过 GET /system-optimizations/{id} 轮询真实阶段进度。"
-        "同一时间只允许一个系统级优化运行（409）。"
+        "校验通过（含算法兼容性、超参数、评价预算）后立即返回 202；通过 GET /system-optimizations/{id} 轮询真实进度。"
+        "Day 6 请求（optimizer_id + parameter.candidate_values）继续支持。同一时间只允许一个系统级优化运行（409）。"
     ),
 )
 def create_system_optimization(
     body: SystemOptimizationCreateRequest, service: ServiceDep
 ) -> SystemOptimizationResponse:
-    record = service.create(
-        name=body.name, scenario_id=body.scenario_id, optimizer_id=body.optimizer_id,
-        objective_id=body.objective_id, parameter_id=body.parameter.id,
-        candidate_values=body.parameter.candidate_values, benchmark_protocol_id=body.benchmark_protocol_id,
+    record = service.create_run(
+        name=body.name, scenario_id=body.scenario_id, algorithm_id=body.resolved_algorithm_id(),
+        objective_id=body.objective_id, parameter_space=body.resolved_parameter_space(),
+        benchmark_protocol_id=body.benchmark_protocol_id, algorithm_hyperparameters=body.algorithm_hyperparameters,
+        max_evaluations=body.evaluation_budget.max_evaluations if body.evaluation_budget else None,
         backend_id=body.backend_id,
     )
-    return SystemOptimizationResponse.from_record(record)
+    return SystemOptimizationResponse.from_record(record, service.evidence(record))
 
 
 @router.get("/system-optimizations", response_model=SystemOptimizationList,
@@ -81,14 +82,15 @@ def list_system_optimizations(
     offset: Annotated[int, Query(ge=0)] = 0,
 ) -> SystemOptimizationList:
     records, total = service.list(limit=limit, offset=offset)
-    return SystemOptimizationList(items=[SystemOptimizationResponse.from_record(r) for r in records], total=total,
-                                  limit=limit, offset=offset)
+    return SystemOptimizationList(items=[SystemOptimizationResponse.from_record(r, service.evidence(r))
+                                         for r in records], total=total, limit=limit, offset=offset)
 
 
 @router.get("/system-optimizations/{optimization_id}", response_model=SystemOptimizationResponse,
             responses={404: {"model": ErrorResponse}}, summary="系统级优化详情 / System optimization detail")
 def get_system_optimization(optimization_id: str, service: ServiceDep) -> SystemOptimizationResponse:
-    return SystemOptimizationResponse.from_record(service.get(optimization_id))
+    record = service.get(optimization_id)
+    return SystemOptimizationResponse.from_record(record, service.evidence(record))
 
 
 @router.get("/system-optimizations/{optimization_id}/artifacts/{artifact_name}", response_class=FileResponse,

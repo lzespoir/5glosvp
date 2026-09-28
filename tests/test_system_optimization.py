@@ -4,10 +4,10 @@ from __future__ import annotations
 
 import json
 import logging
-from dataclasses import replace
 
 import pytest
 
+from algorithms.builtin import GridSearchAlgorithm
 from optimization import (
     InvalidParameterSpaceError,
     ObjectiveNotFoundError,
@@ -17,7 +17,6 @@ from optimization import (
     ParameterType,
     ValueGeneration,
 )
-from optimization.optimizers import GridSearchOptimizer
 from optimization.models import CandidateStatus, Direction, ObjectiveEvaluation, OptimizationStatus
 from system_optimization import (
     NETWORK_THROUGHPUT_MAX_V0_1,
@@ -232,8 +231,9 @@ def test_algorithm_generated_future_schema():
 
 def test_hyperparameters_separate_from_variables(tmp_path):
     service = make_optimization_service(tmp_path)
-    (grid,) = service.list_optimizers()
-    assert grid.info.hyperparameters == ()
+    grid, demo = service.list_optimizers()
+    assert grid.hyperparameter_schema == []
+    assert {h.id for h in demo.hyperparameter_schema} >= {"initial_step", "min_step", "max_iterations"}
     assert all(p.definition.role is ParameterRole.OPTIMIZATION_VARIABLE for p in service.list_parameters())
 
 
@@ -437,17 +437,18 @@ def test_backend_without_channel_reuse_rejected(tmp_path):
 def test_optimizer_must_support_system_problems(tmp_path):
     service = make_optimization_service(tmp_path)
     grid = service.list_optimizers()[0]
-    assert "system" in grid.info.supported_problem_types and grid.info.learning_algorithm is False
-    service._optimizers.register("propagation_only", _PropagationOnly)
+    assert "system" in grid.supported_problem_types and grid.learning_algorithm is False
+    service.algorithms.register(_PropagationOnly)
     with pytest.raises(UnsupportedProblemTypeError):
         service.create("t", "SYSTEM-TEST-001", "propagation_only", NETWORK_THROUGHPUT_MAX_V0_1, SCHEDULER_BETA,
                        [0.3], TEST_PROTOCOL_ID)
 
 
-class _PropagationOnly(GridSearchOptimizer):
-    @property
-    def info(self):
-        return replace(super().info, id="propagation_only", supported_problem_types=("propagation",))
+class _PropagationOnly(GridSearchAlgorithm):
+    @classmethod
+    def metadata(cls):
+        return super().metadata().model_copy(update={"algorithm_id": "propagation_only",
+                                                     "supported_problem_types": ["propagation"]})
 
 
 def test_busy_rejected(tmp_path):
@@ -473,7 +474,8 @@ def test_evidence_artifacts(tmp_path):
     service, record = _run(tmp_path)
     names = {a.name for a in record.artifacts}
     assert names == {"evaluation-context.json", "benchmark-protocol.json", "candidate-summary.json",
-                     "comparison.png", "per-ue-comparison.png"}
+                     "comparison.png", "per-ue-comparison.png", "algorithm-metadata.json", "parameter-space.json",
+                     "algorithm-config.json", "algorithm-trace.json", "evidence-descriptor.json"}
     _, path = service.resolve_artifact(record.optimization_id, "candidate-summary.json")
     rows = json.loads(path.read_text())
     assert [r["candidate_id"] for r in rows][0] == "BASELINE" and sum(r["is_best"] for r in rows) == 1

@@ -1,3 +1,13 @@
+import type {
+  AlgorithmRunInfo,
+  AlgorithmTrace,
+  EvaluationBudget,
+  EvidenceDescriptor,
+  HyperparameterDefinition,
+  HyperparameterValue,
+  ParameterSpec,
+  StopReason,
+} from './algorithm';
 import type { CandidateError, ObjectiveDirection, ObjectiveEvaluation, OptimizationStatus } from './optimization';
 
 export type ParameterValue = number | string | number[];
@@ -22,6 +32,8 @@ export interface ParameterDefinition {
   bounds: ParameterBounds | null;
   choices: ParameterValue[] | null;
   vector_length: number | null;
+  shape?: number[] | null;
+  element_type?: 'float' | 'integer' | null;
   constraints: string[];
   value_generation: string[];
   source: string;
@@ -38,7 +50,7 @@ export interface SystemOptimizerView {
   description_zh: string;
   description_en: string;
   supported_problem_types: string[];
-  hyperparameters: ParameterDefinition[];
+  hyperparameters: HyperparameterDefinition[];
 }
 
 export interface SystemObjectiveView {
@@ -67,6 +79,8 @@ export interface SystemParameterView {
   affects_propagation: boolean;
   recommended_values: number[];
   recommended_values_source: string;
+  recommended_search_bounds: number[];
+  recommended_search_bounds_source: string;
 }
 
 export interface ObservedVariability {
@@ -182,6 +196,10 @@ export interface SystemOptimizationCandidate {
   p5_ue_throughput_mbps: KpiStatistic | null;
   per_ue_throughput_mbps: Record<string, number>;
   fairness: FairnessEvidence | null;
+  algorithm_round?: number | null;
+  evaluation_cache_key?: string | null;
+  cache_hit?: boolean;
+  reused_candidate_id?: string | null;
 }
 
 export type KpiDirection = 'increase' | 'decrease' | 'unchanged';
@@ -261,7 +279,7 @@ export interface SystemOptimizationResponse {
   objective: { id: string; version: string; direction: ObjectiveDirection; params: Record<string, number> };
   parameter: ParameterDefinition;
   candidate_values: number[];
-  algorithm_hyperparameters: Record<string, ParameterValue>;
+  algorithm_hyperparameters: Record<string, HyperparameterValue>;
   baseline_parameters: Record<string, number>;
   benchmark_protocol: BenchmarkProtocol;
   seed: number;
@@ -291,6 +309,13 @@ export interface SystemOptimizationResponse {
   scientific_boundary_en: string;
   optimizer_notice_zh: string;
   optimizer_notice_en: string;
+  evidence_descriptor?: EvidenceDescriptor | null;
+  algorithm?: AlgorithmRunInfo | null;
+  parameter_space?: { parameters: ParameterDefinition[]; constraints: unknown[]; metadata: Record<string, unknown> } | null;
+  evaluation_budget?: EvaluationBudget | null;
+  algorithm_trace?: AlgorithmTrace | null;
+  stop_reason?: StopReason | null;
+  recommendation_matches_best?: boolean | null;
 }
 
 export interface SystemOptimizationList {
@@ -304,8 +329,10 @@ export interface SystemOptimizationCreateRequest {
   problem_type: 'system';
   name: string;
   scenario_id: string;
-  optimizer_id: string;
+  algorithm_id: string;
   objective_id: string;
-  parameter: { id: string; candidate_values: number[] };
+  parameter_space: { parameters: ParameterSpec[] };
+  algorithm_hyperparameters: Record<string, HyperparameterValue>;
+  evaluation_budget?: { max_evaluations: number };
   benchmark_protocol_id: string;
 }

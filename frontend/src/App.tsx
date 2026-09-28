@@ -1,7 +1,10 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
 
 import { PlatformLayout } from './layouts/PlatformLayout';
-import { ComingSoon } from './pages/ComingSoon';
+import { AcceptancePage } from './pages/Acceptance';
+import { AlgorithmsPage } from './pages/Algorithms';
+import { AlgorithmDetailPage } from './pages/Algorithms/AlgorithmDetail';
+import { IntegrationGuidePage } from './pages/Algorithms/IntegrationGuide';
 import { ExperimentDetailPage } from './pages/ExperimentDetail';
 import { ExperimentsPage } from './pages/Experiments';
 import { OptimizationDetailPage } from './pages/OptimizationDetail';
@@ -26,8 +29,10 @@ export function App() {
         <Route path="optimizations/system/:optimizationId" element={<SystemOptimizationDetailPage />} />
         <Route path="system" element={<SystemPage />} />
         <Route path="system/experiments/:experimentId" element={<SystemExperimentDetailPage />} />
-        <Route path="algorithms" element={<Navigate to="/optimizations" replace />} />
-        <Route path="acceptance" element={<ComingSoon titleZh="验收中心" titleEn="Acceptance Center" />} />
+        <Route path="algorithms" element={<AlgorithmsPage />} />
+        <Route path="algorithms/guide" element={<IntegrationGuidePage />} />
+        <Route path="algorithms/:algorithmId" element={<AlgorithmDetailPage />} />
+        <Route path="acceptance" element={<AcceptancePage />} />
         <Route path="*" element={<Navigate to="/overview" replace />} />
       </Route>
     </Routes>

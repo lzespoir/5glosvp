@@ -14,11 +14,11 @@ from __future__ import annotations
 
 import math
 from enum import Enum
-from typing import Union
+from typing import Any, Union
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
-ParameterValue = Union[float, int, str, list[float]]
+ParameterValue = Union[float, int, str, list[Any]]
 
 
 class ParameterType(str, Enum):
@@ -39,6 +39,11 @@ class ValueGeneration(str, Enum):
 
     ENUMERATED = "enumerated"
     ALGORITHM_GENERATED = "algorithm_generated"
+
+
+class VectorElementType(str, Enum):
+    FLOAT = "float"
+    INTEGER = "integer"
 
 
 class ParameterBounds(BaseModel):
@@ -81,6 +86,9 @@ class ParameterDefinition(BaseModel):
     bounds: ParameterBounds | None = None
     choices: list[ParameterValue] | None = None
     vector_length: int | None = Field(default=None, ge=1)
+    # vector：shape（例如 [n_cells] 或 [n_cells, n_prb]）与元素类型；bounds 作用于每个元素
+    shape: list[int] | None = None
+    element_type: VectorElementType | None = None
     constraints: list[str] = Field(default_factory=list)
     value_generation: list[ValueGeneration] = Field(default_factory=lambda: [ValueGeneration.ENUMERATED])
     source: str
@@ -93,8 +101,18 @@ class ParameterDefinition(BaseModel):
             raise ValueError(f"{self.type.value} parameter '{self.id}' requires bounds")
         if self.type is ParameterType.CATEGORICAL and not self.choices:
             raise ValueError(f"categorical parameter '{self.id}' requires choices")
-        if self.type is ParameterType.VECTOR and self.vector_length is None:
-            raise ValueError(f"vector parameter '{self.id}' requires vector_length")
+        if self.type is ParameterType.DISCRETE and not self.choices:
+            raise ValueError(f"discrete parameter '{self.id}' requires choices")
+        if self.type is ParameterType.VECTOR:
+            if self.shape is None and self.vector_length is not None:
+                self.shape = [self.vector_length]
+            if not self.shape or any(n < 1 for n in self.shape):
+                raise ValueError(f"vector parameter '{self.id}' requires a shape of positive dimensions")
+            if self.vector_length is not None and self.shape != [self.vector_length]:
+                raise ValueError(f"vector parameter '{self.id}': vector_length conflicts with shape")
+            self.element_type = self.element_type or VectorElementType.FLOAT
+        elif self.shape is not None or self.element_type is not None:
+            raise ValueError(f"shape / element_type only apply to vector parameters ('{self.id}')")
         for choice in self.choices or []:
             self.validate_value(choice)
         if self.default is not None:
@@ -109,9 +127,8 @@ class ParameterDefinition(BaseModel):
                 raise ValueError(f"{self.id}: {value!r} is not one of {self.choices}")
             return value
         if t is ParameterType.VECTOR:
-            if not isinstance(value, list) or len(value) != self.vector_length:
-                raise ValueError(f"{self.id}: expected a vector of length {self.vector_length}")
-            return [self._check_scalar(float(v)) for v in value]
+            assert self.shape is not None
+            return self._check_vector(value, self.shape)
         if isinstance(value, (str, list)) or isinstance(value, bool):
             raise ValueError(f"{self.id}: expected a number, got {value!r}")
         number = float(value)
@@ -122,6 +139,24 @@ class ParameterDefinition(BaseModel):
         if t is ParameterType.DISCRETE and self.choices is not None and number not in self.choices:
             raise ValueError(f"{self.id}: {value!r} is not one of {self.choices}")
         return self._check_scalar(number)
+
+    def _check_vector(self, value: Any, shape: list[int]) -> list[Any]:
+        if not isinstance(value, list) or len(value) != shape[0]:
+            raise ValueError(f"{self.id}: expected shape {self.shape}")
+        if len(shape) > 1:
+            return [self._check_vector(v, shape[1:]) for v in value]
+        out: list[Any] = []
+        for v in value:
+            if isinstance(v, (str, list, bool)):
+                raise ValueError(f"{self.id}: vector elements must be numbers, got {v!r}")
+            number = self._check_scalar(float(v))
+            if self.element_type is VectorElementType.INTEGER:
+                if not number.is_integer():
+                    raise ValueError(f"{self.id}: vector element {v!r} is not an integer")
+                out.append(int(number))
+            else:
+                out.append(number)
+        return out
 
     def _check_scalar(self, number: float) -> float:
         if not math.isfinite(number):

@@ -88,7 +88,8 @@ class FakeSystemBackend(SystemSimulationBackend):
         num_re = sim.num_data_symbols_per_slot * sim.num_subcarriers
         re_share = np.full(n, num_re // n, dtype=float)
         re_share[0] += num_re - re_share.sum()
-        bits = [FIXTURE_BITS_PER_SLOT * (i + 1) * self._bits_scale(scenario, i) for i in range(n)]
+        # 译码比特必须是整数，否则 slot trace 与 UE 结果（int）不一致
+        bits = [round(FIXTURE_BITS_PER_SLOT * (i + 1) * self._bits_scale(scenario, i)) for i in range(n)]
         trace = {
             "decoded_bits": np.tile(bits, (slots, 1)).astype(float),
             "harq": np.ones((slots, n)),

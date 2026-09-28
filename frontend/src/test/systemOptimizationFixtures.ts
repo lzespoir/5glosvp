@@ -97,6 +97,8 @@ export const fixtureParameter: SystemParameterView = {
   affects_propagation: false,
   recommended_values: [0.1, 0.3, 0.6, 0.9, 0.99],
   recommended_values_source: '[A] Demo search space',
+  recommended_search_bounds: [0.05, 0.99],
+  recommended_search_bounds_source: '[A] Engineering demonstration interval',
 };
 
 function stat(mean: number): KpiStatistic {

@@ -15,6 +15,13 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, ConfigDict, Field
 
+from algorithms import (
+    AlgorithmCategory,
+    AlgorithmTrace,
+    HyperparameterValue,
+    ParameterSpace,
+    StopReason,
+)
 from optimization.models import ObjectiveSpec, OptimizationCandidate, OptimizationStatus
 from optimization.parameters import ParameterDefinition, ParameterValue
 
@@ -211,6 +218,15 @@ class SystemOptimizationCandidate(OptimizationCandidate):
     p5_ue_throughput_mbps: KpiStatistic | None = None
     per_ue_throughput_mbps: dict[str, float] = Field(default_factory=dict)
     fairness: FairnessEvidence | None = None
+    # Day 7：评价缓存 / 去重（同一上下文 + 同一参数 + 同一后端配置 → 复用已有评价，不再仿真）
+    algorithm_round: int | None = None
+    evaluation_cache_key: str | None = None
+    cache_hit: bool = False
+    reused_candidate_id: str | None = None
+
+    @property
+    def reused(self) -> bool:
+        return self.reused_baseline or self.cache_hit
 
 
 # ---------------------------------------------------------------------------
@@ -293,6 +309,7 @@ class SystemOptimizationErrorCode(str, Enum):
     CONTEXT_PREPARATION_FAILED = "CONTEXT_PREPARATION_FAILED"
     EVIDENCE_EXPORT_FAILED = "EVIDENCE_EXPORT_FAILED"
     OPTIMIZATION_FAILED = "OPTIMIZATION_FAILED"
+    ALGORITHM_FAILED = "ALGORITHM_FAILED"
     INTERRUPTED = "INTERRUPTED"
 
 
@@ -321,6 +338,48 @@ class SystemOptimizationArtifact(BaseModel):
     name: str
     media_type: str
     description: str
+
+
+class ParameterSpec(_Strict):
+    """请求中的一个优化变量：连续（算法生成取值）或离散（枚举候选值）。"""
+
+    id: str
+    type: Literal["continuous", "discrete"]
+    lower: float | None = None
+    upper: float | None = None
+    choices: list[float] | None = None
+
+
+class EvaluationBudget(BaseModel):
+    """评价预算由平台执行；每个被接受的算法建议消耗 1 次（包括缓存命中），基线不计入。"""
+
+    max_evaluations: int
+    evaluations_used: int = 0
+    simulations_run: int = 0
+    cache_hits: int = 0
+    rejected_suggestions: int = 0
+
+
+class AlgorithmRunInfo(BaseModel):
+    """算法 provenance：一次运行使用的算法身份、配置与源码版本。"""
+
+    algorithm_id: str
+    algorithm_version: str
+    algorithm_name_en: str
+    algorithm_name_zh: str
+    algorithm_provider: str
+    algorithm_category: AlgorithmCategory
+    sdk_version: str
+    learning_algorithm: bool
+    project_research_deliverable: bool
+    purpose_en: str
+    purpose_zh: str
+    hyperparameters: dict[str, HyperparameterValue]
+    auto_configured: bool = Field(description="True when every hyperparameter used its recommended default")
+    algorithm_config_hash: str
+    parameter_space_hash: str
+    source: str
+    source_revision: dict[str, str | None]
 
 
 class SystemOptimizationRecord(BaseModel):
@@ -358,6 +417,13 @@ class SystemOptimizationRecord(BaseModel):
     error: SystemOptimizationError | None = None
     events: list[SystemOptimizationEvent] = Field(default_factory=list)
     status_history: list[dict[str, str]] = Field(default_factory=list)
+    # Day 7 algorithm integration（Day 6 记录中为 None）
+    algorithm: AlgorithmRunInfo | None = None
+    parameter_space: ParameterSpace | None = None
+    evaluation_budget: EvaluationBudget | None = None
+    algorithm_trace: AlgorithmTrace | None = None
+    stop_reason: StopReason | None = None
+    recommendation_matches_best: bool | None = None
 
     def transition(self, status: OptimizationStatus) -> None:
         self.status = status

@@ -19,7 +19,7 @@ from system_simulation import SystemExperimentService
 
 from . import __version__
 from .errors import install_error_handlers
-from .routes import experiments, health, optimizations, scenarios, system, system_optimization
+from .routes import algorithms, experiments, health, optimizations, scenarios, system, system_optimization
 from .schemas import API_PREFIX
 
 
@@ -40,7 +40,7 @@ def create_app(
     app = FastAPI(
         title="5G Learning Optimization Simulation & Validation Platform API",
         description=(
-            "5G 网络学习优化仿真验证平台 API（Day 6）。当前所有结果均为仿真生成数据"
+            "5G 网络学习优化仿真验证平台 API（Day 7）。当前所有结果均为仿真生成数据"
             "（Simulation Generated），不是实测或现网数据。"
         ),
         version=__version__,
@@ -69,4 +69,5 @@ def create_app(
         app.include_router(system.router, prefix=API_PREFIX)
     if system_optimization_service is not None:
         app.include_router(system_optimization.router, prefix=API_PREFIX)
+        app.include_router(algorithms.router, prefix=API_PREFIX)
     return app

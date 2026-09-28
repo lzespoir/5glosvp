@@ -3,11 +3,11 @@ import type { ColumnsType } from 'antd/es/table';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+import { useAlgorithms } from '../../api/algorithms';
 import {
   useBenchmarkProtocols,
   useSystemObjectives,
   useSystemOptimizations,
-  useSystemOptimizers,
   useSystemParameters,
 } from '../../api/systemOptimizations';
 import { ErrorState } from '../../components/ErrorState';
@@ -44,6 +44,16 @@ const columns: ColumnsType<SystemOptimizationResponse> = [
       <>
         {o.scenario_name_zh}
         <div className="muted">{o.scenario_id}</div>
+      </>
+    ),
+  },
+  {
+    title: '算法 Algorithm',
+    key: 'algorithm',
+    render: (_, o) => (
+      <>
+        <code>{o.optimizer_id}</code>
+        <div className="muted">v{o.optimizer_version}</div>
       </>
     ),
   },
@@ -109,14 +119,15 @@ export function SystemOptimizations() {
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const [modalOpen, setModalOpen] = useState(false);
-  const optimizers = useSystemOptimizers();
+  const algorithms = useAlgorithms();
   const objectives = useSystemObjectives();
   const parameters = useSystemParameters();
   const protocols = useBenchmarkProtocols();
   const runs = useSystemOptimizations(PAGE_SIZE, (page - 1) * PAGE_SIZE);
-  const catalog = [optimizers, objectives, parameters, protocols];
-  const catalogError = catalog.find((q) => q.isError);
-  const catalogReady = catalog.every((q) => q.data && q.data.length > 0);
+  const catalog = [objectives, parameters, protocols];
+  const catalogError = [algorithms, ...catalog].find((q) => q.isError);
+  const algorithmItems = algorithms.data?.items ?? [];
+  const catalogReady = algorithmItems.length > 0 && catalog.every((q) => q.data && q.data.length > 0);
 
   return (
     <>
@@ -127,7 +138,10 @@ export function SystemOptimizations() {
       </div>
       {catalogError ? (
         <Card className="section-bottom">
-          <ErrorState error={catalogError.error} onRetry={() => catalog.forEach((q) => void q.refetch())} />
+          <ErrorState
+            error={catalogError.error}
+            onRetry={() => [algorithms, ...catalog].forEach((q) => void q.refetch())}
+          />
         </Card>
       ) : !catalogReady ? (
         <Card className="section-bottom"><Skeleton active /></Card>
@@ -140,7 +154,11 @@ export function SystemOptimizations() {
             <Col key={p.protocol_id} xs={24} lg={12}><ProtocolCard protocol={p} /></Col>
           ))}
           <Col span={24}>
-            <Alert type="info" showIcon title="Grid Search 为工程基线优化器，不属于项目学习优化算法。" />
+            <Alert
+              type="info"
+              showIcon
+              title="算法来自 Algorithm Registry：Grid Search 为工程基线，Research Demo Optimizer 为接入验证算法；两者都不是项目学习优化算法。"
+            />
           </Col>
         </Row>
       )}
@@ -182,7 +200,7 @@ export function SystemOptimizations() {
       {modalOpen && catalogReady && (
         <CreateSystemOptimizationModal
           open={modalOpen}
-          optimizers={optimizers.data ?? []}
+          algorithms={algorithmItems}
           objectives={objectives.data ?? []}
           parameters={parameters.data ?? []}
           protocols={protocols.data ?? []}

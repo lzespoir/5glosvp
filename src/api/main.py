@@ -12,6 +12,7 @@ import subprocess
 
 from fastapi import FastAPI
 
+from algorithms import default_algorithm_registry
 from evaluation.kpi import default_kpi_registry
 from experiments import ExperimentService, FileExperimentStore, ScenarioCatalog
 from optimization import (
@@ -71,7 +72,7 @@ def build_app(settings: Settings | None = None) -> FastAPI:
     system_optimization_service = SystemOptimizationService(
         experiments=system_service,
         store=FileSystemOptimizationStore(settings.system_optimizations_dir),
-        optimizers=default_optimizer_registry(),
+        algorithms=default_algorithm_registry(),
         objectives=default_system_objective_registry(),
         protocols=default_protocol_registry(),
         parameters=default_system_parameter_catalog(),
