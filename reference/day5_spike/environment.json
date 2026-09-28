@@ -1,0 +1,12 @@
+{
+  "python": "3.11.16",
+  "sionna": "2.1.0",
+  "sionna_rt": "2.1.0",
+  "mitsuba": "3.9.1",
+  "drjit": "1.5.0",
+  "torch": "2.14.0+cu130",
+  "torch_cuda_build": "13.0",
+  "torch_cuda_available": false,
+  "sys_device": "cpu",
+  "mitsuba_variant": "cuda_ad_mono_polarized"
+}

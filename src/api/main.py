@@ -1,6 +1,6 @@
 """
-生产入口：装配默认后端、实验仓库、场景目录与优化服务。
-Production entrypoint wiring the default backends, stores, scenario catalog and optimization service.
+生产入口：装配默认后端、实验仓库、场景目录、优化服务与系统级仿真服务。
+Production entrypoint wiring the default backends, stores, scenario catalogs, optimization and system services.
 
     uvicorn api.main:app --app-dir src
 """
@@ -8,9 +8,11 @@ Production entrypoint wiring the default backends, stores, scenario catalog and 
 from __future__ import annotations
 
 import logging
+import subprocess
 
 from fastapi import FastAPI
 
+from evaluation.kpi import default_kpi_registry
 from experiments import ExperimentService, FileExperimentStore, ScenarioCatalog
 from optimization import (
     FileOptimizationStore,
@@ -19,9 +21,21 @@ from optimization import (
     default_optimizer_registry,
 )
 from simulation.backends import default_registry
+from simulation.backends.system import default_system_registry
+from system_simulation import FileSystemExperimentStore, SystemExperimentService, SystemScenarioCatalog
 
+from . import __version__
 from .app import create_app
-from .settings import Settings
+from .settings import REPO_ROOT, Settings
+
+
+def _git_commit() -> str | None:
+    try:
+        out = subprocess.run(["git", "describe", "--always", "--dirty", "--abbrev=7"], cwd=REPO_ROOT,
+                             capture_output=True, text=True, timeout=5, check=True)
+    except (OSError, subprocess.SubprocessError):
+        return None
+    return out.stdout.strip() or None
 
 
 def build_app(settings: Settings | None = None) -> FastAPI:
@@ -38,11 +52,20 @@ def build_app(settings: Settings | None = None) -> FastAPI:
         optimizers=default_optimizer_registry(),
         objectives=default_objective_registry(),
     )
+    system_service = SystemExperimentService(
+        store=FileSystemExperimentStore(settings.system_experiments_dir),
+        registry=default_system_registry(include_testing=settings.testing),
+        catalog=SystemScenarioCatalog(settings.system_configs_dir),
+        kpis=default_kpi_registry(),
+        platform_version=__version__,
+        git_commit=_git_commit(),
+    )
     return create_app(
         service,
         cors_origins=list(settings.cors_origins),
         testing=settings.testing,
         optimization_service=optimization_service,
+        system_service=system_service,
     )
 
 

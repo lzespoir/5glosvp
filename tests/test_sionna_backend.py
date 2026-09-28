@@ -181,9 +181,13 @@ def test_end_to_end_experiment_artifacts(tmp_path):
 
 @pytest.mark.unit
 def test_only_adapter_imports_sionna():
-    """架构约束：只有 sionna_backend.py 可以 import Sionna / Mitsuba / Dr.Jit。"""
-    pattern = re.compile(r"^\s*(from|import)\s+(sionna|mitsuba|drjit)\b", re.MULTILINE)
-    allowed = {REPO_ROOT / "src" / "simulation" / "backends" / "sionna_backend.py"}
+    """架构约束：只有两个 Sionna 适配器（及一次性 Day 5 探针脚本）可以 import Sionna / Mitsuba / Dr.Jit / PyTorch。"""
+    pattern = re.compile(r"^\s*(from|import)\s+(sionna|mitsuba|drjit|torch)\b", re.MULTILINE)
+    allowed = {
+        REPO_ROOT / "src" / "simulation" / "backends" / "sionna_backend.py",
+        REPO_ROOT / "src" / "simulation" / "backends" / "sionna_system_backend.py",
+        REPO_ROOT / "scripts" / "day5_system_spike.py",
+    }
     offenders = [
         str(p.relative_to(REPO_ROOT))
         for d in ("src", "scripts")

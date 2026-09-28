@@ -6,6 +6,11 @@ PyYAML>=6.0
 numpy>=2.0
 matplotlib>=3.8
 
+# Day 5 系统级仿真：Sionna SYS / PHY（PyTorch 实现）
+# Day 5 system-level simulation: Sionna SYS / PHY (PyTorch-based); verified with sionna 2.1.0 + torch 2.14.0
+sionna>=2.1.0,<3
+torch>=2.4
+
 # Day 2 HTTP API
 fastapi>=0.141
 uvicorn>=0.54

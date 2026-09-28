@@ -23,6 +23,15 @@ from optimization import (
     OptimizerNotFoundError,
 )
 from simulation import BackendUnavailableError
+from system_simulation import (
+    InvalidSystemScenarioError,
+    SystemArtifactNotFoundError,
+    SystemBackendNotFoundError,
+    SystemBackendUnavailableError,
+    SystemCapabilityNotSupportedError,
+    SystemExperimentNotFoundError,
+    SystemScenarioNotFoundError,
+)
 
 from .schemas import ErrorBody, ErrorResponse
 
@@ -43,6 +52,15 @@ class ErrorCode(str, Enum):
     OPTIMIZATION_NOT_FOUND = "OPTIMIZATION_NOT_FOUND"
     INVALID_PARAMETER_SPACE = "INVALID_PARAMETER_SPACE"
     OPTIMIZATION_FAILED = "OPTIMIZATION_FAILED"
+    SYSTEM_SCENARIO_NOT_FOUND = "SYSTEM_SCENARIO_NOT_FOUND"
+    SYSTEM_EXPERIMENT_NOT_FOUND = "SYSTEM_EXPERIMENT_NOT_FOUND"
+    SYSTEM_BACKEND_NOT_FOUND = "SYSTEM_BACKEND_NOT_FOUND"
+    SYSTEM_BACKEND_UNAVAILABLE = "SYSTEM_BACKEND_UNAVAILABLE"
+    SYSTEM_CAPABILITY_NOT_SUPPORTED = "SYSTEM_CAPABILITY_NOT_SUPPORTED"
+    SYSTEM_SIMULATION_FAILED = "SYSTEM_SIMULATION_FAILED"
+    INVALID_SYSTEM_SCENARIO = "INVALID_SYSTEM_SCENARIO"
+    NO_UE_RESULTS = "NO_UE_RESULTS"
+    KPI_CALCULATION_FAILED = "KPI_CALCULATION_FAILED"
 
 
 # code → (HTTP status, 中文, English)
@@ -60,6 +78,17 @@ _ERRORS: dict[ErrorCode, tuple[int, str, str]] = {
     ErrorCode.OPTIMIZATION_NOT_FOUND: (404, "优化实验不存在", "Optimization not found"),
     ErrorCode.INVALID_PARAMETER_SPACE: (422, "搜索空间无效", "Invalid parameter space"),
     ErrorCode.OPTIMIZATION_FAILED: (500, "优化运行失败", "Optimization failed"),
+    ErrorCode.SYSTEM_SCENARIO_NOT_FOUND: (404, "系统级场景不存在", "System scenario not found"),
+    ErrorCode.SYSTEM_EXPERIMENT_NOT_FOUND: (404, "系统级实验不存在", "System experiment not found"),
+    ErrorCode.SYSTEM_BACKEND_NOT_FOUND: (404, "系统级仿真后端不存在", "System backend not found"),
+    ErrorCode.SYSTEM_BACKEND_UNAVAILABLE: (503, "系统级仿真后端不可用", "System backend unavailable"),
+    ErrorCode.SYSTEM_CAPABILITY_NOT_SUPPORTED: (
+        422, "该后端不支持系统级仿真能力", "Backend does not support the system simulation capability"
+    ),
+    ErrorCode.SYSTEM_SIMULATION_FAILED: (500, "系统级仿真失败", "System simulation failed"),
+    ErrorCode.INVALID_SYSTEM_SCENARIO: (422, "系统级场景无效", "Invalid system scenario"),
+    ErrorCode.NO_UE_RESULTS: (500, "没有 UE 结果", "No UE results"),
+    ErrorCode.KPI_CALCULATION_FAILED: (500, "KPI 计算失败", "KPI calculation failed"),
 }
 
 
@@ -80,6 +109,13 @@ _EXCEPTION_CODES: list[tuple[type[Exception], ErrorCode]] = [
     (ObjectiveNotFoundError, ErrorCode.OBJECTIVE_NOT_FOUND),
     (OptimizationNotFoundError, ErrorCode.OPTIMIZATION_NOT_FOUND),
     (InvalidParameterSpaceError, ErrorCode.INVALID_PARAMETER_SPACE),
+    (SystemScenarioNotFoundError, ErrorCode.SYSTEM_SCENARIO_NOT_FOUND),
+    (SystemExperimentNotFoundError, ErrorCode.SYSTEM_EXPERIMENT_NOT_FOUND),
+    (SystemArtifactNotFoundError, ErrorCode.ARTIFACT_NOT_FOUND),
+    (SystemBackendNotFoundError, ErrorCode.SYSTEM_BACKEND_NOT_FOUND),
+    (SystemBackendUnavailableError, ErrorCode.SYSTEM_BACKEND_UNAVAILABLE),
+    (SystemCapabilityNotSupportedError, ErrorCode.SYSTEM_CAPABILITY_NOT_SUPPORTED),
+    (InvalidSystemScenarioError, ErrorCode.INVALID_SYSTEM_SCENARIO),
 ]
 
 

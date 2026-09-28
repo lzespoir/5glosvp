@@ -1,5 +1,11 @@
-import { ArrowRightOutlined } from '@ant-design/icons';
-import { Badge, Button, Card, Col, Descriptions, Empty, Row, Skeleton, Statistic, Table } from 'antd';
+import {
+  ArrowRightOutlined,
+  AuditOutlined,
+  ClusterOutlined,
+  EnvironmentOutlined,
+  FunctionOutlined,
+} from '@ant-design/icons';
+import { Badge, Button, Card, Col, Descriptions, Empty, Row, Skeleton, Space, Statistic, Table, Tag } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import type { ReactNode } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
@@ -17,6 +23,13 @@ import type { ExperimentResponse } from '../../types/experiment';
 import { EMPTY, formatDateTime, formatSeconds } from '../../utils/format';
 
 const RECENT_LIMIT = 20;
+
+const QUICK_START: { titleZh: string; titleEn: string; desc: string; to: string | null; icon: ReactNode }[] = [
+  { titleZh: '运行传播仿真', titleEn: 'Run Propagation Simulation', desc: 'Sionna RT 无线电地图', to: '/scenarios', icon: <EnvironmentOutlined /> },
+  { titleZh: '运行系统仿真', titleEn: 'Run System Simulation', desc: '多 UE 下行吞吐率与网络 KPI', to: '/system', icon: <ClusterOutlined /> },
+  { titleZh: '运行参数优化', titleEn: 'Run Parameter Optimization', desc: '传播层目标函数网格搜索', to: '/optimizations', icon: <FunctionOutlined /> },
+  { titleZh: '验收验证', titleEn: 'Acceptance Validation', desc: '尚未开放', to: null, icon: <AuditOutlined /> },
+];
 
 export const recentColumns: ColumnsType<ExperimentResponse> = [
   { title: '实验 Experiment', dataIndex: 'experiment_id', render: (id: string) => <code>{id}</code> },
@@ -67,6 +80,37 @@ export function OverviewPage() {
           </>
         }
       />
+
+      <Card
+        size="small"
+        className="section-bottom"
+        title={<span>快速开始 <span className="card-title-en">Quick Start</span></span>}
+        data-testid="quick-start"
+      >
+        <Row gutter={[12, 12]}>
+          {QUICK_START.map(({ to, ...q }) => (
+            <Col xs={24} sm={12} xl={6} key={q.titleEn}>
+              <Card
+                size="small"
+                hoverable={to !== null}
+                className={`quick-start__item${to ? '' : ' quick-start__item--disabled'}`}
+                onClick={to ? () => navigate(to) : undefined}
+              >
+                <Space align="start">
+                  <span className="quick-start__icon">{q.icon}</span>
+                  <span>
+                    <div className="quick-start__title">
+                      {q.titleZh} {!to && <Tag>Coming Soon</Tag>}
+                    </div>
+                    <div className="muted">{q.titleEn}</div>
+                    <div className="muted quick-start__desc">{q.desc}</div>
+                  </span>
+                </Space>
+              </Card>
+            </Col>
+          ))}
+        </Row>
+      </Card>
 
       <Row gutter={[16, 16]}>
         <Col xs={24} sm={12} xl={6}>

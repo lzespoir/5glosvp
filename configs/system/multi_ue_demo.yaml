@@ -1,0 +1,66 @@
+# Day 5 系统级演示场景：1 BS / 1 Cell / 6 UE 下行，3.5 GHz，100 MHz，full buffer
+# [A] = Assumption（假设），非华为实测参数
+scenario_id: SYSTEM-DEMO-001
+name_zh: 多用户下行系统仿真演示
+name_en: Multi-UE Downlink System Simulation Demo
+description: >-
+  单基站单小区、6 个 UE 的下行系统级仿真。Sionna RT 计算信道，Sionna SYS 完成
+  比例公平调度、功率分配、链路自适应与 PHY 抽象；UE 吞吐率 = 成功译码比特 / 仿真时长。
+backend: sionna_system
+scene: etoile
+seed: 20260927
+
+base_stations:
+  - bs_id: BS-001
+    name: gNB-1
+    position: [-150.3, 21.63, 42.5]     # 与 Day 4 SIONNA-DEMO-001 相同位置
+
+cells:
+  - cell_id: CELL-001
+    bs_id: BS-001
+    carrier_frequency_hz: 3.5e9
+    bandwidth_hz: 100.0e6
+    tx_power_dbm: 44.0
+    antenna:
+      num_rows: 2
+      num_cols: 4
+      pattern: tr38901
+      polarization: V
+      source: "[A] 8 天线 TR 38.901 平面阵"
+
+ue_generator:
+  type: uniform_area_with_path
+  count: 6
+  seed: 20260927
+  area_center: [0.0, 0.0]
+  area_size: [850.0, 670.0]             # 与 Day 4 radio map 测量区域相同
+  height_m: 1.5
+  max_candidates: 60
+  source: "[A] 区域内均匀撒点，按生成顺序保留前 6 个存在传播路径的位置"
+
+traffic:
+  type: full_buffer
+  direction: downlink
+
+simulation:
+  num_slots: 200
+  subcarrier_spacing_hz: 30.0e3
+  num_prb: 273
+  num_data_symbols_per_slot: 12
+  slot_duration_s: 0.5e-3
+  noise_figure_db: 7.0
+  temperature_k: 290.0
+  max_depth: 5
+  samples_per_src: 1000000
+  scheduler: {id: pf_su_mimo, beta: 0.9}
+  link_adaptation: {id: olla, bler_target: 0.1, mcs_table_index: 1}
+  power_control: {id: downlink_fair, guaranteed_power_ratio: 0.5, fairness: 0.0}
+
+assumptions:
+  - "[A] 业务模型 full buffer：所有 UE 始终有下行数据"
+  - "[A] 每时隙 14 个 OFDM 符号中 12 个承载数据（2 个符号为控制/DMRS 开销）"
+  - "[A] UE 噪声系数 7 dB，温度 290 K"
+  - "[A] UE 静止，信道在仿真期间不变（每时隙复用同一 CFR）"
+  - "[A] UE 单天线全向（iso），基站 2×4 TR 38.901 平面阵"
+  - "[A] 单小区，无小区间干扰"
+  - "[A] 仿真 200 个时隙（0.1 s）"

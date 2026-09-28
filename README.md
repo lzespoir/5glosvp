@@ -18,12 +18,24 @@
   Web Frontend V0.1: run a Sionna RT experiment from the browser and inspect its results.
 - **Day 4**：Optimization Loop V0.2。网格搜索（Grid Search，工程基线优化器，**不是学习算法**）通过统一的 Optimizer 接口调用真实 Sionna RT，评价候选配置，选出目标函数最优的配置，并在 Web UI 中形成可追溯的 Before/After 证据链。
   Grid Search (engineering baseline, not a learning algorithm) evaluates real Sionna RT candidates through a unified optimizer interface.
+- **Day 5**：System-Level KPI V0.3 —— 第一个 5G 用户故事“多用户下行系统仿真”。Sionna RT 计算信道，Sionna SYS 完成调度、功率分配、链路自适应与 PHY 抽象，平台 KPI 引擎由成功译码比特计算 UE 吞吐率、网络吞吐率、平均与 P5 UE 吞吐率，并在 Web UI 中给出可追溯的计算链。
+  First 5G user story: multi-UE downlink system simulation (Sionna RT → Sionna SYS → versioned throughput KPIs).
 
-设计任务书：[`design/001.md`](design/001.md)（Day 1）、[`design/DAY1_FIX_and_DAY2_API.md`](design/DAY1_FIX_and_DAY2_API.md)（Day 1.1 + Day 2）、[`design/DAY3_FRONTEND.md`](design/DAY3_FRONTEND.md)（Day 3）、[`design/DAY4_OPTIMIZATION.md`](design/DAY4_OPTIMIZATION.md)（Day 4）。
+设计任务书：[`design/001.md`](design/001.md)（Day 1）、[`design/DAY1_FIX_and_DAY2_API.md`](design/DAY1_FIX_and_DAY2_API.md)（Day 1.1 + Day 2）、[`design/DAY3_FRONTEND.md`](design/DAY3_FRONTEND.md)（Day 3）、[`design/DAY4_OPTIMIZATION.md`](design/DAY4_OPTIMIZATION.md)（Day 4）、[`design/DAY5_SYSTEM_LEVEL_KPI.md`](design/DAY5_SYSTEM_LEVEL_KPI.md)（Day 5）。
+
+## 当前能力 / Current Capabilities
+
+| 能力 / Capability | 状态 / Status |
+| --- | --- |
+| 传播仿真 Propagation Simulation（Sionna RT radio map） | ✓ |
+| 参数优化 Optimization（Grid Search，传播层目标函数） | ✓ |
+| 系统级仿真 System-Level Simulation（Sionna SYS，多 UE 下行吞吐率 KPI） | ✓ |
+| 实测数据验证 Measured Data Validation | Not Yet |
+| 验收 KPI Acceptance KPI | Not Yet |
 
 ## 当前状态 / Current Status
 
-**Day 1 技术探针 + Day 1.1 修复 + Day 2 Experiment API + Day 3 Web 前端 V0.1 + Day 4 Optimization Loop V0.2：完成 / DONE**
+**Day 1 技术探针 + Day 1.1 修复 + Day 2 Experiment API + Day 3 Web 前端 V0.1 + Day 4 Optimization Loop V0.2 + Day 5 System-Level KPI V0.3：完成 / DONE**
 
 | 项目 / Item | 值 / Value |
 | --- | --- |
@@ -38,6 +50,8 @@
 | Radio Map API | `sionna.rt.RadioMapSolver` → `PlanarRadioMap` |
 | 主指标 / Metric | RSS [dBm]（同时保存 Path Gain [dB]、SINR [dB]） |
 | 仿真耗时 / Simulation runtime | 首次约 0.4 s（含 Dr.Jit 内核编译），缓存后约 0.04 s（1e7 rays, 170×134 cells） |
+| Sionna（PHY/SYS）/ PyTorch | 2.1.0 / 2.14.0+cu130（PyTorch 无法使用本机 GPU，**Sionna SYS 在 CPU 上运行**） |
+| 系统级耗时 / System run | 6 UE × 200 时隙：RT ≈ 1 s + SYS ≈ 40 s（CPU） |
 
 ### 测试状态的含义 / What test status means
 
@@ -75,9 +89,20 @@
 └──────────────────────────────┘
 ```
 
+Day 5 系统级链路（并行于传播层，不修改 Day 4 路由）：
+
+```text
+API /system-*  →  SystemExperimentService  →  SystemBackendRegistry（按 capability 选择）
+               →  SystemSimulationBackend ── SionnaSystemBackend（Sionna RT → Sionna SYS）/ FakeSystemBackend（test_fixture）
+               →  Canonical SystemSimulationResult  →  KPI Registry（evaluation.kpi）→  Artifacts → Store
+```
+
+详见 [`docs/system/system-model-v0.1.md`](docs/system/system-model-v0.1.md) 与 [`docs/architecture/simulation-provider.md`](docs/architecture/simulation-provider.md)。
+
 依赖只能自上而下。架构约束由测试自动检查：
 
-- 除 `sionna_backend.py` 外不得 `import sionna / mitsuba / drjit`（`test_only_adapter_imports_sionna`）。
+- 只有两个适配器 `sionna_backend.py`、`sionna_system_backend.py`（及一次性探针 `scripts/day5_system_spike.py`）可以 `import sionna / mitsuba / drjit / torch`（`test_only_adapter_imports_sionna`）。
+- `src/evaluation`、`src/system_simulation` 不得 import 任何仿真引擎或 `simulation.backends`（`test_domain_layers_do_not_import_engines`）。
 - `src/api`、`src/experiments` 不得 import Sionna 或 `simulation.backends`；唯一例外是生产装配入口 `src/api/main.py`（`test_api_layer_does_not_import_simulation_engines`）。
 - `src/optimization/optimizers`、`src/optimization/objectives` 不得 import Sionna、`simulation` 或 `experiments`（`test_optimizer_does_not_require_sionna`）。
 
@@ -100,6 +125,13 @@
 | `src/optimization/objectives/propagation_utility.py` | `PROPAGATION_UTILITY_V0_1`（见 [`docs/objectives/propagation-utility-v0.1.md`](docs/objectives/propagation-utility-v0.1.md)） |
 | `src/optimization/service.py` | `OptimizationService`：校验、基线独立运行、候选配置派生（不修改原场景）、基线复用、失败持久化、事件时间线 |
 | `src/optimization/store.py` | `FileOptimizationStore`：`data/optimizations/OPT-XXXXXXXX/optimization.json`（原子写入） |
+| `src/system_simulation/models.py` | 系统级统一模型：`BaseStation`、`Cell`、`UserEquipmentConfig`、`UeGeneratorConfig`、`TrafficDemand`、`SystemScenario`、`UserEquipmentResult`、`SystemSimulationResult`、`SystemExperimentRecord` |
+| `src/system_simulation/base.py` | `SystemSimulationBackend` 接口、`Capability`、`ModelType`、`SystemBackendDescriptor`、`SystemBackendRegistry`（能力查询） |
+| `src/system_simulation/service.py` | `SystemExperimentService`：校验场景/后端/能力、同步运行、KPI 评价、产物、失败持久化 |
+| `src/system_simulation/{store,scenarios,artifacts,ue_generation,fake_backend}.py` | 实验仓库、`configs/system/*.yaml` 目录、产物导出、种子化 UE 生成、测试假后端 |
+| `src/evaluation/kpi/` | KPI 引擎：冻结的 KPI 定义、评价器、注册表（见 [`docs/kpi/`](docs/kpi/)） |
+| `src/simulation/backends/sionna_system_backend.py` | `SionnaSystemBackend`：Sionna RT PathSolver → Sionna SYS 调度/功率/SINR/OLLA/PHY 抽象 |
+| `src/simulation/backends/system.py` | `default_system_registry`（仅 `api/main.py` 使用） |
 
 ## 安装 / Installation
 
@@ -150,6 +182,7 @@ uvicorn api.main:app --app-dir src --reload
 | `GLOSVP_DATA_DIR` | `data/experiments` | 实验仓库目录 |
 | `GLOSVP_CONFIGS_DIR` | `configs` | 场景配置目录 |
 | `GLOSVP_OPTIMIZATIONS_DIR` | `data/optimizations` | 优化运行仓库目录 |
+| `GLOSVP_SYSTEM_EXPERIMENTS_DIR` | `data/system_experiments` | 系统级实验仓库目录（场景读取 `$GLOSVP_CONFIGS_DIR/system/*.yaml`） |
 | `GLOSVP_EXPERIMENT_TIMEOUT` | `600` | 单次实验同步等待上限（秒，软超时） |
 | `TESTING` | 未设置 | `true` 时 `/backends` 额外列出 FakeBackend（仅软件测试），`/health` 返回 `testing: true`，前端显示“开发测试模式”横幅 |
 
@@ -182,9 +215,11 @@ npm run dev                       # http://127.0.0.1:5173 ，/api 代理到 http
 
 | 路由 | 页面 |
 | --- | --- |
-| `/overview`（`/` 重定向） | 平台概览：后端状态、场景/实验数量、最新 Radio Map、最近实验、运行耗时图 |
+| `/overview`（`/` 重定向） | 平台概览：快速开始（运行传播仿真 / 运行系统仿真 / 运行参数优化 / 验收验证 Coming Soon）、后端状态、场景/实验数量、最新 Radio Map、最近实验、运行耗时图 |
+| `/system` | 系统级仿真：科学边界提示、场景参数（BS/Cell/UE 数、频率、带宽、业务模型、后端、种子、数据来源）、二维网络视图（BS ▲ / UE 生成区域，无地图底图）、运行系统仿真、最近系统级实验 |
+| `/system/experiments/:experimentId` | 系统级结果：结果来源徽标（Sionna Simulation Generated / Fast Engineering Approximation / TEST FIXTURE）、KPI 卡片（网络 / 平均 / P5 / UE 数）与 KPI 详情、UE 吞吐率分布图、网络视图、UE 表、UE 计算链抽屉、数据来源与高级信息、运行耗时与产物 |
 | `/scenarios` | 场景中心：场景卡片与参数，“运行实验”确认 → 运行中 → 成功跳转详情 / 失败显示错误 |
-| `/experiments` | 实验中心：服务端分页（每页 20，`limit/offset`） |
+| `/experiments` | 实验中心：“传播仿真 / 系统级仿真”两个标签页（`?type=system`），服务端分页（每页 20，`limit/offset`） |
 | `/experiments/:experimentId` | 实验详情：Radio Map、RSS/SINR/Path Gain/Radio Map 覆盖比例、系统级 KPI 占位、运行耗时、数据来源、时间线、产物；优化产生的实验显示“优化基线/优化候选”并链接回优化实验 |
 | `/optimizations` | 优化中心：优化器卡片（网格搜索 · 工程基线 · Learning Algorithm: No）、目标函数卡片、新建优化实验、优化实验列表（服务端分页） |
 | `/optimizations/:optimizationId` | 优化详情：Before/After 无线电地图、优化目标改善、候选评价历史（ECharts，非平滑）、目标函数分解、候选表、数据来源、时间线、运行耗时 |
@@ -201,6 +236,9 @@ npm run dev                       # http://127.0.0.1:5173 ，/api 代理到 http
 - 优化目标值、改善量、相对改善、最优候选全部由后端计算；前端只展示，不计算目标函数。
 - “优化目标改善 Objective Improvement”按 `improvement_status` 着色：改善为绿色，`no_improvement` 为中性色（“未获得改善”），下降为警告色；不称为验收 KPI，也不显示“优化速度”。
 - 运行优化时只显示“正在执行参数搜索 Running parameter search...”，不显示伪造的候选进度。
+- 系统级 KPI、UE 吞吐率全部由后端 KPI 引擎计算；前端不计算 KPI，缺失值显示 “—” / “Not Available” 并给出原因，`null` 不会被替换为 0。
+- 前端按后端声明的 capability（如 `throughput`）与 `model_type` 展示，不按后端 ID 判断。
+- 系统级页面固定显示“当前结果来自系统级仿真，不是华为实测网络数据。”；P5 显示“尚未确认等同于验收口径的边缘用户速率”。
 
 浏览器实测截图见 [`reference/frontend/`](reference/frontend/)（1920×1080 与 1366×768，真实 Sionna RT 实验）与 [`reference/optimization/screenshots/`](reference/optimization/screenshots/)（优化中心与优化详情）。
 
@@ -314,6 +352,40 @@ curl -X POST http://127.0.0.1:8000/api/v1/optimizations \
 | `INVALID_PARAMETER_SPACE` | 422 |
 | `OPTIMIZATION_FAILED` | 优化内失败码（`optimization.error.code`） |
 
+### 系统级仿真 API / System Simulation API（Day 5）
+
+| Method | Path | 说明 |
+| --- | --- | --- |
+| GET | `/api/v1/system-backends?capability=` | 系统级后端：`category`、`capabilities`、`model_type` / `model_label`、`source_type`、`compute_device`、可用性 |
+| GET | `/api/v1/system-scenarios` · `/{scenario_id}` | 系统级场景（`configs/system/*.yaml`） |
+| GET | `/api/v1/kpis` | 冻结的 KPI 定义（公式、测量方法、假设、`acceptance_kpi = false`、文档路径） |
+| POST | `/api/v1/system-experiments` | 创建并**同步**运行（CPU 上约 40–60 s）；失败同样 201 + `status=failed` |
+| GET | `/api/v1/system-experiments?limit=&offset=` · `/{experiment_id}` | 列表 / 详情（`experiment_type = system`、`result`、`kpis`、`provenance`、`artifacts`） |
+| GET | `/api/v1/system-experiments/{experiment_id}/artifacts/{name}` | 产物 |
+
+```bash
+curl -X POST http://127.0.0.1:8000/api/v1/system-experiments \
+  -H 'Content-Type: application/json' \
+  -d '{"name": "Multi-UE demo", "scenario_id": "SYSTEM-DEMO-001"}'
+```
+
+| code | HTTP |
+| --- | --- |
+| `SYSTEM_BACKEND_NOT_FOUND` / `SYSTEM_SCENARIO_NOT_FOUND` / `SYSTEM_EXPERIMENT_NOT_FOUND` | 404 |
+| `SYSTEM_CAPABILITY_NOT_SUPPORTED` / `INVALID_SYSTEM_SCENARIO` | 422 |
+| `SYSTEM_BACKEND_UNAVAILABLE` | 503 |
+| `SYSTEM_SIMULATION_FAILED` / `INVALID_SYSTEM_SCENARIO` / `NO_UE_RESULTS` / `KPI_CALCULATION_FAILED` / `ARTIFACT_EXPORT_FAILED` | 实验内失败码（`error.code`） |
+
+产物 `data/system_experiments/EXP-XXXXXXXX/artifacts/`：`config.yaml`、`result.json`、`ue_results.json`、`kpi.json`、
+`metadata.json`（platform_version、git_commit、backend 与版本、场景、seed、traffic、scheduler、link adaptation、KPI 版本、source_type、measured、runtime）、
+`run.log`、`slot_trace.npz`（每时隙 × 每 UE 的 decoded_bits / harq / mcs / sinr_eff_db / num_re / tx_power_w）、`system_summary.png`。
+
+独立复核（不使用平台 KPI 引擎）：
+
+```bash
+python scripts/verify_system_experiment.py data/system_experiments/EXP-XXXXXXXX --out verification.json
+```
+
 ## 输出 / Outputs
 
 ### CLI：`outputs/EXP-XXXXXXXX/`
@@ -362,7 +434,7 @@ data/experiments/
 
 - `metrics.radio_map`：主指标统计（min/max/mean/median/覆盖率），仅统计有传播路径的格点。
 - `metrics.radio_map_layers`：RSS、Path Gain、SINR 三层统计，全部来自 Sionna RT `RadioMap.rss / path_gain / sinr`。
-- `rsrp` / `throughput` / `bler`：未实现，统一标记为 `{"status": "not_available", "reason": ...}`，**不伪造数值**。
+- `rsrp` / `throughput` / `bler`：传播实验中未实现，统一标记为 `{"status": "not_available", "reason": ...}`，**不伪造数值**。吞吐率由 Day 5 系统级实验提供（见上文 System Simulation API）。
 - 多发射端时按最佳服务小区（max over TX）聚合。
 
 ## 数据来源说明 / Data Provenance
@@ -391,7 +463,10 @@ data/experiments/
 - [`reference/api_experiment/`](reference/api_experiment/)：通过 `POST /api/v1/experiments` 的运行（`experiment.json`、`result.json`、`radio_map.png`）
 - [`reference/optimization/OPT-E56D9514/`](reference/optimization/OPT-E56D9514/)：从浏览器运行的真实 Sionna RT 网格搜索（`optimization.json`、`comparison.png`、`README.md`）。由 `python scripts/export_optimization_reference.py OPT-XXXXXXXX` 生成。Optimizer：Grid Search；Learning Algorithm：No；Purpose：Optimization Loop Validation。
 
-类型：Simulation Generated；Measured Data：NO；Acceptance Evidence：NO。
+- [`reference/day5_spike/`](reference/day5_spike/)：Day 5 系统级技术探针（Sionna RT → Sionna SYS，结论 GO）。
+- [`reference/system/`](reference/system/)：从浏览器运行的真实系统级实验（`README.md`、`result.json`、`kpi.json`、`verification.json`、`system-summary.png`）与截图。由 `python scripts/export_system_reference.py EXP-XXXXXXXX` 生成。Purpose：System-Level Simulation Validation。
+
+类型：Simulation Generated；Measured Data：NO；Huawei Data：NO；Acceptance Evidence：NO。
 
 ## 与任务书的差异 / Deviations from the Spec
 
@@ -426,6 +501,10 @@ data/experiments/
 - 优化为同步执行：`POST /optimizations` 在全部候选评价完成后返回（5 个候选约 4–5 s，Sionna 热启动）；没有后台任务、取消或进度推送。
 - 只支持单一参数（全部发射端统一的 TX Power）；多发射端独立功率、天线倾角等尚未开放。
 - 优化仓库与实验仓库一样按文件全量扫描，无数据库。
+- **系统级确定性限制**：UE 位置由种子完全确定；相同信道下 Sionna SYS（CPU）输出逐位一致。但 Sionna RT 在 GPU 上的路径求解存在约 0.003 dB 的离散信道增益漂移，经 OLLA/HARQ 放大后，同一 seed 重复运行的网络吞吐率约在 130–139 Mbps 之间（5 次运行）。集成测试不断言固定数值；未调种子。
+- **系统级在 CPU 上运行**：本机 PyTorch 2.14.0+cu130 与驱动（CUDA 12.9）不兼容，Sionna SYS 在 CPU 上计算（200 时隙约 40 s）；`POST /system-experiments` 同步等待，同一时刻只运行一个系统级实验（进程内锁）。
+- 系统级 V0.1 仅支持单 BS / 单小区、静止 UE、full buffer 下行、UE 单天线；开销仅以 12/14 数据符号近似；无小区间干扰、移动性、上行。
+- P5 UE Throughput 在 3–10 个 UE 的样本上统计意义有限，**不等同于**验收口径的边缘用户速率。
 
 ## 下一步 / Next Step
 
@@ -433,7 +512,11 @@ data/experiments/
 
 Day 4 新增冻结概念：`Optimizer`、`Objective`、`CandidateEvaluator`、`OptimizationRecord`、`OptimizationService`、`PROPAGATION_UTILITY_V0_1`（版本化，不得原地修改）。
 
-学习优化算法可作为新的 `Optimizer` 实现接入（复用同一 `CandidateEvaluator` 与目标函数），网格搜索保留为工程基线用于对比。验收中心与系统级 KPI（吞吐量、边缘用户速率、RSRP）在前端已预留入口，待对应后端能力与验收口径确定后接入。
+学习优化算法可作为新的 `Optimizer` 实现接入（复用同一 `CandidateEvaluator` 与目标函数），网格搜索保留为工程基线用于对比。
+
+Day 5 新增冻结概念：`SystemScenario`、`SystemSimulationBackend`（capability 声明）、`SystemSimulationResult`、`SystemExperimentRecord`（`experiment_type = system`）、KPI Engine 与 `UE_THROUGHPUT_V0_1` / `NETWORK_THROUGHPUT_V0_1` / `AVG_UE_THROUGHPUT_V0_1` / `P5_UE_THROUGHPUT_V0_1`（版本化，不得原地修改）。
+
+**Day 6 Ready**：系统级吞吐率 KPI 已可作为优化目标的输入（例如以 `NETWORK_THROUGHPUT_V0_1` / `P5_UE_THROUGHPUT_V0_1` 构造新的版本化 Objective，由 Optimizer 通过系统级实验评价候选）。验收中心、边缘用户速率验收口径、RSRP 与实测数据验证仍未实现。
 
 ## 目录结构 / Repository Layout
 
@@ -443,26 +526,36 @@ Day 4 新增冻结概念：`Optimizer`、`Objective`、`CandidateEvaluator`、`O
 ├── requirements.txt
 ├── pytest.ini
 ├── configs/sionna_demo.yaml
+├── configs/system/multi_ue_demo.yaml   # SYSTEM-DEMO-001
 ├── design/
 ├── reference/
 │   ├── sionna_demo/
 │   ├── api_experiment/
 │   ├── frontend/            # 浏览器实测截图
-│   └── optimization/        # OPT-XXXXXXXX/ 优化参考证据 + screenshots/
+│   ├── optimization/        # OPT-XXXXXXXX/ 优化参考证据 + screenshots/
+│   ├── day5_spike/          # 系统级技术探针
+│   └── system/              # EXP-XXXXXXXX/ 系统级参考证据 + screenshots/
 ├── docs/objectives/         # 目标函数定义（版本化）
+├── docs/kpi/                # KPI 定义（版本化）
+├── docs/system/  docs/architecture/  docs/assumptions.md
 ├── frontend/
 │   ├── package.json  vite.config.ts  tsconfig.json  index.html
 │   └── src/
 │       ├── api/  types/  utils/  layouts/  test/
 │       ├── components/  (PageHeader, StatusTag, ProvenanceTag, MetricCard, EmptyMetric, RadioMap,
 │       │                 RuntimePanel, RuntimeChart, ProvenancePanel, StatusTimeline, ArtifactsPanel, ErrorState,
-│       │                 ObjectiveHistoryChart)
-│       └── pages/       (Overview, Scenarios, Optimizations, OptimizationDetail, Experiments, ExperimentDetail, ComingSoon)
+│       │                 ObjectiveHistoryChart, SystemModelBadge, NetworkView, UeThroughputChart)
+│       └── pages/       (Overview, Scenarios, System, SystemExperimentDetail, Optimizations, OptimizationDetail,
+│                         Experiments, ExperimentDetail, ComingSoon)
 ├── src/
 │   ├── simulation/
 │   │   ├── base.py  models.py  errors.py  registry.py
 │   │   ├── artifacts.py  runner.py  fake_backend.py
-│   │   └── backends/  (__init__.py, sionna_backend.py)
+│   │   └── backends/  (__init__.py, sionna_backend.py, sionna_system_backend.py, system.py)
+│   ├── system_simulation/
+│   │   ├── models.py  errors.py  base.py  service.py  store.py  scenarios.py
+│   │   └── artifacts.py  ue_generation.py  fake_backend.py
+│   ├── evaluation/kpi/  (models.py, definitions.py, evaluators.py, registry.py)
 │   ├── experiments/
 │   │   ├── models.py  errors.py  store.py  scenarios.py  service.py
 │   ├── optimization/
@@ -470,13 +563,16 @@ Day 4 新增冻结概念：`Optimizer`、`Objective`、`CandidateEvaluator`、`O
 │   │   ├── optimizers/grid_search.py
 │   │   └── objectives/propagation_utility.py
 │   └── api/
-│       ├── app.py  main.py  settings.py  schemas.py  optimization_schemas.py  errors.py  deps.py
-│       └── routes/  (health.py, scenarios.py, experiments.py, optimizations.py)
+│       ├── app.py  main.py  settings.py  schemas.py  optimization_schemas.py  system_schemas.py  errors.py  deps.py
+│       └── routes/  (health.py, scenarios.py, experiments.py, optimizations.py, system.py)
 ├── scripts/
 │   ├── check_environment.py
 │   ├── run_sionna_demo.py
 │   ├── smoke_test_api.py
-│   └── export_optimization_reference.py
+│   ├── export_optimization_reference.py
+│   ├── day5_system_spike.py
+│   ├── verify_system_experiment.py
+│   └── export_system_reference.py
 ├── tests/
 │   ├── conftest.py
 │   ├── test_models.py
@@ -485,6 +581,10 @@ Day 4 新增冻结概念：`Optimizer`、`Objective`、`CandidateEvaluator`、`O
 │   ├── test_api_sionna.py
 │   ├── test_optimization.py
 │   ├── test_api_optimization.py
-│   └── test_optimization_sionna.py
+│   ├── test_optimization_sionna.py
+│   ├── system_helpers.py
+│   ├── test_system_models.py  test_kpi.py  test_system_backends.py
+│   ├── test_api_system.py
+│   └── test_system_sionna.py
 └── outputs/.gitkeep
 ```

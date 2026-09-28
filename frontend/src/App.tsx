@@ -8,6 +8,8 @@ import { OptimizationDetailPage } from './pages/OptimizationDetail';
 import { OptimizationsPage } from './pages/Optimizations';
 import { OverviewPage } from './pages/Overview';
 import { ScenariosPage } from './pages/Scenarios';
+import { SystemPage } from './pages/System';
+import { SystemExperimentDetailPage } from './pages/SystemExperimentDetail';
 
 export function App() {
   return (
@@ -20,6 +22,8 @@ export function App() {
         <Route path="experiments/:experimentId" element={<ExperimentDetailPage />} />
         <Route path="optimizations" element={<OptimizationsPage />} />
         <Route path="optimizations/:optimizationId" element={<OptimizationDetailPage />} />
+        <Route path="system" element={<SystemPage />} />
+        <Route path="system/experiments/:experimentId" element={<SystemExperimentDetailPage />} />
         <Route path="algorithms" element={<Navigate to="/optimizations" replace />} />
         <Route path="acceptance" element={<ComingSoon titleZh="验收中心" titleEn="Acceptance Center" />} />
         <Route path="*" element={<Navigate to="/overview" replace />} />

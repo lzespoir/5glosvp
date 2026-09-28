@@ -1,0 +1,219 @@
+import type {
+  KpiDefinition,
+  KpiResult,
+  SystemBackendView,
+  SystemExperimentResponse,
+  SystemScenarioDetail,
+  UserEquipmentResult,
+} from '../types/system';
+
+const EXP_ID = 'EXP-5Y5TEM01';
+
+function ue(i: number, overrides: Partial<UserEquipmentResult> = {}): UserEquipmentResult {
+  return {
+    ue_id: `UE-00${i}`,
+    serving_cell_id: 'CELL-001',
+    position: [10 * i, -5 * i, 1.5],
+    mean_channel_gain_db: -100 - i,
+    sinr_eff_db_mean: 10 + i,
+    mcs_index_mean: 12 + i,
+    scheduled_slots: 20,
+    acked_slots: 18,
+    tbler: 0.1,
+    allocated_re_per_slot_mean: 1000 * i,
+    allocated_re_share: 0.25,
+    tx_power_w_mean: 2.5,
+    decoded_bits: 1_000_000 * i,
+    simulated_duration_s: 0.1,
+    throughput_mbps: 10 * i,
+    throughput_metric_id: 'UE_THROUGHPUT_V0_1',
+    unavailable: {},
+    ...overrides,
+  };
+}
+
+function kpi(metricId: string, value: number | null, overrides: Partial<KpiResult> = {}): KpiResult {
+  return {
+    metric_id: metricId,
+    version: '0.1',
+    name_zh: metricId,
+    name_en: metricId,
+    unit: 'Mbps',
+    scope: 'network',
+    available: value !== null,
+    value,
+    per_ue: null,
+    unavailable_reason: value === null ? 'No active UE' : null,
+    sample_size: 4,
+    calculation_method: 'sum(T_u)',
+    source_experiment: EXP_ID,
+    backend: 'sionna_system',
+    scenario_id: 'SYSTEM-DEMO-001',
+    seed: 20260927,
+    source_type: 'simulation',
+    measured: false,
+    assumptions: ['[A] full buffer'],
+    acceptance_kpi: false,
+    ...overrides,
+  };
+}
+
+export function fixtureSystemExperiment(overrides: Partial<SystemExperimentResponse> = {}): SystemExperimentResponse {
+  const ues = [
+    ue(1),
+    ue(2),
+    ue(3, { sinr_eff_db_mean: null, mcs_index_mean: null, tbler: null, scheduled_slots: 0, acked_slots: 0,
+            decoded_bits: 0, throughput_mbps: 0, unavailable: { sinr_eff_db_mean: 'UE 未被调度 / UE never scheduled',
+            mcs_index_mean: 'UE 未被调度 / UE never scheduled', tbler: 'UE 未被调度 / UE never scheduled' } }),
+    ue(4),
+  ];
+  return {
+    experiment_id: EXP_ID,
+    name: 'demo',
+    experiment_type: 'system',
+    purpose: 'standalone',
+    status: 'succeeded',
+    scenario: { scenario_id: 'SYSTEM-DEMO-001', name_zh: '多用户下行系统仿真演示', name_en: 'Multi-UE Demo' },
+    backend: {
+      id: 'sionna_system',
+      version: '2.1.0',
+      model_type: 'sionna_sys',
+      model_label: 'Sionna Simulation Generated',
+      source_type: 'simulation',
+    },
+    seed: 20260927,
+    created_at: '2026-09-28T10:00:00+00:00',
+    started_at: '2026-09-28T10:00:00+00:00',
+    finished_at: '2026-09-28T10:00:45+00:00',
+    result: {
+      scenario_id: 'SYSTEM-DEMO-001',
+      cells: [{ cell_id: 'CELL-001', bs_id: 'BS-001', position: [-150, 20, 40], carrier_frequency_hz: 3.5e9,
+                bandwidth_hz: 1e8, tx_power_dbm: 44 }],
+      backend: 'sionna_system',
+      backend_version: '2.1.0',
+      provider_versions: { sionna: '2.1.0' },
+      seed: 20260927,
+      num_slots: 20,
+      slot_duration_s: 0.0005,
+      simulated_duration_s: 0.1,
+      num_data_re_per_slot: 39312,
+      ue_results: ues,
+      scheduler: { id: 'pf_su_mimo', provider: 'sionna_sys' },
+      link_adaptation: { id: 'olla', mcs_table_index: 1, provider: 'sionna_sys' },
+      power_control: { id: 'downlink_fair', provider: 'sionna_sys' },
+      ue_generation: { type: 'uniform_area_with_path', seed: 20260927 },
+      compute_device: 'cpu',
+      runtime: { propagation_seconds: 1.1, system_seconds: 40.2, total_seconds: 41.5 },
+      warnings: [],
+    },
+    kpis: [
+      kpi('UE_THROUGHPUT_V0_1', null, { scope: 'ue', available: true, unavailable_reason: null,
+                                        per_ue: { 'UE-001': 10, 'UE-002': 20, 'UE-003': 0, 'UE-004': 40 } }),
+      kpi('NETWORK_THROUGHPUT_V0_1', 70),
+      kpi('AVG_UE_THROUGHPUT_V0_1', 17.5, { calculation_method: 'mean(T_u)' }),
+      kpi('P5_UE_THROUGHPUT_V0_1', 1.5, { calculation_method: "numpy.percentile(T_u, 5, method='linear')" }),
+    ],
+    artifacts: [
+      { name: 'kpi.json', type: 'json', media_type: 'application/json', description: 'KPI',
+        url: `/api/v1/system-experiments/${EXP_ID}/artifacts/kpi.json` },
+    ],
+    provenance: { model_type: 'sionna_sys', model_label: 'Sionna Simulation Generated', source_type: 'simulation',
+                  provider: 'sionna_sys', measured: false, huawei_data: false, acceptance_evidence: false,
+                  assumptions: ['[A] full buffer'] },
+    scientific_boundary_zh: '当前结果来自系统级仿真，不是华为实测网络数据。',
+    scientific_boundary_en: 'Results come from system-level simulation, not Huawei measured network data.',
+    error: null,
+    warnings: [],
+    status_history: [],
+    ...overrides,
+  };
+}
+
+export const fixtureKpiDefinitions: KpiDefinition[] = [
+  'UE_THROUGHPUT_V0_1',
+  'NETWORK_THROUGHPUT_V0_1',
+  'AVG_UE_THROUGHPUT_V0_1',
+  'P5_UE_THROUGHPUT_V0_1',
+].map((id) => ({
+  id,
+  version: '0.1',
+  name_zh: id,
+  name_en: id,
+  unit: 'Mbps',
+  scope: id === 'UE_THROUGHPUT_V0_1' ? 'ue' : 'network',
+  formula: `formula of ${id}`,
+  measurement_method: 'method',
+  required_inputs: ['decoded_bits'],
+  source: 'system_simulation',
+  assumptions: [],
+  acceptance_kpi: false,
+  note_zh: null,
+  doc: `docs/kpi/${id}.md`,
+}));
+
+export function fixtureSystemBackend(overrides: Partial<SystemBackendView> = {}): SystemBackendView {
+  return {
+    id: 'sionna_system',
+    name_zh: 'Sionna 系统级仿真（RT + SYS）',
+    name_en: 'Sionna System-Level Simulation (RT + SYS)',
+    category: 'system',
+    available: true,
+    version: '2.1.0',
+    capabilities: ['propagation', 'system_simulation', 'ue_metrics', 'throughput'],
+    model_type: 'sionna_sys',
+    model_label: 'Sionna Simulation Generated',
+    source_type: 'simulation',
+    provider: 'sionna_sys',
+    compute_device: 'cpu',
+    reason: null,
+    warnings: [],
+    ...overrides,
+  };
+}
+
+export function fixtureSystemScenario(): SystemScenarioDetail {
+  const summary = {
+    scenario_id: 'SYSTEM-DEMO-001',
+    name_zh: '多用户下行系统仿真演示',
+    name_en: 'Multi-UE Downlink System Simulation Demo',
+    description: null,
+    backend: 'sionna_system',
+    scene: 'etoile',
+    bs_count: 1,
+    cell_count: 1,
+    ue_count: 6,
+    carrier_frequency_hz: 3.5e9,
+    bandwidth_hz: 1e8,
+    traffic_model: 'full_buffer',
+    seed: 20260927,
+    ue_placement: 'generator:uniform_area_with_path',
+    data_source: '[A] 场景参数为假设 / Scenario parameters are assumptions',
+  };
+  return {
+    ...summary,
+    scenario: {
+      scenario_id: summary.scenario_id,
+      name_zh: summary.name_zh,
+      name_en: summary.name_en,
+      description: null,
+      backend: 'sionna_system',
+      scene: 'etoile',
+      base_stations: [{ bs_id: 'BS-001', name: null, position: [-150, 20, 40] }],
+      cells: [{ cell_id: 'CELL-001', bs_id: 'BS-001', position: null, carrier_frequency_hz: 3.5e9, bandwidth_hz: 1e8,
+                tx_power_dbm: 44, antenna: { num_rows: 2, num_cols: 4, pattern: 'tr38901', polarization: 'V', source: '[A]' } }],
+      ues: [],
+      ue_generator: { type: 'uniform_area_with_path', count: 6, seed: 20260927, area_center: [0, 0], area_size: [850, 670],
+                      height_m: 1.5, max_candidates: 60, source: '[A]' },
+      traffic: { type: 'full_buffer', direction: 'downlink', source: 'assumption', tag: '[A]' },
+      simulation: {
+        num_slots: 200, subcarrier_spacing_hz: 30e3, num_prb: 273, num_data_symbols_per_slot: 12, slot_duration_s: 5e-4,
+        noise_figure_db: 7, temperature_k: 290, max_depth: 5, samples_per_src: 1e6,
+        scheduler: { id: 'pf_su_mimo', beta: 0.9 },
+        link_adaptation: { id: 'olla', bler_target: 0.1, mcs_table_index: 1 },
+        power_control: { id: 'downlink_fair', guaranteed_power_ratio: 0.5, fairness: 0 },
+      },
+      seed: 20260927,
+      assumptions: [],
+    },
+  };
+}

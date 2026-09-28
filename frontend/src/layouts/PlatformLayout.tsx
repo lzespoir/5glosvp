@@ -1,5 +1,6 @@
 import {
   AuditOutlined,
+  ClusterOutlined,
   DashboardOutlined,
   EnvironmentOutlined,
   ExperimentOutlined,
@@ -12,6 +13,7 @@ import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 
 import { useBackends } from '../api/backends';
 import { useHealth } from '../api/health';
+import { useSystemBackends } from '../api/system';
 
 const { Header, Sider, Content, Footer } = Layout;
 
@@ -27,13 +29,14 @@ function navLabel(zh: string, en: string) {
 const NAV_ITEMS: NonNullable<MenuProps['items']> = [
   { key: '/overview', icon: <DashboardOutlined />, label: navLabel('平台概览', 'Overview') },
   { key: '/scenarios', icon: <EnvironmentOutlined />, label: navLabel('场景中心', 'Scenario Center') },
+  { key: '/system', icon: <ClusterOutlined />, label: navLabel('系统级仿真', 'System Simulation') },
   { key: '/optimizations', icon: <FunctionOutlined />, label: navLabel('优化中心', 'Optimization Center') },
   { key: '/experiments', icon: <ExperimentOutlined />, label: navLabel('实验中心', 'Experiment Center') },
   { key: '/acceptance', icon: <AuditOutlined />, label: navLabel('验收中心', 'Acceptance Center') },
 ];
 
 function selectedNavKey(pathname: string): string {
-  const match = ['/overview', '/scenarios', '/optimizations', '/experiments', '/acceptance'].find((k) =>
+  const match = ['/overview', '/scenarios', '/system', '/optimizations', '/experiments', '/acceptance'].find((k) =>
     pathname.startsWith(k),
   );
   return match ?? '/overview';
@@ -42,12 +45,14 @@ function selectedNavKey(pathname: string): string {
 /** Header 右侧后端状态，全部来自 GET /api/v1/backends。 */
 function BackendStatus() {
   const { data, isLoading, isError } = useBackends();
+  const system = useSystemBackends();
   if (isLoading) return <Badge status="processing" text="检查后端… Checking backend" />;
   if (isError || !data) return <Badge status="error" text="API 不可达 / API unreachable" />;
-  if (data.length === 0) return <Badge status="warning" text="无仿真后端 / No backend" />;
+  const all = [...data, ...(system.data ?? [])];
+  if (all.length === 0) return <Badge status="warning" text="无仿真后端 / No backend" />;
   return (
     <Space size="large">
-      {data.map((b) => (
+      {all.map((b) => (
         <Tooltip
           key={b.id}
           title={b.available ? `${b.name_en}${b.version ? ` · v${b.version}` : ''}` : b.reason ?? b.name_en}
@@ -110,7 +115,7 @@ export function PlatformLayout() {
             <Outlet />
           </Content>
           <Footer className="platform__footer">
-            V0.2{health ? ` · API v${health.version}` : ''} · Simulation Generated Data · 仿真生成数据，非实测/现网数据
+            V0.3{health ? ` · API v${health.version}` : ''} · Simulation Generated Data · 仿真生成数据，非实测/现网数据
           </Footer>
         </Layout>
       </Layout>
