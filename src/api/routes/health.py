@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 
 from experiments import ExperimentService
 
@@ -17,13 +17,14 @@ router = APIRouter(tags=["health"])
     summary="平台状态 / Platform health",
     description="仅检查服务存活，不运行 Sionna 仿真。/ Liveness only; does not run a simulation.",
 )
-def health() -> HealthResponse:
+def health(request: Request) -> HealthResponse:
     return HealthResponse(
         status="ok",
         service="5glosvp",
         name_zh="5G网络学习优化仿真验证平台",
         name_en="5G Learning Optimization Simulation & Validation Platform",
         version=__version__,
+        testing=bool(request.app.state.testing),
     )
 
 

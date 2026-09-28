@@ -31,6 +31,7 @@ def default_registry(include_testing: bool = False) -> BackendRegistry:
                 name_en="Fake Backend (software testing only)",
                 factory=FakeBackend,
                 capabilities=["radio_map"],
+                source_type="test_fixture",
             )
         )
     return registry

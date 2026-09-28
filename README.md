@@ -14,12 +14,14 @@
 - **Day 1**：证明 Sionna RT 可以作为平台的高保真仿真后端（Simulation Backend），并把输出转换为平台自有的统一结果格式（Canonical Result）。
 - **Day 2**：平台可以通过标准 HTTP API 创建、运行、保存和查询一次真实 Sionna RT 仿真实验。
   The platform can create, execute, persist, and query a real Sionna RT simulation experiment through a standard HTTP API.
+- **Day 3**：Web 前端 V0.1。用户在浏览器中查看平台状态、选择场景、运行 Sionna RT 实验，并查看 Radio Map、指标、运行耗时、数据来源和产物。
+  Web Frontend V0.1: run a Sionna RT experiment from the browser and inspect its results.
 
-设计任务书：[`design/001.md`](design/001.md)（Day 1）、[`design/DAY1_FIX_and_DAY2_API.md`](design/DAY1_FIX_and_DAY2_API.md)（Day 1.1 + Day 2）。
+设计任务书：[`design/001.md`](design/001.md)（Day 1）、[`design/DAY1_FIX_and_DAY2_API.md`](design/DAY1_FIX_and_DAY2_API.md)（Day 1.1 + Day 2）、[`design/DAY3_FRONTEND.md`](design/DAY3_FRONTEND.md)（Day 3）。
 
 ## 当前状态 / Current Status
 
-**Day 1 技术探针 + Day 1.1 修复 + Day 2 Experiment API：完成 / DONE**
+**Day 1 技术探针 + Day 1.1 修复 + Day 2 Experiment API + Day 3 Web 前端 V0.1：完成 / DONE**
 
 | 项目 / Item | 值 / Value |
 | --- | --- |
@@ -28,6 +30,8 @@
 | Mitsuba / Dr.Jit | 3.9.1 / 1.5.0 |
 | Mitsuba variant | `cuda_ad_mono_polarized`（RTX 3090；无 GPU 时自动回退 LLVM CPU） |
 | FastAPI / uvicorn | 0.141 / 0.54 |
+| 前端 / Frontend | React 19 + TypeScript + Vite 8 + Ant Design 6 + ECharts 6 + TanStack Query 5 + React Router 7 + Axios |
+| Node.js | 22（通过 conda-forge 安装在 `5glosvp` 环境中） |
 | 场景 / Scene | Sionna 内置 `etoile`（巴黎凯旋门周边） |
 | Radio Map API | `sionna.rt.RadioMapSolver` → `PlanarRadioMap` |
 | 主指标 / Metric | RSS [dBm]（同时保存 Path Gain [dB]、SINR [dB]） |
@@ -49,6 +53,8 @@
 
 ```text
 ┌──────────────────────────────┐
+│  Web Frontend (frontend/)    │  React SPA：所有数据只来自 HTTP API
+├──────────────────────────────┤
 │  HTTP API (src/api)          │  FastAPI Router：只做 HTTP ↔ Schema 转换
 ├──────────────────────────────┤
 │  Experiment Service          │  src/experiments/service.py：生命周期、状态、错误
@@ -132,7 +138,52 @@ uvicorn api.main:app --app-dir src --reload
 | `GLOSVP_DATA_DIR` | `data/experiments` | 实验仓库目录 |
 | `GLOSVP_CONFIGS_DIR` | `configs` | 场景配置目录 |
 | `GLOSVP_EXPERIMENT_TIMEOUT` | `600` | 单次实验同步等待上限（秒，软超时） |
-| `TESTING` | 未设置 | `true` 时 `/backends` 额外列出 FakeBackend（仅软件测试） |
+| `TESTING` | 未设置 | `true` 时 `/backends` 额外列出 FakeBackend（仅软件测试），`/health` 返回 `testing: true`，前端显示“开发测试模式”横幅 |
+
+### Web 前端 / Web Frontend
+
+```bash
+conda activate 5glosvp            # Node.js 22 已安装在该环境中（conda install -c conda-forge nodejs=22）
+cd frontend
+npm install
+npm run dev                       # http://127.0.0.1:5173 ，/api 代理到 http://127.0.0.1:8000
+```
+
+需要先启动上面的 API 服务。其他命令：
+
+| 命令 | 说明 |
+| --- | --- |
+| `npm run typecheck` | TypeScript 类型检查 |
+| `npm test` | Vitest 单元/组件测试（使用 mock API，不需要后端） |
+| `npm run build` | 类型检查 + 生产构建到 `frontend/dist/` |
+| `npm run preview` | 预览生产构建（http://127.0.0.1:4173，同样代理 `/api`） |
+
+前端环境变量（见 `frontend/.env.example`）：
+
+| 变量 | 默认值 | 说明 |
+| --- | --- | --- |
+| `VITE_API_BASE_URL` | `/api/v1` | API 基础地址；组件中不写死任何 localhost 地址，只在 `src/api/client.ts` 使用 |
+| `VITE_PROXY_TARGET` | `http://127.0.0.1:8000` | Vite dev/preview 服务器把 `/api` 代理到的后端地址 |
+
+页面 / Pages：
+
+| 路由 | 页面 |
+| --- | --- |
+| `/overview`（`/` 重定向） | 平台概览：后端状态、场景/实验数量、最新 Radio Map、最近实验、运行耗时图 |
+| `/scenarios` | 场景中心：场景卡片与参数，“运行实验”确认 → 运行中 → 成功跳转详情 / 失败显示错误 |
+| `/experiments` | 实验中心：服务端分页（每页 20，`limit/offset`） |
+| `/experiments/:experimentId` | 实验详情：Radio Map、RSS/SINR/Path Gain/Radio Map 覆盖比例、系统级 KPI 占位、运行耗时、数据来源、时间线、产物 |
+| `/algorithms`、`/acceptance` | 即将开放 / Coming Soon（不展示任何数据） |
+
+前端约定：
+
+- `POST /experiments` 返回 201 **不代表成功**：只有 `status === "succeeded"` 才显示成功并跳转；`status === "failed"` 显示“实验执行失败 Experiment Failed”及 `error.code` / `error.message`。
+- 未实现的 KPI（Network Throughput、Edge User Rate、RSRP）固定显示 “—” 与原因，不生成任何数值或提升百分比。
+- “Radio Map Coverage 无线电地图覆盖比例”仅指 Radio Map 中有有效信号的格点比例，不是网络覆盖率或验收覆盖率。
+- 数据类型来自后端：`source_type = simulation` 显示“仿真生成 / Simulation Generated”，`test_fixture` 显示“测试数据 / TEST FIXTURE”。
+- 前端不读取 `data/`、`reference/`、`outputs/`，不调用 Python 或 Sionna。
+
+浏览器实测截图见 [`reference/frontend/`](reference/frontend/)（1920×1080 与 1366×768，真实 Sionna RT 实验）。
 
 ### API 冒烟测试 / Smoke Test
 
@@ -157,8 +208,8 @@ pytest -m "integration and sionna"  # 真实 Sionna 集成测试
 
 | Method | Path | 说明 |
 | --- | --- | --- |
-| GET | `/api/v1/health` | 平台状态（不运行仿真） |
-| GET | `/api/v1/backends` | 仿真后端列表；不可用时 `available=false` + `reason` |
+| GET | `/api/v1/health` | 平台状态（不运行仿真）；`testing` 表示是否为开发测试模式 |
+| GET | `/api/v1/backends` | 仿真后端列表；不可用时 `available=false` + `reason`；`source_type` 为该后端的数据来源（`simulation` / `test_fixture`） |
 | GET | `/api/v1/scenarios` | 可运行场景（读取 `configs/*.yaml`，无效文件跳过并记日志） |
 | GET | `/api/v1/scenarios/{scenario_id}` | 场景详情 |
 | POST | `/api/v1/experiments` | 创建并**同步**运行实验，返回 201 |
@@ -249,7 +300,7 @@ data/experiments/
 | `simulation_seconds` | `backend.run()` 内部仿真计算耗时（Sionna 求解 + 结果取回） |
 | `artifact_export_seconds` | `backend.export()` 耗时 |
 | `total_seconds` | 实验开始 → 产物导出完成：场景加载 + 仿真 + 结果转换 + 导出 + 编排开销 |
-| `scenario_load_seconds` | 场景加载耗时（仅文件中，API 未展示） |
+| `scenario_load_seconds` | 场景加载耗时（Day 3 起 API 响应中同样返回） |
 
 `total_seconds ≥ simulation_seconds` 且 `total_seconds ≥ artifact_export_seconds`，但**不等于**两者之和。
 兼容字段 `runtime_seconds` 等于 `runtime.simulation_seconds`。未来预留 `optimization_seconds`（Day 1.1 未实现）。
@@ -301,6 +352,7 @@ data/experiments/
 7. **API 启动命令**：采用 `src/` 布局，命令为 `uvicorn api.main:app --app-dir src`（而非 `src.api.app:app`）。`api/app.py` 是不依赖具体后端的应用工厂，`api/main.py` 负责生产装配。
 8. **仿真失败的 HTTP 语义**：`POST /experiments` 在仿真失败时返回 201 + `status=failed`（实验已创建并持久化），而不是 5xx。
 9. **额外路由文件**：`/backends` 与 `/health` 同在 `routes/health.py`。
+10. **Day 3 的后端增量字段**（均为向后兼容的新增字段，未改变架构）：`/health` 增加 `testing`；`/backends` 增加 `source_type`（由 `BackendDescriptor.source_type` 提供，前端据此区分仿真数据与测试夹具，而不是写死后端 id）；实验 `runtime` 增加 `scenario_load_seconds`（Runtime 面板的“场景加载”）。
 
 ## 已知限制 / Known Limitations
 
@@ -313,12 +365,15 @@ data/experiments/
 - RSS 为宽带接收功率，不等同于 3GPP RSRP；RSRP、吞吐率、BLER 均未实现。
 - 首次运行包含 Dr.Jit 内核编译，耗时明显高于后续运行；比较性能时需区分冷/热启动。
 - 本机未单独验证 LLVM CPU 回退路径的运行耗时（健康检查确认 LLVM 可用）。
+- Day 2 的非阻塞技术债（软超时、单 Worker、状态机未强制迁移矩阵、Store 全量扫描、无崩溃恢复）按 Day 3 任务书要求**保持不变**。
+- 前端运行实验为同步请求：浏览器等待 `POST /experiments` 返回期间显示“运行中”，不显示伪造的进度百分比。
+- 前端生产构建中 antd 单个 chunk 约 1.1 MB（gzip 约 350 KB）。
 
 ## 下一步 / Next Step
 
 以下概念已冻结为正式架构：`SimulationBackend`、`SimulationResult`、`ScenarioConfig`、`Artifact`、`SionnaBackend`、`ExperimentRecord`、`ExperimentStore`、`ExperimentService`、`/api/v1` API Contract。
 
-Day 3：React + TypeScript 平台骨架（Overview / Scenario Center / Experiment Center / Result Viewer），把 `POST /experiments` 变成“运行实验”按钮，并在浏览器中展示 `radio_map.png`。
+算法中心、验收中心与系统级 KPI（吞吐量、边缘用户速率、RSRP）在前端已预留入口，待对应后端能力与验收口径确定后接入。
 
 ## 目录结构 / Repository Layout
 
@@ -331,7 +386,15 @@ Day 3：React + TypeScript 平台骨架（Overview / Scenario Center / Experimen
 ├── design/
 ├── reference/
 │   ├── sionna_demo/
-│   └── api_experiment/
+│   ├── api_experiment/
+│   └── frontend/            # 浏览器实测截图
+├── frontend/
+│   ├── package.json  vite.config.ts  tsconfig.json  index.html
+│   └── src/
+│       ├── api/  types/  utils/  layouts/  test/
+│       ├── components/  (PageHeader, StatusTag, ProvenanceTag, MetricCard, EmptyMetric, RadioMap,
+│       │                 RuntimePanel, RuntimeChart, ProvenancePanel, StatusTimeline, ArtifactsPanel, ErrorState)
+│       └── pages/       (Overview, Scenarios, Experiments, ExperimentDetail, ComingSoon)
 ├── src/
 │   ├── simulation/
 │   │   ├── base.py  models.py  errors.py  registry.py

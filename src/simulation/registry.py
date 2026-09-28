@@ -22,6 +22,8 @@ class BackendDescriptor:
     name_en: str
     factory: Callable[[], SimulationBackend]
     capabilities: list[str] = field(default_factory=list)
+    # 该后端产出数据的来源类型：simulation | test_fixture
+    source_type: str = "simulation"
 
 
 class BackendRegistry:

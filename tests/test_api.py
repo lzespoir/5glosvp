@@ -61,7 +61,9 @@ def _make_service(tmp_path: Path, timeout: float = 30.0, extra: list[BackendDesc
     (configs / "broken.yaml").write_text("scenario_id: [unterminated", encoding="utf-8")
 
     registry = BackendRegistry()
-    registry.register(BackendDescriptor("fake", "假后端", "Fake", FakeBackend, ["radio_map"]))
+    registry.register(
+        BackendDescriptor("fake", "假后端", "Fake", FakeBackend, ["radio_map"], source_type="test_fixture")
+    )
     registry.register(
         BackendDescriptor("fake_failing", "失败假后端", "Failing fake", lambda: FakeBackend(fail_on_run=True))
     )
@@ -102,6 +104,13 @@ def test_health(client):
     body = resp.json()
     assert body["status"] == "ok" and body["service"] == "5glosvp" and body["version"] == "0.2.0"
     assert body["name_zh"] and body["name_en"]
+    assert body["testing"] is False
+
+
+def test_health_reports_testing_mode(tmp_path):
+    service, _ = _make_service(tmp_path)
+    with TestClient(create_app(service, testing=True)) as c:
+        assert c.get("/api/v1/health").json()["testing"] is True
 
 
 def test_list_backends(client):
@@ -109,6 +118,13 @@ def test_list_backends(client):
     assert set(items) == {"fake", "fake_failing"}
     assert items["fake"]["available"] is True
     assert items["fake"]["capabilities"] == ["radio_map"]
+    assert items["fake"]["source_type"] == "test_fixture"
+
+
+def test_default_registry_source_types():
+    descriptors = {d.id: d for d in default_registry(include_testing=True).list()}
+    assert descriptors["sionna_rt"].source_type == "simulation"
+    assert descriptors["fake"].source_type == "test_fixture"
 
 
 def test_unavailable_backend_is_reported_not_raised(tmp_path):
@@ -156,6 +172,7 @@ def test_create_experiment(ctx):
         "created", "queued", "running", "succeeded"
     ]
     rt = body["runtime"]
+    assert rt["scenario_load_seconds"] is not None
     assert rt["total_seconds"] >= rt["simulation_seconds"]
     assert rt["total_seconds"] >= rt["artifact_export_seconds"]
     assert body["metrics"]["radio_map"]["num_cells"] == 80

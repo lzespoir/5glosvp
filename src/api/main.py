@@ -26,7 +26,7 @@ def build_app(settings: Settings | None = None) -> FastAPI:
         catalog=ScenarioCatalog(settings.configs_dir),
         timeout_seconds=settings.experiment_timeout_seconds,
     )
-    return create_app(service, cors_origins=list(settings.cors_origins))
+    return create_app(service, cors_origins=list(settings.cors_origins), testing=settings.testing)
 
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s [%(name)s] %(message)s")

@@ -58,6 +58,10 @@ class HealthResponse(BaseModel):
     name_zh: str
     name_en: str
     version: str
+    testing: bool = Field(
+        default=False,
+        description="开发测试模式（TESTING=true，可能注册 FakeBackend）/ Development test mode",
+    )
 
 
 class BackendInfo(BaseModel):
@@ -68,6 +72,10 @@ class BackendInfo(BaseModel):
     version: str | None = None
     capabilities: list[str] = Field(default_factory=list, description="支持的能力 / Capabilities")
     reason: str | None = Field(default=None, description="不可用原因 / Reason when unavailable")
+    source_type: str = Field(
+        default="simulation",
+        description="产出数据类型 / Output data type: simulation | test_fixture",
+    )
 
     @classmethod
     def from_status(cls, status: BackendStatus) -> BackendInfo:
@@ -76,6 +84,7 @@ class BackendInfo(BaseModel):
         return cls(
             id=d.id, name_zh=d.name_zh, name_en=d.name_en, available=available,
             version=h.get("version"), capabilities=list(d.capabilities),
+            source_type=d.source_type,
             reason=None if available else ("; ".join(h.get("errors") or []) or "unavailable"),
         )
 
@@ -165,6 +174,7 @@ class BackendRef(BaseModel):
 
 
 class RuntimeView(BaseModel):
+    scenario_load_seconds: float | None = Field(default=None, description="场景加载耗时 / Scene load time")
     simulation_seconds: float | None = Field(default=None, description="仿真计算耗时 / Simulation time")
     artifact_export_seconds: float | None = Field(default=None, description="产物导出耗时 / Export time")
     total_seconds: float | None = Field(default=None, description="完整实验耗时 / Total time")
@@ -252,8 +262,7 @@ class ExperimentResponse(BaseModel):
             created_at=r.created_at,
             started_at=r.started_at,
             finished_at=r.finished_at,
-            runtime=RuntimeView(**r.runtime.model_dump(exclude={"scenario_load_seconds"}))
-            if r.runtime else RuntimeView(),
+            runtime=RuntimeView(**r.runtime.model_dump()) if r.runtime else RuntimeView(),
             metrics=r.result.metrics if r.result else {},
             artifacts=[ArtifactView.from_artifact(r.experiment_id, a) for a in r.artifacts],
             provenance=provenance,

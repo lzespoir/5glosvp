@@ -20,7 +20,11 @@ from .routes import experiments, health, scenarios
 from .schemas import API_PREFIX
 
 
-def create_app(service: ExperimentService, cors_origins: list[str] | None = None) -> FastAPI:
+def create_app(
+    service: ExperimentService,
+    cors_origins: list[str] | None = None,
+    testing: bool = False,
+) -> FastAPI:
     @asynccontextmanager
     async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
         yield
@@ -36,6 +40,7 @@ def create_app(service: ExperimentService, cors_origins: list[str] | None = None
         lifespan=lifespan,
     )
     app.state.service = service
+    app.state.testing = testing
 
     if cors_origins:
         app.add_middleware(
