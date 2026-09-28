@@ -1,0 +1,178 @@
+{
+  "context_id": "CTX-5891D135",
+  "scenario_id": "SYSTEM-DEMO-001",
+  "scenario_version": "424652032653a9a6ae6df56365fac8f8302dff1e35074dfa9479b13f00514a63",
+  "seed": 20260927,
+  "ue_population": {
+    "ue_population_id": "UEP-8B69EFA7",
+    "sha256": "8b69efa7d8173612977980718486d76b54ea7fcb6f4ebd44099935a12557c64b",
+    "generator": {
+      "type": "uniform_area_with_path",
+      "count": 6,
+      "seed": 20260927,
+      "area_center": [
+        0.0,
+        0.0
+      ],
+      "area_size": [
+        850.0,
+        670.0
+      ],
+      "height_m": 1.5,
+      "max_candidates": 60,
+      "source": "[A] 区域内均匀撒点，按生成顺序保留前 6 个存在传播路径的位置",
+      "kept_candidate_indices": [
+        0,
+        1,
+        3,
+        12,
+        19,
+        21
+      ],
+      "candidates_with_path": 17
+    },
+    "seed": 20260927,
+    "ues": [
+      {
+        "ue_id": "UE-001",
+        "serving_cell_id": "CELL-001",
+        "position": [
+          -342.10913838788576,
+          -220.87275209268782,
+          1.5
+        ]
+      },
+      {
+        "ue_id": "UE-002",
+        "serving_cell_id": "CELL-001",
+        "position": [
+          -84.41809684827984,
+          77.79360558407842,
+          1.5
+        ]
+      },
+      {
+        "ue_id": "UE-003",
+        "serving_cell_id": "CELL-001",
+        "position": [
+          338.57322515626845,
+          -301.8467416081978,
+          1.5
+        ]
+      },
+      {
+        "ue_id": "UE-004",
+        "serving_cell_id": "CELL-001",
+        "position": [
+          204.11321843883263,
+          -167.29492341709968,
+          1.5
+        ]
+      },
+      {
+        "ue_id": "UE-005",
+        "serving_cell_id": "CELL-001",
+        "position": [
+          -242.9730797379679,
+          -198.76839908588778,
+          1.5
+        ]
+      },
+      {
+        "ue_id": "UE-006",
+        "serving_cell_id": "CELL-001",
+        "position": [
+          -228.39261421269393,
+          124.55462880936813,
+          1.5
+        ]
+      }
+    ]
+  },
+  "traffic_realization": {
+    "traffic_realization_id": "FULL_BUFFER_V0_1",
+    "sha256": "e9df3b2f7c85bd0410a401d50824ab7518e750ad4af5ccc15b284614b53fef3d",
+    "model": {
+      "type": "full_buffer",
+      "direction": "downlink",
+      "source": "assumption",
+      "tag": "[A]"
+    }
+  },
+  "channel_realization": {
+    "channel_realization_id": "CH-F5A10364",
+    "sha256": "3647ca8e464fe43203f7ad4a655d4b9882fef213de39915fc9de18a5ef026a41",
+    "hash_rule": "sha256 over sorted array keys; per key: key utf-8, dtype str, JSON shape, C-order bytes",
+    "artifact": "channel.npz",
+    "arrays": {
+      "cfr": {
+        "shape": [
+          6,
+          1,
+          1,
+          8,
+          12,
+          3276
+        ],
+        "dtype": "complex64"
+      }
+    },
+    "size_bytes": 1215795,
+    "source_scenario_id": "SYSTEM-DEMO-001",
+    "seed": 20260927,
+    "provider": "sionna_sys",
+    "provider_versions": {
+      "sionna": "2.1.0",
+      "sionna-rt": "2.1.0",
+      "mitsuba": "3.9.1",
+      "drjit": "1.5.0",
+      "torch": "2.14.0"
+    },
+    "propagation_fingerprint": "bf0c8400289ed37821ff6a0b7ff9006337caf8e627838d8d4d763424ab267ac2",
+    "mean_channel_gain_db": {
+      "UE-001": -119.62715953056102,
+      "UE-002": -110.08977865799152,
+      "UE-003": -87.82415684126053,
+      "UE-004": -105.54099158863241,
+      "UE-005": -114.7208823846702,
+      "UE-006": -108.60859552133846
+    },
+    "created_at": "2026-09-28T10:39:10.225063+00:00"
+  },
+  "simulation_horizon": {
+    "num_slots": 500,
+    "warmup_slots": 0,
+    "slot_duration_s": 0.0005,
+    "measured_duration_s": 0.25
+  },
+  "backend_id": "sionna_system",
+  "backend_version": "2.1.0",
+  "scheduler_config": {
+    "id": "pf_su_mimo",
+    "beta": 0.9
+  },
+  "link_adaptation_config": {
+    "id": "olla",
+    "bler_target": 0.1,
+    "mcs_table_index": 1
+  },
+  "power_control_config": {
+    "id": "downlink_fair",
+    "guaranteed_power_ratio": 0.5,
+    "fairness": 0.0
+  },
+  "benchmark_protocol_id": "SYSTEM_BENCHMARK_V0_1",
+  "benchmark_protocol_version": "0.1",
+  "created_at": "2026-09-28T10:39:10.225151+00:00",
+  "metadata": {
+    "propagation_seconds": 1.0183815250056796,
+    "candidate_indices": [
+      0,
+      1,
+      3,
+      12,
+      19,
+      21
+    ]
+  }
+}

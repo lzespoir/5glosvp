@@ -1,0 +1,954 @@
+{
+  "optimization_id": "OPT-9A16123C",
+  "name": "Scheduler β Grid Search · 2026-09-28 18:39:07",
+  "problem_type": "system",
+  "status": "succeeded",
+  "scenario_id": "SYSTEM-DEMO-001",
+  "scenario_name_zh": "多用户下行系统仿真演示",
+  "scenario_name_en": "Multi-UE Downlink System Simulation Demo",
+  "backend_id": "sionna_system",
+  "optimizer_id": "grid_search",
+  "optimizer_version": "0.2",
+  "objective": {
+    "id": "NETWORK_THROUGHPUT_MAX_V0_1",
+    "version": "0.1",
+    "direction": "maximize",
+    "params": {}
+  },
+  "parameter": {
+    "id": "scheduler_beta",
+    "name_zh": "PF 调度折扣因子 β",
+    "name_en": "PF Scheduler Discount Factor β",
+    "role": "optimization_variable",
+    "type": "continuous",
+    "unit": "1",
+    "default": 0.98,
+    "bounds": {
+      "lower": 0.0,
+      "upper": 1.0,
+      "lower_inclusive": false,
+      "upper_inclusive": false
+    },
+    "choices": null,
+    "vector_length": null,
+    "constraints": [
+      "0 < β < 1 (sionna.sys.PFSchedulerSUMIMO raises ValueError otherwise)"
+    ],
+    "value_generation": [
+      "enumerated",
+      "algorithm_generated"
+    ],
+    "source": "Sionna 2.1.0 sionna.sys.PFSchedulerSUMIMO(beta=…), default 0.98",
+    "description_zh": "比例公平调度中历史平均吞吐率的几何折扣因子：T_t = β·T_{t-1} + (1-β)·R_t。β 越大，历史记忆越长（约 1/(1-β) 个时隙），调度对短期速率波动越不敏感。只影响调度，不改变传播。",
+    "description_en": "Geometric discount factor of the PF scheduler's time-averaged throughput: T_t = β·T_{t-1} + (1-β)·R_t. Larger β = longer memory (≈ 1/(1-β) slots). Affects scheduling only, not propagation."
+  },
+  "candidate_values": [
+    0.1,
+    0.3,
+    0.6,
+    0.9,
+    0.99
+  ],
+  "algorithm_hyperparameters": {},
+  "baseline_parameters": {
+    "scheduler_beta": 0.9
+  },
+  "benchmark_protocol": {
+    "protocol_id": "SYSTEM_BENCHMARK_V0_1",
+    "version": "0.1",
+    "name_zh": "系统级公平评价协议 V0.1",
+    "name_en": "System Benchmark Protocol V0.1",
+    "num_repeats": 1,
+    "simulation_slots": 500,
+    "warmup_slots": 0,
+    "aggregation_method": "single_run",
+    "common_channel": true,
+    "common_ue_population": true,
+    "common_traffic": true,
+    "seed_policy": "Scenario seed fixed for all evaluations; one Sionna RT channel realization per optimization run",
+    "observed_variability": {
+      "kpi_id": "NETWORK_THROUGHPUT_V0_1",
+      "relative_percent": 6.9,
+      "description_zh": "SYSTEM-DEMO-001 三次独立完整运行（各自重新光线追踪 + SYS，200 slots）的网络吞吐率范围 130.42–139.40 Mbps，(max−min)/min = 6.9%。同一冻结信道下 SYS 为逐比特确定，该波动来自 GPU 光线追踪的微小数值漂移经 OLLA/HARQ 放大；取其作为保守上界。",
+      "description_en": "Network throughput range 130.42–139.40 Mbps over three independent full runs of SYSTEM-DEMO-001 (fresh Sionna RT + SYS each, 200 slots): (max−min)/min = 6.9%. SYS on a frozen channel is bit-identical; the spread comes from GPU ray-tracing drift amplified by OLLA/HARQ. Used as a conservative bound (two RT realizations at 200 slots differ by 0.60%).",
+      "source": "reference/system/EXP-FC79FFC2/determinism-repeats.json; reference/day6_horizon_study/results.json"
+    },
+    "rationale": [
+      "500 slots is the shortest studied horizon whose network-throughput ranking of the β candidates equals the 1000-slot ranking (200 slots swaps the top two, 0.1% apart).",
+      "At 500 slots every candidate is within 3.2% (network) / 4.4% (P5) of its 1000-slot value; at 200 slots deviations reach 7.9% / 8.3%.",
+      "Runtime ≈ 0.195 s/slot on CPU: 500 slots ≈ 97 s per evaluation versus 195 s at 1000 slots.",
+      "Warm-up 0 keeps the Day 5 KPI window (full simulated horizon); warm-up 20/50/100 does not change the ranking at 500 or 1000 slots.",
+      "Single run: with the frozen channel, repeated SYS runs are bit-identical (verified), so repeats add no information."
+    ],
+    "limitations": [
+      "Absolute KPI levels are not fully converged at 500 slots (up to 3.2% below/above the 1000-slot value).",
+      "Without warm-up the initial OLLA/PF transient favours β = 0.99 by up to 4.7% at 500 slots; ranking is unaffected.",
+      "One scenario (SYSTEM-DEMO-001), one channel realization, full-buffer traffic, single cell per BS.",
+      "Observed variability comes from 3 runs only; it is an empirical bound, not a confidence interval."
+    ],
+    "frozen_at": "2026-09-28",
+    "document": "docs/benchmark/system-benchmark-v0.1.md",
+    "evidence": "reference/day6_horizon_study/"
+  },
+  "seed": 20260927,
+  "created_at": "2026-09-28T10:39:08.953871+00:00",
+  "started_at": "2026-09-28T10:39:08.990781+00:00",
+  "finished_at": "2026-09-28T10:47:26.608737+00:00",
+  "evaluation_context": {
+    "context_id": "CTX-5891D135",
+    "scenario_id": "SYSTEM-DEMO-001",
+    "scenario_version": "424652032653a9a6ae6df56365fac8f8302dff1e35074dfa9479b13f00514a63",
+    "seed": 20260927,
+    "ue_population": {
+      "ue_population_id": "UEP-8B69EFA7",
+      "sha256": "8b69efa7d8173612977980718486d76b54ea7fcb6f4ebd44099935a12557c64b",
+      "generator": {
+        "type": "uniform_area_with_path",
+        "count": 6,
+        "seed": 20260927,
+        "area_center": [
+          0.0,
+          0.0
+        ],
+        "area_size": [
+          850.0,
+          670.0
+        ],
+        "height_m": 1.5,
+        "max_candidates": 60,
+        "source": "[A] 区域内均匀撒点，按生成顺序保留前 6 个存在传播路径的位置",
+        "kept_candidate_indices": [
+          0,
+          1,
+          3,
+          12,
+          19,
+          21
+        ],
+        "candidates_with_path": 17
+      },
+      "seed": 20260927,
+      "ues": [
+        {
+          "ue_id": "UE-001",
+          "serving_cell_id": "CELL-001",
+          "position": [
+            -342.10913838788576,
+            -220.87275209268782,
+            1.5
+          ]
+        },
+        {
+          "ue_id": "UE-002",
+          "serving_cell_id": "CELL-001",
+          "position": [
+            -84.41809684827984,
+            77.79360558407842,
+            1.5
+          ]
+        },
+        {
+          "ue_id": "UE-003",
+          "serving_cell_id": "CELL-001",
+          "position": [
+            338.57322515626845,
+            -301.8467416081978,
+            1.5
+          ]
+        },
+        {
+          "ue_id": "UE-004",
+          "serving_cell_id": "CELL-001",
+          "position": [
+            204.11321843883263,
+            -167.29492341709968,
+            1.5
+          ]
+        },
+        {
+          "ue_id": "UE-005",
+          "serving_cell_id": "CELL-001",
+          "position": [
+            -242.9730797379679,
+            -198.76839908588778,
+            1.5
+          ]
+        },
+        {
+          "ue_id": "UE-006",
+          "serving_cell_id": "CELL-001",
+          "position": [
+            -228.39261421269393,
+            124.55462880936813,
+            1.5
+          ]
+        }
+      ]
+    },
+    "traffic_realization": {
+      "traffic_realization_id": "FULL_BUFFER_V0_1",
+      "sha256": "e9df3b2f7c85bd0410a401d50824ab7518e750ad4af5ccc15b284614b53fef3d",
+      "model": {
+        "type": "full_buffer",
+        "direction": "downlink",
+        "source": "assumption",
+        "tag": "[A]"
+      }
+    },
+    "channel_realization": {
+      "channel_realization_id": "CH-F5A10364",
+      "sha256": "3647ca8e464fe43203f7ad4a655d4b9882fef213de39915fc9de18a5ef026a41",
+      "hash_rule": "sha256 over sorted array keys; per key: key utf-8, dtype str, JSON shape, C-order bytes",
+      "artifact": "channel.npz",
+      "arrays": {
+        "cfr": {
+          "shape": [
+            6,
+            1,
+            1,
+            8,
+            12,
+            3276
+          ],
+          "dtype": "complex64"
+        }
+      },
+      "size_bytes": 1215795,
+      "source_scenario_id": "SYSTEM-DEMO-001",
+      "seed": 20260927,
+      "provider": "sionna_sys",
+      "provider_versions": {
+        "sionna": "2.1.0",
+        "sionna-rt": "2.1.0",
+        "mitsuba": "3.9.1",
+        "drjit": "1.5.0",
+        "torch": "2.14.0"
+      },
+      "propagation_fingerprint": "bf0c8400289ed37821ff6a0b7ff9006337caf8e627838d8d4d763424ab267ac2",
+      "mean_channel_gain_db": {
+        "UE-001": -119.62715953056102,
+        "UE-002": -110.08977865799152,
+        "UE-003": -87.82415684126053,
+        "UE-004": -105.54099158863241,
+        "UE-005": -114.7208823846702,
+        "UE-006": -108.60859552133846
+      },
+      "created_at": "2026-09-28T10:39:10.225063+00:00"
+    },
+    "simulation_horizon": {
+      "num_slots": 500,
+      "warmup_slots": 0,
+      "slot_duration_s": 0.0005,
+      "measured_duration_s": 0.25
+    },
+    "backend_id": "sionna_system",
+    "backend_version": "2.1.0",
+    "scheduler_config": {
+      "id": "pf_su_mimo",
+      "beta": 0.9
+    },
+    "link_adaptation_config": {
+      "id": "olla",
+      "bler_target": 0.1,
+      "mcs_table_index": 1
+    },
+    "power_control_config": {
+      "id": "downlink_fair",
+      "guaranteed_power_ratio": 0.5,
+      "fairness": 0.0
+    },
+    "benchmark_protocol_id": "SYSTEM_BENCHMARK_V0_1",
+    "benchmark_protocol_version": "0.1",
+    "created_at": "2026-09-28T10:39:10.225151+00:00",
+    "metadata": {
+      "propagation_seconds": 1.0183815250056796,
+      "candidate_indices": [
+        0,
+        1,
+        3,
+        12,
+        19,
+        21
+      ]
+    }
+  },
+  "baseline": {
+    "candidate_id": "BASELINE",
+    "iteration": 0,
+    "parameters": {
+      "scheduler_beta": 0.9
+    },
+    "status": "evaluated",
+    "experiment_id": "EXP-02690510",
+    "is_baseline": true,
+    "reused_baseline": false,
+    "objective": {
+      "objective_id": "NETWORK_THROUGHPUT_MAX_V0_1",
+      "objective_version": "0.1",
+      "value": 138.032576,
+      "components": {
+        "NETWORK_THROUGHPUT_V0_1": 138.032576
+      }
+    },
+    "runtime_seconds": 98.65345870802412,
+    "error": null,
+    "evaluation_context_id": "CTX-5891D135",
+    "experiment_ids": [
+      "EXP-02690510"
+    ],
+    "network_throughput_mbps": {
+      "mean": 138.032576,
+      "std": 0.0,
+      "min": 138.032576,
+      "max": 138.032576,
+      "n": 1
+    },
+    "average_ue_throughput_mbps": {
+      "mean": 23.005429333333336,
+      "std": 0.0,
+      "min": 23.005429333333336,
+      "max": 23.005429333333336,
+      "n": 1
+    },
+    "p5_ue_throughput_mbps": {
+      "mean": 13.437199999999999,
+      "std": 0.0,
+      "min": 13.437199999999999,
+      "max": 13.437199999999999,
+      "n": 1
+    },
+    "per_ue_throughput_mbps": {
+      "UE-001": 12.4272,
+      "UE-002": 22.1568,
+      "UE-003": 37.432736,
+      "UE-004": 20.593216,
+      "UE-005": 16.4672,
+      "UE-006": 28.955424
+    },
+    "fairness": {
+      "evaluation_context_id": "CTX-5891D135",
+      "ue_population_sha256": "8b69efa7d8173612977980718486d76b54ea7fcb6f4ebd44099935a12557c64b",
+      "channel_realization_id": "CH-F5A10364",
+      "channel_sha256": "3647ca8e464fe43203f7ad4a655d4b9882fef213de39915fc9de18a5ef026a41",
+      "traffic_realization_id": "FULL_BUFFER_V0_1",
+      "traffic_sha256": "e9df3b2f7c85bd0410a401d50824ab7518e750ad4af5ccc15b284614b53fef3d",
+      "num_slots": 500,
+      "warmup_slots": 0,
+      "backend_id": "sionna_system",
+      "backend_version": "2.1.0",
+      "channel_reused": true
+    }
+  },
+  "candidates": [
+    {
+      "candidate_id": "CAND-001",
+      "iteration": 1,
+      "parameters": {
+        "scheduler_beta": 0.1
+      },
+      "status": "evaluated",
+      "experiment_id": "EXP-C89283BE",
+      "is_baseline": false,
+      "reused_baseline": false,
+      "objective": {
+        "objective_id": "NETWORK_THROUGHPUT_MAX_V0_1",
+        "objective_version": "0.1",
+        "value": 234.22630399999997,
+        "components": {
+          "NETWORK_THROUGHPUT_V0_1": 234.22630399999997
+        }
+      },
+      "runtime_seconds": 100.3886033219751,
+      "error": null,
+      "evaluation_context_id": "CTX-5891D135",
+      "experiment_ids": [
+        "EXP-C89283BE"
+      ],
+      "network_throughput_mbps": {
+        "mean": 234.22630399999997,
+        "std": 0.0,
+        "min": 234.22630399999997,
+        "max": 234.22630399999997,
+        "n": 1
+      },
+      "average_ue_throughput_mbps": {
+        "mean": 39.037717333333326,
+        "std": 0.0,
+        "min": 39.037717333333326,
+        "max": 39.037717333333326,
+        "n": 1
+      },
+      "p5_ue_throughput_mbps": {
+        "mean": 10.132608000000001,
+        "std": 0.0,
+        "min": 10.132608000000001,
+        "max": 10.132608000000001,
+        "n": 1
+      },
+      "per_ue_throughput_mbps": {
+        "UE-001": 6.581664,
+        "UE-002": 47.884128,
+        "UE-003": 64.63712,
+        "UE-004": 29.958336,
+        "UE-005": 20.78544,
+        "UE-006": 64.379616
+      },
+      "fairness": {
+        "evaluation_context_id": "CTX-5891D135",
+        "ue_population_sha256": "8b69efa7d8173612977980718486d76b54ea7fcb6f4ebd44099935a12557c64b",
+        "channel_realization_id": "CH-F5A10364",
+        "channel_sha256": "3647ca8e464fe43203f7ad4a655d4b9882fef213de39915fc9de18a5ef026a41",
+        "traffic_realization_id": "FULL_BUFFER_V0_1",
+        "traffic_sha256": "e9df3b2f7c85bd0410a401d50824ab7518e750ad4af5ccc15b284614b53fef3d",
+        "num_slots": 500,
+        "warmup_slots": 0,
+        "backend_id": "sionna_system",
+        "backend_version": "2.1.0",
+        "channel_reused": true
+      }
+    },
+    {
+      "candidate_id": "CAND-002",
+      "iteration": 2,
+      "parameters": {
+        "scheduler_beta": 0.3
+      },
+      "status": "evaluated",
+      "experiment_id": "EXP-27BD3740",
+      "is_baseline": false,
+      "reused_baseline": false,
+      "objective": {
+        "objective_id": "NETWORK_THROUGHPUT_MAX_V0_1",
+        "objective_version": "0.1",
+        "value": 236.236096,
+        "components": {
+          "NETWORK_THROUGHPUT_V0_1": 236.236096
+        }
+      },
+      "runtime_seconds": 99.34830549696926,
+      "error": null,
+      "evaluation_context_id": "CTX-5891D135",
+      "experiment_ids": [
+        "EXP-27BD3740"
+      ],
+      "network_throughput_mbps": {
+        "mean": 236.236096,
+        "std": 0.0,
+        "min": 236.236096,
+        "max": 236.236096,
+        "n": 1
+      },
+      "average_ue_throughput_mbps": {
+        "mean": 39.37268266666667,
+        "std": 0.0,
+        "min": 39.37268266666667,
+        "max": 39.37268266666667,
+        "n": 1
+      },
+      "p5_ue_throughput_mbps": {
+        "mean": 10.206479999999999,
+        "std": 0.0,
+        "min": 10.206479999999999,
+        "max": 10.206479999999999,
+        "n": 1
+      },
+      "per_ue_throughput_mbps": {
+        "UE-001": 6.68016,
+        "UE-002": 49.376704,
+        "UE-003": 64.481376,
+        "UE-004": 30.5328,
+        "UE-005": 20.78544,
+        "UE-006": 64.379616
+      },
+      "fairness": {
+        "evaluation_context_id": "CTX-5891D135",
+        "ue_population_sha256": "8b69efa7d8173612977980718486d76b54ea7fcb6f4ebd44099935a12557c64b",
+        "channel_realization_id": "CH-F5A10364",
+        "channel_sha256": "3647ca8e464fe43203f7ad4a655d4b9882fef213de39915fc9de18a5ef026a41",
+        "traffic_realization_id": "FULL_BUFFER_V0_1",
+        "traffic_sha256": "e9df3b2f7c85bd0410a401d50824ab7518e750ad4af5ccc15b284614b53fef3d",
+        "num_slots": 500,
+        "warmup_slots": 0,
+        "backend_id": "sionna_system",
+        "backend_version": "2.1.0",
+        "channel_reused": true
+      }
+    },
+    {
+      "candidate_id": "CAND-003",
+      "iteration": 3,
+      "parameters": {
+        "scheduler_beta": 0.6
+      },
+      "status": "evaluated",
+      "experiment_id": "EXP-E00E81B6",
+      "is_baseline": false,
+      "reused_baseline": false,
+      "objective": {
+        "objective_id": "NETWORK_THROUGHPUT_MAX_V0_1",
+        "objective_version": "0.1",
+        "value": 189.109344,
+        "components": {
+          "NETWORK_THROUGHPUT_V0_1": 189.109344
+        }
+      },
+      "runtime_seconds": 98.37429027800681,
+      "error": null,
+      "evaluation_context_id": "CTX-5891D135",
+      "experiment_ids": [
+        "EXP-E00E81B6"
+      ],
+      "network_throughput_mbps": {
+        "mean": 189.109344,
+        "std": 0.0,
+        "min": 189.109344,
+        "max": 189.109344,
+        "n": 1
+      },
+      "average_ue_throughput_mbps": {
+        "mean": 31.518224,
+        "std": 0.0,
+        "min": 31.518224,
+        "max": 31.518224,
+        "n": 1
+      },
+      "p5_ue_throughput_mbps": {
+        "mean": 11.64504,
+        "std": 0.0,
+        "min": 11.64504,
+        "max": 11.64504,
+        "n": 1
+      },
+      "per_ue_throughput_mbps": {
+        "UE-001": 9.1312,
+        "UE-002": 33.189376,
+        "UE-003": 51.391872,
+        "UE-004": 24.811456,
+        "UE-005": 19.18656,
+        "UE-006": 51.39888
+      },
+      "fairness": {
+        "evaluation_context_id": "CTX-5891D135",
+        "ue_population_sha256": "8b69efa7d8173612977980718486d76b54ea7fcb6f4ebd44099935a12557c64b",
+        "channel_realization_id": "CH-F5A10364",
+        "channel_sha256": "3647ca8e464fe43203f7ad4a655d4b9882fef213de39915fc9de18a5ef026a41",
+        "traffic_realization_id": "FULL_BUFFER_V0_1",
+        "traffic_sha256": "e9df3b2f7c85bd0410a401d50824ab7518e750ad4af5ccc15b284614b53fef3d",
+        "num_slots": 500,
+        "warmup_slots": 0,
+        "backend_id": "sionna_system",
+        "backend_version": "2.1.0",
+        "channel_reused": true
+      }
+    },
+    {
+      "candidate_id": "CAND-004",
+      "iteration": 4,
+      "parameters": {
+        "scheduler_beta": 0.9
+      },
+      "status": "evaluated",
+      "experiment_id": "EXP-02690510",
+      "is_baseline": false,
+      "reused_baseline": true,
+      "objective": {
+        "objective_id": "NETWORK_THROUGHPUT_MAX_V0_1",
+        "objective_version": "0.1",
+        "value": 138.032576,
+        "components": {
+          "NETWORK_THROUGHPUT_V0_1": 138.032576
+        }
+      },
+      "runtime_seconds": 0.0,
+      "error": null,
+      "evaluation_context_id": "CTX-5891D135",
+      "experiment_ids": [
+        "EXP-02690510"
+      ],
+      "network_throughput_mbps": {
+        "mean": 138.032576,
+        "std": 0.0,
+        "min": 138.032576,
+        "max": 138.032576,
+        "n": 1
+      },
+      "average_ue_throughput_mbps": {
+        "mean": 23.005429333333336,
+        "std": 0.0,
+        "min": 23.005429333333336,
+        "max": 23.005429333333336,
+        "n": 1
+      },
+      "p5_ue_throughput_mbps": {
+        "mean": 13.437199999999999,
+        "std": 0.0,
+        "min": 13.437199999999999,
+        "max": 13.437199999999999,
+        "n": 1
+      },
+      "per_ue_throughput_mbps": {
+        "UE-001": 12.4272,
+        "UE-002": 22.1568,
+        "UE-003": 37.432736,
+        "UE-004": 20.593216,
+        "UE-005": 16.4672,
+        "UE-006": 28.955424
+      },
+      "fairness": {
+        "evaluation_context_id": "CTX-5891D135",
+        "ue_population_sha256": "8b69efa7d8173612977980718486d76b54ea7fcb6f4ebd44099935a12557c64b",
+        "channel_realization_id": "CH-F5A10364",
+        "channel_sha256": "3647ca8e464fe43203f7ad4a655d4b9882fef213de39915fc9de18a5ef026a41",
+        "traffic_realization_id": "FULL_BUFFER_V0_1",
+        "traffic_sha256": "e9df3b2f7c85bd0410a401d50824ab7518e750ad4af5ccc15b284614b53fef3d",
+        "num_slots": 500,
+        "warmup_slots": 0,
+        "backend_id": "sionna_system",
+        "backend_version": "2.1.0",
+        "channel_reused": true
+      }
+    },
+    {
+      "candidate_id": "CAND-005",
+      "iteration": 5,
+      "parameters": {
+        "scheduler_beta": 0.99
+      },
+      "status": "evaluated",
+      "experiment_id": "EXP-B14E2CEC",
+      "is_baseline": false,
+      "reused_baseline": false,
+      "objective": {
+        "objective_id": "NETWORK_THROUGHPUT_MAX_V0_1",
+        "objective_version": "0.1",
+        "value": 66.507872,
+        "components": {
+          "NETWORK_THROUGHPUT_V0_1": 66.507872
+        }
+      },
+      "runtime_seconds": 98.60254620597698,
+      "error": null,
+      "evaluation_context_id": "CTX-5891D135",
+      "experiment_ids": [
+        "EXP-B14E2CEC"
+      ],
+      "network_throughput_mbps": {
+        "mean": 66.507872,
+        "std": 0.0,
+        "min": 66.507872,
+        "max": 66.507872,
+        "n": 1
+      },
+      "average_ue_throughput_mbps": {
+        "mean": 11.084645333333334,
+        "std": 0.0,
+        "min": 11.084645333333334,
+        "max": 11.084645333333334,
+        "n": 1
+      },
+      "p5_ue_throughput_mbps": {
+        "mean": 8.014944,
+        "std": 0.0,
+        "min": 8.014944,
+        "max": 8.014944,
+        "n": 1
+      },
+      "per_ue_throughput_mbps": {
+        "UE-001": 7.642784,
+        "UE-002": 10.644704,
+        "UE-003": 16.143584,
+        "UE-004": 11.41328,
+        "UE-005": 9.131424,
+        "UE-006": 11.532096
+      },
+      "fairness": {
+        "evaluation_context_id": "CTX-5891D135",
+        "ue_population_sha256": "8b69efa7d8173612977980718486d76b54ea7fcb6f4ebd44099935a12557c64b",
+        "channel_realization_id": "CH-F5A10364",
+        "channel_sha256": "3647ca8e464fe43203f7ad4a655d4b9882fef213de39915fc9de18a5ef026a41",
+        "traffic_realization_id": "FULL_BUFFER_V0_1",
+        "traffic_sha256": "e9df3b2f7c85bd0410a401d50824ab7518e750ad4af5ccc15b284614b53fef3d",
+        "num_slots": 500,
+        "warmup_slots": 0,
+        "backend_id": "sionna_system",
+        "backend_version": "2.1.0",
+        "channel_reused": true
+      }
+    }
+  ],
+  "best_candidate_id": "CAND-002",
+  "comparison": {
+    "baseline_candidate_id": "BASELINE",
+    "best_candidate_id": "CAND-002",
+    "baseline_experiment_id": "EXP-02690510",
+    "best_experiment_id": "EXP-27BD3740",
+    "baseline_parameters": {
+      "scheduler_beta": 0.9
+    },
+    "best_parameters": {
+      "scheduler_beta": 0.3
+    },
+    "baseline_objective": 138.032576,
+    "best_objective": 236.236096,
+    "absolute_improvement": 98.20352,
+    "relative_improvement_percent": 71.14517662845037,
+    "improved": true,
+    "kpi_changes": [
+      {
+        "kpi_id": "NETWORK_THROUGHPUT_V0_1",
+        "baseline": 138.032576,
+        "best": 236.236096,
+        "absolute_change": 98.20352,
+        "relative_change_percent": 71.14517662845037,
+        "direction": "increase"
+      },
+      {
+        "kpi_id": "AVG_UE_THROUGHPUT_V0_1",
+        "baseline": 23.005429333333336,
+        "best": 39.37268266666667,
+        "absolute_change": 16.367253333333334,
+        "relative_change_percent": 71.14517662845037,
+        "direction": "increase"
+      },
+      {
+        "kpi_id": "P5_UE_THROUGHPUT_V0_1",
+        "baseline": 13.437199999999999,
+        "best": 10.206479999999999,
+        "absolute_change": -3.23072,
+        "relative_change_percent": -24.043104218140684,
+        "direction": "decrease"
+      }
+    ],
+    "negative_kpi_changes": [
+      "P5_UE_THROUGHPUT_V0_1"
+    ],
+    "within_observed_variability": false,
+    "observed_variability_percent": 6.9,
+    "tie_break_rule": "Equal objective → baseline parameter value first, then candidate definition order"
+  },
+  "fairness": {
+    "fair": true,
+    "checks": [
+      {
+        "id": "same_ue_population",
+        "label_zh": "相同 UE 集合",
+        "label_en": "Same UE Population",
+        "passed": true,
+        "detail": "UEP-8B69EFA7 sha256 8b69efa7d8173612… (5 evaluations)"
+      },
+      {
+        "id": "same_channel_realization",
+        "label_zh": "相同信道实现",
+        "label_en": "Same Channel Realization",
+        "passed": true,
+        "detail": "CH-F5A10364 sha256 3647ca8e464fe432…; per-UE mean channel gain recomputed by the backend from the consumed channel matches"
+      },
+      {
+        "id": "same_traffic",
+        "label_zh": "相同业务模型",
+        "label_en": "Same Traffic Model",
+        "passed": true,
+        "detail": "FULL_BUFFER_V0_1"
+      },
+      {
+        "id": "same_simulation_horizon",
+        "label_zh": "相同仿真时长",
+        "label_en": "Same Simulation Horizon",
+        "passed": true,
+        "detail": "500 slots, warm-up 0"
+      },
+      {
+        "id": "same_backend_version",
+        "label_zh": "相同后端版本",
+        "label_en": "Same Backend Version",
+        "passed": true,
+        "detail": "sionna_system 2.1.0"
+      },
+      {
+        "id": "only_variable_changed",
+        "label_zh": "仅优化变量不同",
+        "label_en": "Only Optimization Variable Changed",
+        "passed": true,
+        "detail": "scheduler (except β), link adaptation and power control identical to the context"
+      }
+    ]
+  },
+  "progress": {
+    "stage": "completed",
+    "completed_candidates": 5,
+    "total_candidates": 5,
+    "current_candidate_id": null,
+    "current_parameter_value": null
+  },
+  "runtime": {
+    "context_seconds": 1.2038391660316847,
+    "baseline_seconds": 98.68329313700087,
+    "candidate_evaluation_seconds": 397.08139976201346,
+    "total_seconds": 497.618011448998
+  },
+  "provenance": {
+    "optimizer": "grid_search",
+    "optimizer_version": "0.2",
+    "optimizer_category": "engineering_baseline",
+    "learning_algorithm": false,
+    "objective": "NETWORK_THROUGHPUT_MAX_V0_1",
+    "objective_version": "0.1",
+    "scenario": "SYSTEM-DEMO-001",
+    "backend": "sionna_system",
+    "backend_version": "2.1.0",
+    "provider": "sionna_sys",
+    "model_type": "sionna_sys",
+    "model_label": "Sionna Simulation Generated",
+    "source_type": "simulation",
+    "traffic_model": {
+      "type": "full_buffer",
+      "direction": "downlink",
+      "source": "assumption",
+      "tag": "[A]"
+    },
+    "benchmark_protocol": "SYSTEM_BENCHMARK_V0_1 v0.1",
+    "seed": 20260927,
+    "git_commit": "6417ffd",
+    "measured": false,
+    "huawei_data": false,
+    "acceptance_evidence": false,
+    "evidence_level": "System Optimization Validation (simulation)",
+    "search_space_source": "[A] Engineering demonstration grid; spans memory lengths ≈1–100 slots. 0.0 is not allowed by the Sionna API, 0.1 is the lowest demo value.",
+    "parameter_source": "Sionna 2.1.0 sionna.sys.PFSchedulerSUMIMO(beta=…), default 0.98",
+    "evaluation_context": "CTX-5891D135",
+    "channel_realization": "CH-F5A10364 sha256:3647ca8e464fe43203f7ad4a655d4b9882fef213de39915fc9de18a5ef026a41",
+    "ue_population": "UEP-8B69EFA7 sha256:8b69efa7d8173612977980718486d76b54ea7fcb6f4ebd44099935a12557c64b",
+    "traffic_realization": "FULL_BUFFER_V0_1"
+  },
+  "warnings": [
+    "P5_UE_THROUGHPUT_V0_1 decreased -24.04% (13.437 → 10.206 Mbps)"
+  ],
+  "artifacts": [
+    {
+      "name": "evaluation-context.json",
+      "media_type": "application/json",
+      "description": "Frozen common evaluation context / 冻结的公共评价上下文"
+    },
+    {
+      "name": "benchmark-protocol.json",
+      "media_type": "application/json",
+      "description": "Benchmark protocol used by this run / 本次运行使用的评价协议"
+    },
+    {
+      "name": "candidate-summary.json",
+      "media_type": "application/json",
+      "description": "Baseline and candidate KPIs / 基线与候选 KPI 汇总"
+    },
+    {
+      "name": "comparison.png",
+      "media_type": "image/png",
+      "description": "Candidate KPIs by parameter value / 各候选 KPI"
+    },
+    {
+      "name": "per-ue-comparison.png",
+      "media_type": "image/png",
+      "description": "Per-UE throughput, baseline vs best / 单 UE 吞吐率对比"
+    }
+  ],
+  "error": null,
+  "events": [
+    {
+      "event": "optimization_created",
+      "at": "2026-09-28T10:39:08.954165+00:00",
+      "candidate_id": null,
+      "experiment_id": null
+    },
+    {
+      "event": "stage_preparing_context",
+      "at": "2026-09-28T10:39:08.990963+00:00",
+      "candidate_id": null,
+      "experiment_id": null
+    },
+    {
+      "event": "evaluation_context_frozen",
+      "at": "2026-09-28T10:39:10.225239+00:00",
+      "candidate_id": null,
+      "experiment_id": null
+    },
+    {
+      "event": "stage_running_baseline",
+      "at": "2026-09-28T10:39:10.225265+00:00",
+      "candidate_id": null,
+      "experiment_id": null
+    },
+    {
+      "event": "baseline_evaluated",
+      "at": "2026-09-28T10:40:48.910476+00:00",
+      "candidate_id": "BASELINE",
+      "experiment_id": "EXP-02690510"
+    },
+    {
+      "event": "candidate_evaluated",
+      "at": "2026-09-28T10:42:29.360139+00:00",
+      "candidate_id": "CAND-001",
+      "experiment_id": "EXP-C89283BE"
+    },
+    {
+      "event": "candidate_evaluated",
+      "at": "2026-09-28T10:44:08.830465+00:00",
+      "candidate_id": "CAND-002",
+      "experiment_id": "EXP-27BD3740"
+    },
+    {
+      "event": "candidate_evaluated",
+      "at": "2026-09-28T10:45:47.265685+00:00",
+      "candidate_id": "CAND-003",
+      "experiment_id": "EXP-E00E81B6"
+    },
+    {
+      "event": "candidate_evaluated",
+      "at": "2026-09-28T10:45:47.326562+00:00",
+      "candidate_id": "CAND-004",
+      "experiment_id": "EXP-02690510"
+    },
+    {
+      "event": "candidate_evaluated",
+      "at": "2026-09-28T10:47:25.991785+00:00",
+      "candidate_id": "CAND-005",
+      "experiment_id": "EXP-B14E2CEC"
+    },
+    {
+      "event": "stage_selecting_best",
+      "at": "2026-09-28T10:47:26.021306+00:00",
+      "candidate_id": null,
+      "experiment_id": null
+    },
+    {
+      "event": "best_candidate_selected",
+      "at": "2026-09-28T10:47:26.053223+00:00",
+      "candidate_id": "CAND-002",
+      "experiment_id": "EXP-27BD3740"
+    },
+    {
+      "event": "stage_persisting_evidence",
+      "at": "2026-09-28T10:47:26.053296+00:00",
+      "candidate_id": null,
+      "experiment_id": null
+    },
+    {
+      "event": "optimization_completed",
+      "at": "2026-09-28T10:47:26.608772+00:00",
+      "candidate_id": null,
+      "experiment_id": null
+    }
+  ],
+  "status_history": [
+    {
+      "status": "created",
+      "at": "2026-09-28T10:39:08.954150+00:00"
+    },
+    {
+      "status": "running",
+      "at": "2026-09-28T10:39:08.990882+00:00"
+    },
+    {
+      "status": "succeeded",
+      "at": "2026-09-28T10:47:26.608767+00:00"
+    }
+  ]
+}

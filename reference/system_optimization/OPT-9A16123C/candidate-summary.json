@@ -1,0 +1,236 @@
+[
+  {
+    "candidate_id": "BASELINE",
+    "is_baseline": true,
+    "reused_baseline": false,
+    "parameters": {
+      "scheduler_beta": 0.9
+    },
+    "status": "evaluated",
+    "experiment_id": "EXP-02690510",
+    "experiment_ids": [
+      "EXP-02690510"
+    ],
+    "evaluation_context_id": "CTX-5891D135",
+    "network_throughput_mbps": {
+      "mean": 138.032576,
+      "std": 0.0,
+      "min": 138.032576,
+      "max": 138.032576,
+      "n": 1
+    },
+    "average_ue_throughput_mbps": {
+      "mean": 23.005429333333336,
+      "std": 0.0,
+      "min": 23.005429333333336,
+      "max": 23.005429333333336,
+      "n": 1
+    },
+    "p5_ue_throughput_mbps": {
+      "mean": 13.437199999999999,
+      "std": 0.0,
+      "min": 13.437199999999999,
+      "max": 13.437199999999999,
+      "n": 1
+    },
+    "objective": 138.032576,
+    "runtime_seconds": 98.65345870802412,
+    "error": null,
+    "is_best": false
+  },
+  {
+    "candidate_id": "CAND-001",
+    "is_baseline": false,
+    "reused_baseline": false,
+    "parameters": {
+      "scheduler_beta": 0.1
+    },
+    "status": "evaluated",
+    "experiment_id": "EXP-C89283BE",
+    "experiment_ids": [
+      "EXP-C89283BE"
+    ],
+    "evaluation_context_id": "CTX-5891D135",
+    "network_throughput_mbps": {
+      "mean": 234.22630399999997,
+      "std": 0.0,
+      "min": 234.22630399999997,
+      "max": 234.22630399999997,
+      "n": 1
+    },
+    "average_ue_throughput_mbps": {
+      "mean": 39.037717333333326,
+      "std": 0.0,
+      "min": 39.037717333333326,
+      "max": 39.037717333333326,
+      "n": 1
+    },
+    "p5_ue_throughput_mbps": {
+      "mean": 10.132608000000001,
+      "std": 0.0,
+      "min": 10.132608000000001,
+      "max": 10.132608000000001,
+      "n": 1
+    },
+    "objective": 234.22630399999997,
+    "runtime_seconds": 100.3886033219751,
+    "error": null,
+    "is_best": false
+  },
+  {
+    "candidate_id": "CAND-002",
+    "is_baseline": false,
+    "reused_baseline": false,
+    "parameters": {
+      "scheduler_beta": 0.3
+    },
+    "status": "evaluated",
+    "experiment_id": "EXP-27BD3740",
+    "experiment_ids": [
+      "EXP-27BD3740"
+    ],
+    "evaluation_context_id": "CTX-5891D135",
+    "network_throughput_mbps": {
+      "mean": 236.236096,
+      "std": 0.0,
+      "min": 236.236096,
+      "max": 236.236096,
+      "n": 1
+    },
+    "average_ue_throughput_mbps": {
+      "mean": 39.37268266666667,
+      "std": 0.0,
+      "min": 39.37268266666667,
+      "max": 39.37268266666667,
+      "n": 1
+    },
+    "p5_ue_throughput_mbps": {
+      "mean": 10.206479999999999,
+      "std": 0.0,
+      "min": 10.206479999999999,
+      "max": 10.206479999999999,
+      "n": 1
+    },
+    "objective": 236.236096,
+    "runtime_seconds": 99.34830549696926,
+    "error": null,
+    "is_best": true
+  },
+  {
+    "candidate_id": "CAND-003",
+    "is_baseline": false,
+    "reused_baseline": false,
+    "parameters": {
+      "scheduler_beta": 0.6
+    },
+    "status": "evaluated",
+    "experiment_id": "EXP-E00E81B6",
+    "experiment_ids": [
+      "EXP-E00E81B6"
+    ],
+    "evaluation_context_id": "CTX-5891D135",
+    "network_throughput_mbps": {
+      "mean": 189.109344,
+      "std": 0.0,
+      "min": 189.109344,
+      "max": 189.109344,
+      "n": 1
+    },
+    "average_ue_throughput_mbps": {
+      "mean": 31.518224,
+      "std": 0.0,
+      "min": 31.518224,
+      "max": 31.518224,
+      "n": 1
+    },
+    "p5_ue_throughput_mbps": {
+      "mean": 11.64504,
+      "std": 0.0,
+      "min": 11.64504,
+      "max": 11.64504,
+      "n": 1
+    },
+    "objective": 189.109344,
+    "runtime_seconds": 98.37429027800681,
+    "error": null,
+    "is_best": false
+  },
+  {
+    "candidate_id": "CAND-004",
+    "is_baseline": false,
+    "reused_baseline": true,
+    "parameters": {
+      "scheduler_beta": 0.9
+    },
+    "status": "evaluated",
+    "experiment_id": "EXP-02690510",
+    "experiment_ids": [
+      "EXP-02690510"
+    ],
+    "evaluation_context_id": "CTX-5891D135",
+    "network_throughput_mbps": {
+      "mean": 138.032576,
+      "std": 0.0,
+      "min": 138.032576,
+      "max": 138.032576,
+      "n": 1
+    },
+    "average_ue_throughput_mbps": {
+      "mean": 23.005429333333336,
+      "std": 0.0,
+      "min": 23.005429333333336,
+      "max": 23.005429333333336,
+      "n": 1
+    },
+    "p5_ue_throughput_mbps": {
+      "mean": 13.437199999999999,
+      "std": 0.0,
+      "min": 13.437199999999999,
+      "max": 13.437199999999999,
+      "n": 1
+    },
+    "objective": 138.032576,
+    "runtime_seconds": 0.0,
+    "error": null,
+    "is_best": false
+  },
+  {
+    "candidate_id": "CAND-005",
+    "is_baseline": false,
+    "reused_baseline": false,
+    "parameters": {
+      "scheduler_beta": 0.99
+    },
+    "status": "evaluated",
+    "experiment_id": "EXP-B14E2CEC",
+    "experiment_ids": [
+      "EXP-B14E2CEC"
+    ],
+    "evaluation_context_id": "CTX-5891D135",
+    "network_throughput_mbps": {
+      "mean": 66.507872,
+      "std": 0.0,
+      "min": 66.507872,
+      "max": 66.507872,
+      "n": 1
+    },
+    "average_ue_throughput_mbps": {
+      "mean": 11.084645333333334,
+      "std": 0.0,
+      "min": 11.084645333333334,
+      "max": 11.084645333333334,
+      "n": 1
+    },
+    "p5_ue_throughput_mbps": {
+      "mean": 8.014944,
+      "std": 0.0,
+      "min": 8.014944,
+      "max": 8.014944,
+      "n": 1
+    },
+    "objective": 66.507872,
+    "runtime_seconds": 98.60254620597698,
+    "error": null,
+    "is_best": false
+  }
+]

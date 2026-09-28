@@ -1,0 +1,37 @@
+{
+  "protocol_id": "SYSTEM_BENCHMARK_V0_1",
+  "version": "0.1",
+  "name_zh": "系统级公平评价协议 V0.1",
+  "name_en": "System Benchmark Protocol V0.1",
+  "num_repeats": 1,
+  "simulation_slots": 500,
+  "warmup_slots": 0,
+  "aggregation_method": "single_run",
+  "common_channel": true,
+  "common_ue_population": true,
+  "common_traffic": true,
+  "seed_policy": "Scenario seed fixed for all evaluations; one Sionna RT channel realization per optimization run",
+  "observed_variability": {
+    "kpi_id": "NETWORK_THROUGHPUT_V0_1",
+    "relative_percent": 6.9,
+    "description_zh": "SYSTEM-DEMO-001 三次独立完整运行（各自重新光线追踪 + SYS，200 slots）的网络吞吐率范围 130.42–139.40 Mbps，(max−min)/min = 6.9%。同一冻结信道下 SYS 为逐比特确定，该波动来自 GPU 光线追踪的微小数值漂移经 OLLA/HARQ 放大；取其作为保守上界。",
+    "description_en": "Network throughput range 130.42–139.40 Mbps over three independent full runs of SYSTEM-DEMO-001 (fresh Sionna RT + SYS each, 200 slots): (max−min)/min = 6.9%. SYS on a frozen channel is bit-identical; the spread comes from GPU ray-tracing drift amplified by OLLA/HARQ. Used as a conservative bound (two RT realizations at 200 slots differ by 0.60%).",
+    "source": "reference/system/EXP-FC79FFC2/determinism-repeats.json; reference/day6_horizon_study/results.json"
+  },
+  "rationale": [
+    "500 slots is the shortest studied horizon whose network-throughput ranking of the β candidates equals the 1000-slot ranking (200 slots swaps the top two, 0.1% apart).",
+    "At 500 slots every candidate is within 3.2% (network) / 4.4% (P5) of its 1000-slot value; at 200 slots deviations reach 7.9% / 8.3%.",
+    "Runtime ≈ 0.195 s/slot on CPU: 500 slots ≈ 97 s per evaluation versus 195 s at 1000 slots.",
+    "Warm-up 0 keeps the Day 5 KPI window (full simulated horizon); warm-up 20/50/100 does not change the ranking at 500 or 1000 slots.",
+    "Single run: with the frozen channel, repeated SYS runs are bit-identical (verified), so repeats add no information."
+  ],
+  "limitations": [
+    "Absolute KPI levels are not fully converged at 500 slots (up to 3.2% below/above the 1000-slot value).",
+    "Without warm-up the initial OLLA/PF transient favours β = 0.99 by up to 4.7% at 500 slots; ranking is unaffected.",
+    "One scenario (SYSTEM-DEMO-001), one channel realization, full-buffer traffic, single cell per BS.",
+    "Observed variability comes from 3 runs only; it is an empirical bound, not a confidence interval."
+  ],
+  "frozen_at": "2026-09-28",
+  "document": "docs/benchmark/system-benchmark-v0.1.md",
+  "evidence": "reference/day6_horizon_study/"
+}
