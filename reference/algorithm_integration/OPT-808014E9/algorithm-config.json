@@ -1,0 +1,29 @@
+{
+  "algorithm_id": "research_demo_optimizer",
+  "algorithm_version": "0.1.0",
+  "sdk_version": "0.1",
+  "hyperparameters": {
+    "initial_step": 0.2,
+    "min_step": 0.05,
+    "shrink_factor": 0.5,
+    "max_iterations": 8,
+    "start_point": "baseline"
+  },
+  "auto_configured": true,
+  "evaluation_budget": {
+    "max_evaluations": 8,
+    "evaluations_used": 8,
+    "simulations_run": 8,
+    "cache_hits": 0,
+    "rejected_suggestions": 1
+  },
+  "algorithm_config_hash": "8504eff99258314bf1d9d8659266a105692ba5c9ef66513ba77b19ee296833e7",
+  "parameter_space_hash": "275eb7946569b515265c0d9ba016716aa66caf8fde103c9c09eec9894f99dc28",
+  "source": "src/algorithms/examples/research_demo_optimizer/algorithm.py",
+  "source_revision": {
+    "type": "git_commit",
+    "value": "94829c3-dirty"
+  },
+  "stop_reason": "budget_exhausted",
+  "recommendation_matches_best": true
+}

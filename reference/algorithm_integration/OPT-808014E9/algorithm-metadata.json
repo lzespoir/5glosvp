@@ -1,0 +1,128 @@
+{
+  "algorithm_id": "research_demo_optimizer",
+  "name_zh": "Research Demo Optimizer（自适应局部搜索）",
+  "name_en": "Research Demo Optimizer (Adaptive Local Search)",
+  "version": "0.1.0",
+  "category": "research_demo",
+  "description_zh": "一维连续参数的自适应局部搜索：从基线出发评价两侧邻点，朝更优方向移动，无改善时缩小步长。每一步都依据上一次目标值反馈决定下一个参数。用于验证算法接入框架，不是项目科研成果。",
+  "description_en": "Adaptive local search over one continuous parameter: starts at the baseline, evaluates both neighbours, moves toward the better direction and shrinks the step when nothing improves. Each suggestion depends on the previous objective feedback. Validates the algorithm integration framework; not a project research deliverable.",
+  "purpose_zh": "算法接入验证（Integration Demo）",
+  "purpose_en": "Algorithm Integration Validation",
+  "provider": "5GLOSVP platform (integration template)",
+  "learning_algorithm": false,
+  "project_research_deliverable": false,
+  "acceptance_algorithm": false,
+  "capabilities": {
+    "supports_discrete": false,
+    "supports_continuous": true,
+    "supports_integer": false,
+    "supports_categorical": false,
+    "supports_vector": false,
+    "supports_constraints": false,
+    "supports_multi_objective": false,
+    "supports_batch_suggestions": true,
+    "supports_iterative_feedback": true,
+    "supports_auto_configuration": true,
+    "max_parameters": 1
+  },
+  "hyperparameter_schema": [
+    {
+      "id": "initial_step",
+      "name_zh": "初始步长",
+      "name_en": "Initial Step",
+      "type": "float",
+      "default": 0.2,
+      "bounds": {
+        "lower": 0.0,
+        "upper": 1.0,
+        "lower_inclusive": false,
+        "upper_inclusive": true
+      },
+      "choices": null,
+      "unit": "1",
+      "description_zh": "首轮邻点距离（参数单位）",
+      "description_en": "Neighbour distance of the first round"
+    },
+    {
+      "id": "min_step",
+      "name_zh": "最小步长",
+      "name_en": "Minimum Step",
+      "type": "float",
+      "default": 0.05,
+      "bounds": {
+        "lower": 0.0,
+        "upper": 1.0,
+        "lower_inclusive": false,
+        "upper_inclusive": true
+      },
+      "choices": null,
+      "unit": "1",
+      "description_zh": "步长缩小到低于该值时停止（converged）",
+      "description_en": "Stop (converged) below this step"
+    },
+    {
+      "id": "shrink_factor",
+      "name_zh": "步长缩小因子",
+      "name_en": "Shrink Factor",
+      "type": "float",
+      "default": 0.5,
+      "bounds": {
+        "lower": 0.0,
+        "upper": 1.0,
+        "lower_inclusive": false,
+        "upper_inclusive": false
+      },
+      "choices": null,
+      "unit": "1",
+      "description_zh": "无改善时 step *= shrink_factor",
+      "description_en": "step *= shrink_factor on no improvement"
+    },
+    {
+      "id": "max_iterations",
+      "name_zh": "最大迭代轮数",
+      "name_en": "Max Iterations",
+      "type": "integer",
+      "default": 8,
+      "bounds": {
+        "lower": 1.0,
+        "upper": 50.0,
+        "lower_inclusive": true,
+        "upper_inclusive": true
+      },
+      "choices": null,
+      "unit": "1",
+      "description_zh": "suggest/observe 轮数上限（评价次数另由平台预算限制）",
+      "description_en": "Upper bound of suggest/observe rounds (evaluations are capped by the platform budget)"
+    },
+    {
+      "id": "start_point",
+      "name_zh": "起点",
+      "name_en": "Start Point",
+      "type": "categorical",
+      "default": "baseline",
+      "bounds": null,
+      "choices": [
+        "baseline",
+        "center"
+      ],
+      "unit": "1",
+      "description_zh": "baseline：从场景基线值出发；center：从搜索区间中点出发",
+      "description_en": "baseline: scenario baseline value; center: midpoint of the search bounds"
+    }
+  ],
+  "supported_problem_types": [
+    "system"
+  ],
+  "source": "src/algorithms/examples/research_demo_optimizer/algorithm.py",
+  "status": "experimental",
+  "sdk_version": "0.1",
+  "labels": [
+    "Integration Demo",
+    "接入验证算法",
+    "Not Project Research Deliverable"
+  ],
+  "supported_parameter_types": [
+    "continuous"
+  ],
+  "auto_configuration": true
+}

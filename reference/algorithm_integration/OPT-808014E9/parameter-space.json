@@ -1,0 +1,36 @@
+{
+  "parameters": [
+    {
+      "id": "scheduler_beta",
+      "name_zh": "PF 调度折扣因子 β",
+      "name_en": "PF Scheduler Discount Factor β",
+      "role": "optimization_variable",
+      "type": "continuous",
+      "unit": "1",
+      "default": 0.98,
+      "bounds": {
+        "lower": 0.05,
+        "upper": 0.99,
+        "lower_inclusive": true,
+        "upper_inclusive": true
+      },
+      "choices": null,
+      "vector_length": null,
+      "shape": null,
+      "element_type": null,
+      "constraints": [
+        "0 < β < 1 (sionna.sys.PFSchedulerSUMIMO raises ValueError otherwise)"
+      ],
+      "value_generation": [
+        "algorithm_generated"
+      ],
+      "source": "Sionna 2.1.0 sionna.sys.PFSchedulerSUMIMO(beta=…), default 0.98",
+      "description_zh": "比例公平调度中历史平均吞吐率的几何折扣因子：T_t = β·T_{t-1} + (1-β)·R_t。β 越大，历史记忆越长（约 1/(1-β) 个时隙），调度对短期速率波动越不敏感。只影响调度，不改变传播。",
+      "description_en": "Geometric discount factor of the PF scheduler's time-averaged throughput: T_t = β·T_{t-1} + (1-β)·R_t. Larger β = longer memory (≈ 1/(1-β) slots). Affects scheduling only, not propagation."
+    }
+  ],
+  "constraints": [],
+  "metadata": {
+    "source": "system parameter catalog"
+  }
+}

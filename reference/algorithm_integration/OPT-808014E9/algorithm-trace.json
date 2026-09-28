@@ -1,0 +1,482 @@
+{
+  "algorithm_id": "research_demo_optimizer",
+  "algorithm_version": "0.1.0",
+  "sdk_version": "0.1",
+  "hyperparameters": {
+    "initial_step": 0.2,
+    "min_step": 0.05,
+    "shrink_factor": 0.5,
+    "max_iterations": 8,
+    "start_point": "baseline"
+  },
+  "max_evaluations": 8,
+  "initial_state": {
+    "round": 0,
+    "mode": "explore",
+    "incumbent": 0.9,
+    "incumbent_objective": 132.993888,
+    "step": 0.2,
+    "direction": 0,
+    "search_bounds": [
+      0.05,
+      0.99
+    ],
+    "last_decision": "start at 0.9",
+    "stop": null
+  },
+  "evaluations": [
+    {
+      "sequence": 0,
+      "round": 0,
+      "candidate_id": "BASELINE",
+      "parameters": {
+        "scheduler_beta": 0.9
+      },
+      "objective": 132.993888,
+      "secondary_metrics": {
+        "NETWORK_THROUGHPUT_V0_1": 132.993888,
+        "AVG_UE_THROUGHPUT_V0_1": 22.165648,
+        "P5_UE_THROUGHPUT_V0_1": 12.659448000000001
+      },
+      "status": "evaluated",
+      "cache_hit": false,
+      "best_so_far_candidate_id": "BASELINE",
+      "best_so_far_objective": 132.993888,
+      "at": "2026-09-28T12:09:51.679257+00:00"
+    },
+    {
+      "sequence": 1,
+      "round": 1,
+      "candidate_id": "CAND-001",
+      "parameters": {
+        "scheduler_beta": 0.7
+      },
+      "objective": 174.477184,
+      "secondary_metrics": {
+        "NETWORK_THROUGHPUT_V0_1": 174.477184,
+        "AVG_UE_THROUGHPUT_V0_1": 29.079530666666667,
+        "P5_UE_THROUGHPUT_V0_1": 12.008032
+      },
+      "status": "evaluated",
+      "cache_hit": false,
+      "best_so_far_candidate_id": "CAND-001",
+      "best_so_far_objective": 174.477184,
+      "at": "2026-09-28T12:11:31.288511+00:00"
+    },
+    {
+      "sequence": 2,
+      "round": 1,
+      "candidate_id": "CAND-002",
+      "parameters": {
+        "scheduler_beta": 0.99
+      },
+      "objective": 85.10505599999999,
+      "secondary_metrics": {
+        "NETWORK_THROUGHPUT_V0_1": 85.10505599999999,
+        "AVG_UE_THROUGHPUT_V0_1": 14.184175999999999,
+        "P5_UE_THROUGHPUT_V0_1": 10.298544
+      },
+      "status": "evaluated",
+      "cache_hit": false,
+      "best_so_far_candidate_id": "CAND-001",
+      "best_so_far_objective": 174.477184,
+      "at": "2026-09-28T12:13:11.238805+00:00"
+    },
+    {
+      "sequence": 3,
+      "round": 2,
+      "candidate_id": "CAND-003",
+      "parameters": {
+        "scheduler_beta": 0.5
+      },
+      "objective": 220.63897599999999,
+      "secondary_metrics": {
+        "NETWORK_THROUGHPUT_V0_1": 220.63897599999999,
+        "AVG_UE_THROUGHPUT_V0_1": 36.773162666666664,
+        "P5_UE_THROUGHPUT_V0_1": 10.935656
+      },
+      "status": "evaluated",
+      "cache_hit": false,
+      "best_so_far_candidate_id": "CAND-003",
+      "best_so_far_objective": 220.63897599999999,
+      "at": "2026-09-28T12:14:50.485659+00:00"
+    },
+    {
+      "sequence": 4,
+      "round": 3,
+      "candidate_id": "CAND-004",
+      "parameters": {
+        "scheduler_beta": 0.3
+      },
+      "objective": 236.35100799999998,
+      "secondary_metrics": {
+        "NETWORK_THROUGHPUT_V0_1": 236.35100799999998,
+        "AVG_UE_THROUGHPUT_V0_1": 39.39183466666666,
+        "P5_UE_THROUGHPUT_V0_1": 10.292664
+      },
+      "status": "evaluated",
+      "cache_hit": false,
+      "best_so_far_candidate_id": "CAND-004",
+      "best_so_far_objective": 236.35100799999998,
+      "at": "2026-09-28T12:16:29.650473+00:00"
+    },
+    {
+      "sequence": 5,
+      "round": 4,
+      "candidate_id": "CAND-005",
+      "parameters": {
+        "scheduler_beta": 0.1
+      },
+      "objective": 235.661376,
+      "secondary_metrics": {
+        "NETWORK_THROUGHPUT_V0_1": 235.661376,
+        "AVG_UE_THROUGHPUT_V0_1": 39.276896,
+        "P5_UE_THROUGHPUT_V0_1": 10.021799999999999
+      },
+      "status": "evaluated",
+      "cache_hit": false,
+      "best_so_far_candidate_id": "CAND-004",
+      "best_so_far_objective": 236.35100799999998,
+      "at": "2026-09-28T12:18:07.501170+00:00"
+    },
+    {
+      "sequence": 6,
+      "round": 5,
+      "candidate_id": "CAND-006",
+      "parameters": {
+        "scheduler_beta": 0.2
+      },
+      "objective": 236.35100799999998,
+      "secondary_metrics": {
+        "NETWORK_THROUGHPUT_V0_1": 236.35100799999998,
+        "AVG_UE_THROUGHPUT_V0_1": 39.39183466666666,
+        "P5_UE_THROUGHPUT_V0_1": 10.292664
+      },
+      "status": "evaluated",
+      "cache_hit": false,
+      "best_so_far_candidate_id": "CAND-004",
+      "best_so_far_objective": 236.35100799999998,
+      "at": "2026-09-28T12:19:44.102082+00:00"
+    },
+    {
+      "sequence": 7,
+      "round": 5,
+      "candidate_id": "CAND-007",
+      "parameters": {
+        "scheduler_beta": 0.4
+      },
+      "objective": 223.996448,
+      "secondary_metrics": {
+        "NETWORK_THROUGHPUT_V0_1": 223.996448,
+        "AVG_UE_THROUGHPUT_V0_1": 37.33274133333333,
+        "P5_UE_THROUGHPUT_V0_1": 9.137384
+      },
+      "status": "evaluated",
+      "cache_hit": false,
+      "best_so_far_candidate_id": "CAND-004",
+      "best_so_far_objective": 236.35100799999998,
+      "at": "2026-09-28T12:21:21.521812+00:00"
+    },
+    {
+      "sequence": 8,
+      "round": 6,
+      "candidate_id": "CAND-008",
+      "parameters": {
+        "scheduler_beta": 0.25
+      },
+      "objective": 236.35100799999998,
+      "secondary_metrics": {
+        "NETWORK_THROUGHPUT_V0_1": 236.35100799999998,
+        "AVG_UE_THROUGHPUT_V0_1": 39.39183466666666,
+        "P5_UE_THROUGHPUT_V0_1": 10.292664
+      },
+      "status": "evaluated",
+      "cache_hit": false,
+      "best_so_far_candidate_id": "CAND-004",
+      "best_so_far_objective": 236.35100799999998,
+      "at": "2026-09-28T12:22:59.346316+00:00"
+    }
+  ],
+  "rounds": [
+    {
+      "round": 1,
+      "state_before": {
+        "round": 0,
+        "mode": "explore",
+        "incumbent": 0.9,
+        "incumbent_objective": 132.993888,
+        "step": 0.2,
+        "direction": 0,
+        "search_bounds": [
+          0.05,
+          0.99
+        ],
+        "last_decision": "start at 0.9",
+        "stop": null
+      },
+      "suggestions": [
+        {
+          "scheduler_beta": 0.7
+        },
+        {
+          "scheduler_beta": 0.99
+        }
+      ],
+      "evaluated_candidate_ids": [
+        "CAND-001",
+        "CAND-002"
+      ],
+      "rejected_suggestions": [],
+      "state_after": {
+        "round": 1,
+        "mode": "extend",
+        "incumbent": 0.7,
+        "incumbent_objective": 174.477184,
+        "step": 0.2,
+        "direction": -1,
+        "search_bounds": [
+          0.05,
+          0.99
+        ],
+        "last_decision": "move 0.9 → 0.7 (improved)",
+        "stop": null
+      }
+    },
+    {
+      "round": 2,
+      "state_before": {
+        "round": 1,
+        "mode": "extend",
+        "incumbent": 0.7,
+        "incumbent_objective": 174.477184,
+        "step": 0.2,
+        "direction": -1,
+        "search_bounds": [
+          0.05,
+          0.99
+        ],
+        "last_decision": "move 0.9 → 0.7 (improved)",
+        "stop": null
+      },
+      "suggestions": [
+        {
+          "scheduler_beta": 0.5
+        }
+      ],
+      "evaluated_candidate_ids": [
+        "CAND-003"
+      ],
+      "rejected_suggestions": [],
+      "state_after": {
+        "round": 2,
+        "mode": "extend",
+        "incumbent": 0.5,
+        "incumbent_objective": 220.63897599999999,
+        "step": 0.2,
+        "direction": -1,
+        "search_bounds": [
+          0.05,
+          0.99
+        ],
+        "last_decision": "move 0.7 → 0.5 (improved)",
+        "stop": null
+      }
+    },
+    {
+      "round": 3,
+      "state_before": {
+        "round": 2,
+        "mode": "extend",
+        "incumbent": 0.5,
+        "incumbent_objective": 220.63897599999999,
+        "step": 0.2,
+        "direction": -1,
+        "search_bounds": [
+          0.05,
+          0.99
+        ],
+        "last_decision": "move 0.7 → 0.5 (improved)",
+        "stop": null
+      },
+      "suggestions": [
+        {
+          "scheduler_beta": 0.3
+        }
+      ],
+      "evaluated_candidate_ids": [
+        "CAND-004"
+      ],
+      "rejected_suggestions": [],
+      "state_after": {
+        "round": 3,
+        "mode": "extend",
+        "incumbent": 0.3,
+        "incumbent_objective": 236.35100799999998,
+        "step": 0.2,
+        "direction": -1,
+        "search_bounds": [
+          0.05,
+          0.99
+        ],
+        "last_decision": "move 0.5 → 0.3 (improved)",
+        "stop": null
+      }
+    },
+    {
+      "round": 4,
+      "state_before": {
+        "round": 3,
+        "mode": "extend",
+        "incumbent": 0.3,
+        "incumbent_objective": 236.35100799999998,
+        "step": 0.2,
+        "direction": -1,
+        "search_bounds": [
+          0.05,
+          0.99
+        ],
+        "last_decision": "move 0.5 → 0.3 (improved)",
+        "stop": null
+      },
+      "suggestions": [
+        {
+          "scheduler_beta": 0.1
+        }
+      ],
+      "evaluated_candidate_ids": [
+        "CAND-005"
+      ],
+      "rejected_suggestions": [],
+      "state_after": {
+        "round": 4,
+        "mode": "explore",
+        "incumbent": 0.3,
+        "incumbent_objective": 236.35100799999998,
+        "step": 0.1,
+        "direction": -1,
+        "search_bounds": [
+          0.05,
+          0.99
+        ],
+        "last_decision": "no improvement around 0.3: step 0.2 → 0.1",
+        "stop": null
+      }
+    },
+    {
+      "round": 5,
+      "state_before": {
+        "round": 4,
+        "mode": "explore",
+        "incumbent": 0.3,
+        "incumbent_objective": 236.35100799999998,
+        "step": 0.1,
+        "direction": -1,
+        "search_bounds": [
+          0.05,
+          0.99
+        ],
+        "last_decision": "no improvement around 0.3: step 0.2 → 0.1",
+        "stop": null
+      },
+      "suggestions": [
+        {
+          "scheduler_beta": 0.2
+        },
+        {
+          "scheduler_beta": 0.4
+        }
+      ],
+      "evaluated_candidate_ids": [
+        "CAND-006",
+        "CAND-007"
+      ],
+      "rejected_suggestions": [],
+      "state_after": {
+        "round": 5,
+        "mode": "explore",
+        "incumbent": 0.3,
+        "incumbent_objective": 236.35100799999998,
+        "step": 0.05,
+        "direction": -1,
+        "search_bounds": [
+          0.05,
+          0.99
+        ],
+        "last_decision": "no improvement around 0.3: step 0.1 → 0.05",
+        "stop": null
+      }
+    },
+    {
+      "round": 6,
+      "state_before": {
+        "round": 5,
+        "mode": "explore",
+        "incumbent": 0.3,
+        "incumbent_objective": 236.35100799999998,
+        "step": 0.05,
+        "direction": -1,
+        "search_bounds": [
+          0.05,
+          0.99
+        ],
+        "last_decision": "no improvement around 0.3: step 0.1 → 0.05",
+        "stop": null
+      },
+      "suggestions": [
+        {
+          "scheduler_beta": 0.25
+        },
+        {
+          "scheduler_beta": 0.35
+        }
+      ],
+      "evaluated_candidate_ids": [
+        "CAND-008"
+      ],
+      "rejected_suggestions": [
+        {
+          "scheduler_beta": 0.35
+        }
+      ],
+      "state_after": {
+        "round": 6,
+        "mode": "explore",
+        "incumbent": 0.3,
+        "incumbent_objective": 236.35100799999998,
+        "step": 0.05,
+        "direction": -1,
+        "search_bounds": [
+          0.05,
+          0.99
+        ],
+        "last_decision": "partial observation (1/2 suggestions evaluated)",
+        "stop": null
+      }
+    }
+  ],
+  "evaluations_used": 8,
+  "rejected_suggestions": 1,
+  "stop_reason": "budget_exhausted",
+  "stop_detail": "1 suggestion(s) rejected: platform budget of 8 evaluations reached",
+  "recommendation": {
+    "parameters": {
+      "scheduler_beta": 0.3
+    },
+    "note": "incumbent after 6 round(s); step 0.05; last decision: partial observation (1/2 suggestions evaluated)"
+  },
+  "final_state": {
+    "round": 6,
+    "mode": "explore",
+    "incumbent": 0.3,
+    "incumbent_objective": 236.35100799999998,
+    "step": 0.05,
+    "direction": -1,
+    "search_bounds": [
+      0.05,
+      0.99
+    ],
+    "last_decision": "partial observation (1/2 suggestions evaluated)",
+    "stop": null
+  },
+  "error": null
+}

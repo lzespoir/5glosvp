@@ -1,0 +1,41 @@
+{
+  "evidence_id": "EVD-OPT-808014E9",
+  "evidence_type": "algorithm_optimization",
+  "source_entity_type": "system_optimization",
+  "source_entity_id": "OPT-808014E9",
+  "created_at": "2026-09-28T12:22:59.470527+00:00",
+  "provenance": {
+    "algorithm": "research_demo_optimizer",
+    "algorithm_version": "0.1.0",
+    "algorithm_category": "research_demo",
+    "sdk_version": "0.1",
+    "learning_algorithm": false,
+    "optimizer": "research_demo_optimizer",
+    "optimizer_version": "0.1.0",
+    "optimizer_category": "research_demo",
+    "objective": "NETWORK_THROUGHPUT_MAX_V0_1",
+    "objective_version": "0.1",
+    "scenario": "SYSTEM-DEMO-001",
+    "backend": "sionna_system",
+    "backend_version": "2.1.0",
+    "benchmark_protocol": "SYSTEM_BENCHMARK_V0_1 v0.1",
+    "evaluation_context": "CTX-B5835B1F",
+    "git_commit": "94829c3-dirty",
+    "measured": false,
+    "huawei_data": false,
+    "acceptance_evidence": false,
+    "evidence_level": "System Optimization Validation (simulation)"
+  },
+  "verification_status": "independently_verified",
+  "verification_detail": "scripts/verify_algorithm_run.py: PASS (158/158 checks)",
+  "acceptance_eligible": false,
+  "acceptance_reason": [
+    "simulation_only",
+    "not_measured",
+    "not_huawei_data",
+    "unconfirmed_acceptance_kpi",
+    "integration_demo_algorithm"
+  ],
+  "artifacts": [],
+  "verified": true
+}

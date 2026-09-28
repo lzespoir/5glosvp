@@ -1,0 +1,1029 @@
+{
+  "optimization_id": "OPT-808014E9",
+  "verifier": "scripts/verify_algorithm_run.py + scripts/verify_system_optimization.py (independent; imports nothing from src/)",
+  "verified_at": "2026-09-28T12:25:55.211358+00:00",
+  "overall": "PASS",
+  "independent": {
+    "best_candidate_id": "CAND-004",
+    "baseline": {
+      "kpis": {
+        "NETWORK_THROUGHPUT_V0_1": 132.993888,
+        "AVG_UE_THROUGHPUT_V0_1": 22.165648,
+        "P5_UE_THROUGHPUT_V0_1": 12.659448000000001
+      },
+      "per_ue": {
+        "UE-001": 11.858624,
+        "UE-002": 20.480608,
+        "UE-003": 36.654912,
+        "UE-004": 19.886048,
+        "UE-005": 15.06192,
+        "UE-006": 29.051776
+      },
+      "parameters": {
+        "scheduler_beta": 0.9
+      },
+      "iteration": 0
+    },
+    "best": {
+      "kpis": {
+        "NETWORK_THROUGHPUT_V0_1": 236.35100799999998,
+        "AVG_UE_THROUGHPUT_V0_1": 39.39183466666666,
+        "P5_UE_THROUGHPUT_V0_1": 10.292664
+      },
+      "per_ue": {
+        "UE-001": 6.795072,
+        "UE-002": 49.376704,
+        "UE-003": 64.481376,
+        "UE-004": 30.5328,
+        "UE-005": 20.78544,
+        "UE-006": 64.379616
+      },
+      "parameters": {
+        "scheduler_beta": 0.3
+      },
+      "iteration": 4
+    },
+    "absolute_improvement_mbps": 103.35711999999998,
+    "relative_improvement_percent": 77.71569171659978,
+    "candidates": {
+      "BASELINE": {
+        "kpis": {
+          "NETWORK_THROUGHPUT_V0_1": 132.993888,
+          "AVG_UE_THROUGHPUT_V0_1": 22.165648,
+          "P5_UE_THROUGHPUT_V0_1": 12.659448000000001
+        },
+        "per_ue": {
+          "UE-001": 11.858624,
+          "UE-002": 20.480608,
+          "UE-003": 36.654912,
+          "UE-004": 19.886048,
+          "UE-005": 15.06192,
+          "UE-006": 29.051776
+        },
+        "parameters": {
+          "scheduler_beta": 0.9
+        },
+        "iteration": 0
+      },
+      "CAND-001": {
+        "kpis": {
+          "NETWORK_THROUGHPUT_V0_1": 174.477184,
+          "AVG_UE_THROUGHPUT_V0_1": 29.079530666666667,
+          "P5_UE_THROUGHPUT_V0_1": 12.008032
+        },
+        "per_ue": {
+          "UE-001": 9.894464,
+          "UE-002": 28.682176,
+          "UE-003": 50.19968,
+          "UE-004": 23.510592,
+          "UE-005": 18.348736,
+          "UE-006": 43.841536
+        },
+        "parameters": {
+          "scheduler_beta": 0.7
+        },
+        "iteration": 1
+      },
+      "CAND-002": {
+        "kpis": {
+          "NETWORK_THROUGHPUT_V0_1": 85.10505599999999,
+          "AVG_UE_THROUGHPUT_V0_1": 14.184175999999999,
+          "P5_UE_THROUGHPUT_V0_1": 10.298544
+        },
+        "per_ue": {
+          "UE-001": 9.84096,
+          "UE-002": 13.614656,
+          "UE-003": 20.79312,
+          "UE-004": 14.726752,
+          "UE-005": 11.671296,
+          "UE-006": 14.458272
+        },
+        "parameters": {
+          "scheduler_beta": 0.99
+        },
+        "iteration": 2
+      },
+      "CAND-003": {
+        "kpis": {
+          "NETWORK_THROUGHPUT_V0_1": 220.63897599999999,
+          "AVG_UE_THROUGHPUT_V0_1": 36.773162666666664,
+          "P5_UE_THROUGHPUT_V0_1": 10.935656
+        },
+        "per_ue": {
+          "UE-001": 8.1808,
+          "UE-002": 44.443648,
+          "UE-003": 60.301856,
+          "UE-004": 28.721952,
+          "UE-005": 19.200224,
+          "UE-006": 59.790496
+        },
+        "parameters": {
+          "scheduler_beta": 0.5
+        },
+        "iteration": 3
+      },
+      "CAND-004": {
+        "kpis": {
+          "NETWORK_THROUGHPUT_V0_1": 236.35100799999998,
+          "AVG_UE_THROUGHPUT_V0_1": 39.39183466666666,
+          "P5_UE_THROUGHPUT_V0_1": 10.292664
+        },
+        "per_ue": {
+          "UE-001": 6.795072,
+          "UE-002": 49.376704,
+          "UE-003": 64.481376,
+          "UE-004": 30.5328,
+          "UE-005": 20.78544,
+          "UE-006": 64.379616
+        },
+        "parameters": {
+          "scheduler_beta": 0.3
+        },
+        "iteration": 4
+      },
+      "CAND-005": {
+        "kpis": {
+          "NETWORK_THROUGHPUT_V0_1": 235.661376,
+          "AVG_UE_THROUGHPUT_V0_1": 39.276896,
+          "P5_UE_THROUGHPUT_V0_1": 10.021799999999999
+        },
+        "per_ue": {
+          "UE-001": 6.43392,
+          "UE-002": 48.917056,
+          "UE-003": 64.63712,
+          "UE-004": 30.508224,
+          "UE-005": 20.78544,
+          "UE-006": 64.379616
+        },
+        "parameters": {
+          "scheduler_beta": 0.1
+        },
+        "iteration": 5
+      },
+      "CAND-006": {
+        "kpis": {
+          "NETWORK_THROUGHPUT_V0_1": 236.35100799999998,
+          "AVG_UE_THROUGHPUT_V0_1": 39.39183466666666,
+          "P5_UE_THROUGHPUT_V0_1": 10.292664
+        },
+        "per_ue": {
+          "UE-001": 6.795072,
+          "UE-002": 49.376704,
+          "UE-003": 64.481376,
+          "UE-004": 30.5328,
+          "UE-005": 20.78544,
+          "UE-006": 64.379616
+        },
+        "parameters": {
+          "scheduler_beta": 0.2
+        },
+        "iteration": 6
+      },
+      "CAND-007": {
+        "kpis": {
+          "NETWORK_THROUGHPUT_V0_1": 223.996448,
+          "AVG_UE_THROUGHPUT_V0_1": 37.33274133333333,
+          "P5_UE_THROUGHPUT_V0_1": 9.137384
+        },
+        "per_ue": {
+          "UE-001": 6.743168,
+          "UE-002": 45.305504,
+          "UE-003": 63.104928,
+          "UE-004": 29.462496,
+          "UE-005": 16.320032,
+          "UE-006": 63.06032
+        },
+        "parameters": {
+          "scheduler_beta": 0.4
+        },
+        "iteration": 7
+      },
+      "CAND-008": {
+        "kpis": {
+          "NETWORK_THROUGHPUT_V0_1": 236.35100799999998,
+          "AVG_UE_THROUGHPUT_V0_1": 39.39183466666666,
+          "P5_UE_THROUGHPUT_V0_1": 10.292664
+        },
+        "per_ue": {
+          "UE-001": 6.795072,
+          "UE-002": 49.376704,
+          "UE-003": 64.481376,
+          "UE-004": 30.5328,
+          "UE-005": 20.78544,
+          "UE-006": 64.379616
+        },
+        "parameters": {
+          "scheduler_beta": 0.25
+        },
+        "iteration": 8
+      }
+    },
+    "channel_sha256": "6e91e01a57fb734c014b68721b57602d7711ae775af429c24af41546f4c9fa47"
+  },
+  "checks": [
+    {
+      "check": "status_succeeded",
+      "status": "PASS",
+      "detail": "succeeded"
+    },
+    {
+      "check": "baseline_exists",
+      "status": "PASS",
+      "detail": "BASELINE"
+    },
+    {
+      "check": "candidates_exist",
+      "status": "PASS",
+      "detail": "8 candidates"
+    },
+    {
+      "check": "candidate_count",
+      "status": "PASS",
+      "detail": "8 candidates, budget used 8/8"
+    },
+    {
+      "check": "parameter_values",
+      "status": "PASS",
+      "detail": "scheduler_beta: baseline 0.9, candidates [0.7, 0.99, 0.5, 0.3, 0.1, 0.2, 0.4, 0.25]"
+    },
+    {
+      "check": "unique_candidate_ids",
+      "status": "PASS",
+      "detail": "BASELINE, CAND-001, CAND-002, CAND-003, CAND-004, CAND-005, CAND-006, CAND-007, CAND-008"
+    },
+    {
+      "check": "channel_artifact_hash",
+      "status": "PASS",
+      "detail": "recomputed 6e91e01a57fb734c… vs context 6e91e01a57fb734c…"
+    },
+    {
+      "check": "context_ue_hash",
+      "status": "PASS",
+      "detail": "UEP-8B69EFA7"
+    },
+    {
+      "check": "context_traffic_hash",
+      "status": "PASS",
+      "detail": "FULL_BUFFER_V0_1"
+    },
+    {
+      "check": "BASELINE.EXP-53D49CE5.experiment_link",
+      "status": "PASS",
+      "detail": "optimization_id=OPT-808014E9 candidate=BASELINE"
+    },
+    {
+      "check": "BASELINE.EXP-53D49CE5.context_id",
+      "status": "PASS",
+      "detail": "CTX-B5835B1F"
+    },
+    {
+      "check": "BASELINE.EXP-53D49CE5.parameter_applied",
+      "status": "PASS",
+      "detail": "config β=0.9 result β=0.9"
+    },
+    {
+      "check": "BASELINE.EXP-53D49CE5.same_ue_hash",
+      "status": "PASS",
+      "detail": "recomputed from result"
+    },
+    {
+      "check": "BASELINE.EXP-53D49CE5.same_channel",
+      "status": "PASS",
+      "detail": "CH-18E6C548 reused=True gains identical"
+    },
+    {
+      "check": "BASELINE.EXP-53D49CE5.same_traffic",
+      "status": "PASS",
+      "detail": "{'type': 'full_buffer', 'direction': 'downlink', 'source': 'assumption', 'tag': '[A]'}"
+    },
+    {
+      "check": "BASELINE.EXP-53D49CE5.same_slots",
+      "status": "PASS",
+      "detail": "500 slots, warm-up 0"
+    },
+    {
+      "check": "BASELINE.EXP-53D49CE5.same_backend",
+      "status": "PASS",
+      "detail": "sionna_system 2.1.0"
+    },
+    {
+      "check": "BASELINE.NETWORK_THROUGHPUT_V0_1",
+      "status": "PASS",
+      "detail": "independent 132.993888 vs record 132.993888"
+    },
+    {
+      "check": "BASELINE.AVG_UE_THROUGHPUT_V0_1",
+      "status": "PASS",
+      "detail": "independent 22.165648 vs record 22.165648"
+    },
+    {
+      "check": "BASELINE.P5_UE_THROUGHPUT_V0_1",
+      "status": "PASS",
+      "detail": "independent 12.659448 vs record 12.659448"
+    },
+    {
+      "check": "BASELINE.objective",
+      "status": "PASS",
+      "detail": "J = network throughput = 132.993888 vs record 132.993888"
+    },
+    {
+      "check": "CAND-001.EXP-88BF3E30.experiment_link",
+      "status": "PASS",
+      "detail": "optimization_id=OPT-808014E9 candidate=CAND-001"
+    },
+    {
+      "check": "CAND-001.EXP-88BF3E30.context_id",
+      "status": "PASS",
+      "detail": "CTX-B5835B1F"
+    },
+    {
+      "check": "CAND-001.EXP-88BF3E30.parameter_applied",
+      "status": "PASS",
+      "detail": "config β=0.7 result β=0.7"
+    },
+    {
+      "check": "CAND-001.EXP-88BF3E30.same_ue_hash",
+      "status": "PASS",
+      "detail": "recomputed from result"
+    },
+    {
+      "check": "CAND-001.EXP-88BF3E30.same_channel",
+      "status": "PASS",
+      "detail": "CH-18E6C548 reused=True gains identical"
+    },
+    {
+      "check": "CAND-001.EXP-88BF3E30.same_traffic",
+      "status": "PASS",
+      "detail": "{'type': 'full_buffer', 'direction': 'downlink', 'source': 'assumption', 'tag': '[A]'}"
+    },
+    {
+      "check": "CAND-001.EXP-88BF3E30.same_slots",
+      "status": "PASS",
+      "detail": "500 slots, warm-up 0"
+    },
+    {
+      "check": "CAND-001.EXP-88BF3E30.same_backend",
+      "status": "PASS",
+      "detail": "sionna_system 2.1.0"
+    },
+    {
+      "check": "CAND-001.NETWORK_THROUGHPUT_V0_1",
+      "status": "PASS",
+      "detail": "independent 174.477184 vs record 174.477184"
+    },
+    {
+      "check": "CAND-001.AVG_UE_THROUGHPUT_V0_1",
+      "status": "PASS",
+      "detail": "independent 29.079531 vs record 29.079531"
+    },
+    {
+      "check": "CAND-001.P5_UE_THROUGHPUT_V0_1",
+      "status": "PASS",
+      "detail": "independent 12.008032 vs record 12.008032"
+    },
+    {
+      "check": "CAND-001.objective",
+      "status": "PASS",
+      "detail": "J = network throughput = 174.477184 vs record 174.477184"
+    },
+    {
+      "check": "CAND-002.EXP-7FA586EA.experiment_link",
+      "status": "PASS",
+      "detail": "optimization_id=OPT-808014E9 candidate=CAND-002"
+    },
+    {
+      "check": "CAND-002.EXP-7FA586EA.context_id",
+      "status": "PASS",
+      "detail": "CTX-B5835B1F"
+    },
+    {
+      "check": "CAND-002.EXP-7FA586EA.parameter_applied",
+      "status": "PASS",
+      "detail": "config β=0.99 result β=0.99"
+    },
+    {
+      "check": "CAND-002.EXP-7FA586EA.same_ue_hash",
+      "status": "PASS",
+      "detail": "recomputed from result"
+    },
+    {
+      "check": "CAND-002.EXP-7FA586EA.same_channel",
+      "status": "PASS",
+      "detail": "CH-18E6C548 reused=True gains identical"
+    },
+    {
+      "check": "CAND-002.EXP-7FA586EA.same_traffic",
+      "status": "PASS",
+      "detail": "{'type': 'full_buffer', 'direction': 'downlink', 'source': 'assumption', 'tag': '[A]'}"
+    },
+    {
+      "check": "CAND-002.EXP-7FA586EA.same_slots",
+      "status": "PASS",
+      "detail": "500 slots, warm-up 0"
+    },
+    {
+      "check": "CAND-002.EXP-7FA586EA.same_backend",
+      "status": "PASS",
+      "detail": "sionna_system 2.1.0"
+    },
+    {
+      "check": "CAND-002.NETWORK_THROUGHPUT_V0_1",
+      "status": "PASS",
+      "detail": "independent 85.105056 vs record 85.105056"
+    },
+    {
+      "check": "CAND-002.AVG_UE_THROUGHPUT_V0_1",
+      "status": "PASS",
+      "detail": "independent 14.184176 vs record 14.184176"
+    },
+    {
+      "check": "CAND-002.P5_UE_THROUGHPUT_V0_1",
+      "status": "PASS",
+      "detail": "independent 10.298544 vs record 10.298544"
+    },
+    {
+      "check": "CAND-002.objective",
+      "status": "PASS",
+      "detail": "J = network throughput = 85.105056 vs record 85.105056"
+    },
+    {
+      "check": "CAND-003.EXP-815D36FD.experiment_link",
+      "status": "PASS",
+      "detail": "optimization_id=OPT-808014E9 candidate=CAND-003"
+    },
+    {
+      "check": "CAND-003.EXP-815D36FD.context_id",
+      "status": "PASS",
+      "detail": "CTX-B5835B1F"
+    },
+    {
+      "check": "CAND-003.EXP-815D36FD.parameter_applied",
+      "status": "PASS",
+      "detail": "config β=0.5 result β=0.5"
+    },
+    {
+      "check": "CAND-003.EXP-815D36FD.same_ue_hash",
+      "status": "PASS",
+      "detail": "recomputed from result"
+    },
+    {
+      "check": "CAND-003.EXP-815D36FD.same_channel",
+      "status": "PASS",
+      "detail": "CH-18E6C548 reused=True gains identical"
+    },
+    {
+      "check": "CAND-003.EXP-815D36FD.same_traffic",
+      "status": "PASS",
+      "detail": "{'type': 'full_buffer', 'direction': 'downlink', 'source': 'assumption', 'tag': '[A]'}"
+    },
+    {
+      "check": "CAND-003.EXP-815D36FD.same_slots",
+      "status": "PASS",
+      "detail": "500 slots, warm-up 0"
+    },
+    {
+      "check": "CAND-003.EXP-815D36FD.same_backend",
+      "status": "PASS",
+      "detail": "sionna_system 2.1.0"
+    },
+    {
+      "check": "CAND-003.NETWORK_THROUGHPUT_V0_1",
+      "status": "PASS",
+      "detail": "independent 220.638976 vs record 220.638976"
+    },
+    {
+      "check": "CAND-003.AVG_UE_THROUGHPUT_V0_1",
+      "status": "PASS",
+      "detail": "independent 36.773163 vs record 36.773163"
+    },
+    {
+      "check": "CAND-003.P5_UE_THROUGHPUT_V0_1",
+      "status": "PASS",
+      "detail": "independent 10.935656 vs record 10.935656"
+    },
+    {
+      "check": "CAND-003.objective",
+      "status": "PASS",
+      "detail": "J = network throughput = 220.638976 vs record 220.638976"
+    },
+    {
+      "check": "CAND-004.EXP-4AE3E718.experiment_link",
+      "status": "PASS",
+      "detail": "optimization_id=OPT-808014E9 candidate=CAND-004"
+    },
+    {
+      "check": "CAND-004.EXP-4AE3E718.context_id",
+      "status": "PASS",
+      "detail": "CTX-B5835B1F"
+    },
+    {
+      "check": "CAND-004.EXP-4AE3E718.parameter_applied",
+      "status": "PASS",
+      "detail": "config β=0.3 result β=0.3"
+    },
+    {
+      "check": "CAND-004.EXP-4AE3E718.same_ue_hash",
+      "status": "PASS",
+      "detail": "recomputed from result"
+    },
+    {
+      "check": "CAND-004.EXP-4AE3E718.same_channel",
+      "status": "PASS",
+      "detail": "CH-18E6C548 reused=True gains identical"
+    },
+    {
+      "check": "CAND-004.EXP-4AE3E718.same_traffic",
+      "status": "PASS",
+      "detail": "{'type': 'full_buffer', 'direction': 'downlink', 'source': 'assumption', 'tag': '[A]'}"
+    },
+    {
+      "check": "CAND-004.EXP-4AE3E718.same_slots",
+      "status": "PASS",
+      "detail": "500 slots, warm-up 0"
+    },
+    {
+      "check": "CAND-004.EXP-4AE3E718.same_backend",
+      "status": "PASS",
+      "detail": "sionna_system 2.1.0"
+    },
+    {
+      "check": "CAND-004.NETWORK_THROUGHPUT_V0_1",
+      "status": "PASS",
+      "detail": "independent 236.351008 vs record 236.351008"
+    },
+    {
+      "check": "CAND-004.AVG_UE_THROUGHPUT_V0_1",
+      "status": "PASS",
+      "detail": "independent 39.391835 vs record 39.391835"
+    },
+    {
+      "check": "CAND-004.P5_UE_THROUGHPUT_V0_1",
+      "status": "PASS",
+      "detail": "independent 10.292664 vs record 10.292664"
+    },
+    {
+      "check": "CAND-004.objective",
+      "status": "PASS",
+      "detail": "J = network throughput = 236.351008 vs record 236.351008"
+    },
+    {
+      "check": "CAND-005.EXP-C2ADA5BB.experiment_link",
+      "status": "PASS",
+      "detail": "optimization_id=OPT-808014E9 candidate=CAND-005"
+    },
+    {
+      "check": "CAND-005.EXP-C2ADA5BB.context_id",
+      "status": "PASS",
+      "detail": "CTX-B5835B1F"
+    },
+    {
+      "check": "CAND-005.EXP-C2ADA5BB.parameter_applied",
+      "status": "PASS",
+      "detail": "config β=0.1 result β=0.1"
+    },
+    {
+      "check": "CAND-005.EXP-C2ADA5BB.same_ue_hash",
+      "status": "PASS",
+      "detail": "recomputed from result"
+    },
+    {
+      "check": "CAND-005.EXP-C2ADA5BB.same_channel",
+      "status": "PASS",
+      "detail": "CH-18E6C548 reused=True gains identical"
+    },
+    {
+      "check": "CAND-005.EXP-C2ADA5BB.same_traffic",
+      "status": "PASS",
+      "detail": "{'type': 'full_buffer', 'direction': 'downlink', 'source': 'assumption', 'tag': '[A]'}"
+    },
+    {
+      "check": "CAND-005.EXP-C2ADA5BB.same_slots",
+      "status": "PASS",
+      "detail": "500 slots, warm-up 0"
+    },
+    {
+      "check": "CAND-005.EXP-C2ADA5BB.same_backend",
+      "status": "PASS",
+      "detail": "sionna_system 2.1.0"
+    },
+    {
+      "check": "CAND-005.NETWORK_THROUGHPUT_V0_1",
+      "status": "PASS",
+      "detail": "independent 235.661376 vs record 235.661376"
+    },
+    {
+      "check": "CAND-005.AVG_UE_THROUGHPUT_V0_1",
+      "status": "PASS",
+      "detail": "independent 39.276896 vs record 39.276896"
+    },
+    {
+      "check": "CAND-005.P5_UE_THROUGHPUT_V0_1",
+      "status": "PASS",
+      "detail": "independent 10.021800 vs record 10.021800"
+    },
+    {
+      "check": "CAND-005.objective",
+      "status": "PASS",
+      "detail": "J = network throughput = 235.661376 vs record 235.661376"
+    },
+    {
+      "check": "CAND-006.EXP-CAE0170E.experiment_link",
+      "status": "PASS",
+      "detail": "optimization_id=OPT-808014E9 candidate=CAND-006"
+    },
+    {
+      "check": "CAND-006.EXP-CAE0170E.context_id",
+      "status": "PASS",
+      "detail": "CTX-B5835B1F"
+    },
+    {
+      "check": "CAND-006.EXP-CAE0170E.parameter_applied",
+      "status": "PASS",
+      "detail": "config β=0.2 result β=0.2"
+    },
+    {
+      "check": "CAND-006.EXP-CAE0170E.same_ue_hash",
+      "status": "PASS",
+      "detail": "recomputed from result"
+    },
+    {
+      "check": "CAND-006.EXP-CAE0170E.same_channel",
+      "status": "PASS",
+      "detail": "CH-18E6C548 reused=True gains identical"
+    },
+    {
+      "check": "CAND-006.EXP-CAE0170E.same_traffic",
+      "status": "PASS",
+      "detail": "{'type': 'full_buffer', 'direction': 'downlink', 'source': 'assumption', 'tag': '[A]'}"
+    },
+    {
+      "check": "CAND-006.EXP-CAE0170E.same_slots",
+      "status": "PASS",
+      "detail": "500 slots, warm-up 0"
+    },
+    {
+      "check": "CAND-006.EXP-CAE0170E.same_backend",
+      "status": "PASS",
+      "detail": "sionna_system 2.1.0"
+    },
+    {
+      "check": "CAND-006.NETWORK_THROUGHPUT_V0_1",
+      "status": "PASS",
+      "detail": "independent 236.351008 vs record 236.351008"
+    },
+    {
+      "check": "CAND-006.AVG_UE_THROUGHPUT_V0_1",
+      "status": "PASS",
+      "detail": "independent 39.391835 vs record 39.391835"
+    },
+    {
+      "check": "CAND-006.P5_UE_THROUGHPUT_V0_1",
+      "status": "PASS",
+      "detail": "independent 10.292664 vs record 10.292664"
+    },
+    {
+      "check": "CAND-006.objective",
+      "status": "PASS",
+      "detail": "J = network throughput = 236.351008 vs record 236.351008"
+    },
+    {
+      "check": "CAND-007.EXP-1065CAE6.experiment_link",
+      "status": "PASS",
+      "detail": "optimization_id=OPT-808014E9 candidate=CAND-007"
+    },
+    {
+      "check": "CAND-007.EXP-1065CAE6.context_id",
+      "status": "PASS",
+      "detail": "CTX-B5835B1F"
+    },
+    {
+      "check": "CAND-007.EXP-1065CAE6.parameter_applied",
+      "status": "PASS",
+      "detail": "config β=0.4 result β=0.4"
+    },
+    {
+      "check": "CAND-007.EXP-1065CAE6.same_ue_hash",
+      "status": "PASS",
+      "detail": "recomputed from result"
+    },
+    {
+      "check": "CAND-007.EXP-1065CAE6.same_channel",
+      "status": "PASS",
+      "detail": "CH-18E6C548 reused=True gains identical"
+    },
+    {
+      "check": "CAND-007.EXP-1065CAE6.same_traffic",
+      "status": "PASS",
+      "detail": "{'type': 'full_buffer', 'direction': 'downlink', 'source': 'assumption', 'tag': '[A]'}"
+    },
+    {
+      "check": "CAND-007.EXP-1065CAE6.same_slots",
+      "status": "PASS",
+      "detail": "500 slots, warm-up 0"
+    },
+    {
+      "check": "CAND-007.EXP-1065CAE6.same_backend",
+      "status": "PASS",
+      "detail": "sionna_system 2.1.0"
+    },
+    {
+      "check": "CAND-007.NETWORK_THROUGHPUT_V0_1",
+      "status": "PASS",
+      "detail": "independent 223.996448 vs record 223.996448"
+    },
+    {
+      "check": "CAND-007.AVG_UE_THROUGHPUT_V0_1",
+      "status": "PASS",
+      "detail": "independent 37.332741 vs record 37.332741"
+    },
+    {
+      "check": "CAND-007.P5_UE_THROUGHPUT_V0_1",
+      "status": "PASS",
+      "detail": "independent 9.137384 vs record 9.137384"
+    },
+    {
+      "check": "CAND-007.objective",
+      "status": "PASS",
+      "detail": "J = network throughput = 223.996448 vs record 223.996448"
+    },
+    {
+      "check": "CAND-008.EXP-D2E2F946.experiment_link",
+      "status": "PASS",
+      "detail": "optimization_id=OPT-808014E9 candidate=CAND-008"
+    },
+    {
+      "check": "CAND-008.EXP-D2E2F946.context_id",
+      "status": "PASS",
+      "detail": "CTX-B5835B1F"
+    },
+    {
+      "check": "CAND-008.EXP-D2E2F946.parameter_applied",
+      "status": "PASS",
+      "detail": "config β=0.25 result β=0.25"
+    },
+    {
+      "check": "CAND-008.EXP-D2E2F946.same_ue_hash",
+      "status": "PASS",
+      "detail": "recomputed from result"
+    },
+    {
+      "check": "CAND-008.EXP-D2E2F946.same_channel",
+      "status": "PASS",
+      "detail": "CH-18E6C548 reused=True gains identical"
+    },
+    {
+      "check": "CAND-008.EXP-D2E2F946.same_traffic",
+      "status": "PASS",
+      "detail": "{'type': 'full_buffer', 'direction': 'downlink', 'source': 'assumption', 'tag': '[A]'}"
+    },
+    {
+      "check": "CAND-008.EXP-D2E2F946.same_slots",
+      "status": "PASS",
+      "detail": "500 slots, warm-up 0"
+    },
+    {
+      "check": "CAND-008.EXP-D2E2F946.same_backend",
+      "status": "PASS",
+      "detail": "sionna_system 2.1.0"
+    },
+    {
+      "check": "CAND-008.NETWORK_THROUGHPUT_V0_1",
+      "status": "PASS",
+      "detail": "independent 236.351008 vs record 236.351008"
+    },
+    {
+      "check": "CAND-008.AVG_UE_THROUGHPUT_V0_1",
+      "status": "PASS",
+      "detail": "independent 39.391835 vs record 39.391835"
+    },
+    {
+      "check": "CAND-008.P5_UE_THROUGHPUT_V0_1",
+      "status": "PASS",
+      "detail": "independent 10.292664 vs record 10.292664"
+    },
+    {
+      "check": "CAND-008.objective",
+      "status": "PASS",
+      "detail": "J = network throughput = 236.351008 vs record 236.351008"
+    },
+    {
+      "check": "channel_gains_identical_across_evaluations",
+      "status": "PASS",
+      "detail": "9 experiments"
+    },
+    {
+      "check": "best_candidate_selection",
+      "status": "PASS",
+      "detail": "independent CAND-004 vs record CAND-004"
+    },
+    {
+      "check": "absolute_improvement",
+      "status": "PASS",
+      "detail": "independent +103.357120 vs record +103.357120 Mbps"
+    },
+    {
+      "check": "relative_improvement",
+      "status": "PASS",
+      "detail": "independent +77.7157% vs record 77.71569171659978"
+    },
+    {
+      "check": "negative_kpi_changes_preserved",
+      "status": "PASS",
+      "detail": "independent decreases ['P5_UE_THROUGHPUT_V0_1'] vs record ['P5_UE_THROUGHPUT_V0_1']"
+    },
+    {
+      "check": "comparison.NETWORK_THROUGHPUT_V0_1",
+      "status": "PASS",
+      "detail": "baseline 132.9939 → best 236.3510 Mbps"
+    },
+    {
+      "check": "comparison.AVG_UE_THROUGHPUT_V0_1",
+      "status": "PASS",
+      "detail": "baseline 22.1656 → best 39.3918 Mbps"
+    },
+    {
+      "check": "comparison.P5_UE_THROUGHPUT_V0_1",
+      "status": "PASS",
+      "detail": "baseline 12.6594 → best 10.2927 Mbps"
+    },
+    {
+      "check": "provenance",
+      "status": "PASS",
+      "detail": "source_type=simulation learning_algorithm=False"
+    },
+    {
+      "check": "not_test_fixture",
+      "status": "PASS",
+      "detail": "sionna_sys"
+    },
+    {
+      "check": "recorded_fairness_all_pass",
+      "status": "PASS",
+      "detail": "same_ue_population=PASS, same_channel_realization=PASS, same_traffic=PASS, same_simulation_horizon=PASS, same_backend_version=PASS, only_variable_changed=PASS"
+    },
+    {
+      "check": "algorithm.algorithm_record_present",
+      "status": "PASS",
+      "detail": "algorithm / trace / parameter_space / evaluation_budget"
+    },
+    {
+      "check": "algorithm.algorithm_id",
+      "status": "PASS",
+      "detail": "research_demo_optimizer"
+    },
+    {
+      "check": "algorithm.algorithm_version",
+      "status": "PASS",
+      "detail": "0.1.0"
+    },
+    {
+      "check": "algorithm.sdk_version",
+      "status": "PASS",
+      "detail": "0.1"
+    },
+    {
+      "check": "algorithm.category",
+      "status": "PASS",
+      "detail": "research_demo"
+    },
+    {
+      "check": "algorithm.not_learning_not_deliverable_not_acceptance",
+      "status": "PASS",
+      "detail": "learning=False deliverable=False"
+    },
+    {
+      "check": "algorithm.source_revision",
+      "status": "PASS",
+      "detail": "src/algorithms/examples/research_demo_optimizer/algorithm.py @ 94829c3-dirt"
+    },
+    {
+      "check": "algorithm.parameter_space_hash",
+      "status": "PASS",
+      "detail": "recomputed 275eb7946569b515… vs record 275eb7946569b515…"
+    },
+    {
+      "check": "algorithm.parameter_space_supported",
+      "status": "PASS",
+      "detail": "[('scheduler_beta', 'continuous')] vs supported ['continuous']"
+    },
+    {
+      "check": "algorithm.candidates_in_parameter_space",
+      "status": "PASS",
+      "detail": "8 candidates within [('scheduler_beta', {'lower': 0.05, 'upper': 0.99, 'lower_inclusive': True, 'upper_inclusive': True}, None)]"
+    },
+    {
+      "check": "algorithm.hyperparameters_match_schema",
+      "status": "PASS",
+      "detail": "initial_step=0.2, min_step=0.05, shrink_factor=0.5, max_iterations=8, start_point=baseline"
+    },
+    {
+      "check": "algorithm.hyperparameters_consistent",
+      "status": "PASS",
+      "detail": "record / trace / config"
+    },
+    {
+      "check": "algorithm.auto_configured_flag",
+      "status": "PASS",
+      "detail": "auto_configured=True (defaults used)"
+    },
+    {
+      "check": "algorithm.algorithm_config_hash",
+      "status": "PASS",
+      "detail": "recomputed 8504eff99258314b…"
+    },
+    {
+      "check": "algorithm.budget_used",
+      "status": "PASS",
+      "detail": "used 8/8"
+    },
+    {
+      "check": "algorithm.budget_simulations_and_cache",
+      "status": "PASS",
+      "detail": "simulations 8 + cache hits 0 = 8"
+    },
+    {
+      "check": "algorithm.budget_rejected_suggestions",
+      "status": "PASS",
+      "detail": "1 rejected"
+    },
+    {
+      "check": "algorithm.trace_incumbent",
+      "status": "PASS",
+      "detail": "BASELINE"
+    },
+    {
+      "check": "algorithm.trace_evaluations_match_candidates",
+      "status": "PASS",
+      "detail": "8 trace evaluations vs 8 candidates"
+    },
+    {
+      "check": "algorithm.trace_rounds",
+      "status": "PASS",
+      "detail": "6 rounds"
+    },
+    {
+      "check": "algorithm.trace_artifact_matches_record",
+      "status": "PASS",
+      "detail": "algorithm-trace.json"
+    },
+    {
+      "check": "algorithm.trace_best_so_far",
+      "status": "PASS",
+      "detail": "independent best-so-far ends at CAND-004; record best CAND-004"
+    },
+    {
+      "check": "algorithm.cache_keys_recomputed",
+      "status": "PASS",
+      "detail": "sha256(context + parameters + backend)"
+    },
+    {
+      "check": "algorithm.cache_hits_reuse_earlier_evaluation",
+      "status": "PASS",
+      "detail": "no cache hits"
+    },
+    {
+      "check": "algorithm.no_duplicate_simulation",
+      "status": "PASS",
+      "detail": "9 simulated points"
+    },
+    {
+      "check": "algorithm.stop_reason",
+      "status": "PASS",
+      "detail": "budget_exhausted (1 suggestion(s) rejected: platform budget of 8 evaluations reached)"
+    },
+    {
+      "check": "algorithm.recommendation_matches_best_flag",
+      "status": "PASS",
+      "detail": "recommendation {'scheduler_beta': 0.3} vs best {'scheduler_beta': 0.3}"
+    },
+    {
+      "check": "algorithm.replay_suggestions",
+      "status": "PASS",
+      "detail": "6 rounds reproduced"
+    },
+    {
+      "check": "algorithm.replay_stop_reason",
+      "status": "PASS",
+      "detail": "replay budget_exhausted vs record budget_exhausted"
+    },
+    {
+      "check": "algorithm.replay_recommendation",
+      "status": "PASS",
+      "detail": "replay {'scheduler_beta': 0.3} vs trace {'scheduler_beta': 0.3}"
+    }
+  ],
+  "algorithm": {
+    "algorithm_id": "research_demo_optimizer",
+    "algorithm_version": "0.1.0",
+    "stop_reason": "budget_exhausted",
+    "replay": {
+      "stop_reason": "budget_exhausted",
+      "recommendation": {
+        "scheduler_beta": 0.3
+      },
+      "rounds": 6,
+      "mismatches": []
+    }
+  },
+  "verification_is_not_acceptance": true
+}
