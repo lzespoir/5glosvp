@@ -1,0 +1,36 @@
+scenario_id: "SIONNA-DEMO-001"
+
+name_zh: "Sionna RT 内置场景技术验证"
+name_en: "Sionna RT Built-in Scene Technical Validation"
+
+backend: "sionna_rt"
+
+# Sionna RT 官方内置场景（巴黎凯旋门 Etoile 周边）
+# Official built-in Sionna RT scene.
+scene_name: "etoile"
+
+frequency_hz: 3.5e9
+bandwidth_hz: 100e6
+
+random_seed: 20260927
+
+transmitters:
+  - id: "TX-001"
+    # 已验证位于 etoile 场景范围内：x∈[-426.8, 426.8], y∈[-338.1, 338.1], 建筑最高 50 m
+    position: [-150.3, 21.63, 42.5]
+    # 欧拉角 (alpha, beta, gamma) [rad]
+    orientation: [0.0, 0.0, 0.0]
+    # Sionna RT 默认值 44 dBm，这里显式写出 [A] 工程假设
+    power_dbm: 44.0
+
+radio_map:
+  # rss | path_gain | sinr（三者都会计算并保存，metric 决定主指标）
+  metric: "rss"
+  cell_size: [5.0, 5.0]
+  # 测量平面：覆盖整个 etoile 场景，高度 1.5 m（典型 UE 高度）
+  measurement_area:
+    center: [0.0, 0.0, 1.5]
+    size: [850.0, 670.0]
+    orientation: [0.0, 0.0, 0.0]
+  max_depth: 5
+  samples_per_tx: 10000000
