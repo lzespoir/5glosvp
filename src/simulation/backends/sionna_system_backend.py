@@ -26,7 +26,7 @@ from typing import Any
 
 import numpy as np
 
-from system_simulation.base import SystemRunOutput, SystemSimulationBackend
+from system_simulation.base import ChannelRealization, SystemRunOutput, SystemSimulationBackend
 from system_simulation.errors import InvalidSystemScenarioError
 from system_simulation.models import (
     SystemRuntime,
@@ -34,6 +34,7 @@ from system_simulation.models import (
     SystemSimulationResult,
     UserEquipmentResult,
 )
+from system_simulation.realization import propagation_fingerprint
 from system_simulation.ue_generation import generate_candidates, ue_id_for
 
 # torch 的 CUDA 构建与驱动版本不匹配时会告警；SYS 回退 CPU，由 health_check 报告
@@ -135,7 +136,8 @@ class SionnaSystemBackend(SystemSimulationBackend):
 
     # ------------------------------------------------------------------
 
-    def run(self, scenario: SystemScenario, experiment_id: str, log: logging.Logger) -> SystemRunOutput:
+    @staticmethod
+    def _validate(scenario: SystemScenario) -> None:
         if _IMPORT_ERROR is not None:
             raise RuntimeError(f"Sionna SYS unavailable: {_IMPORT_ERROR}")
         if len(scenario.cells) != 1 or len(scenario.base_stations) != 1:
@@ -150,18 +152,28 @@ class SionnaSystemBackend(SystemSimulationBackend):
         for u in scenario.ues:
             if u.serving_cell_id not in (None, cell.cell_id):
                 raise InvalidSystemScenarioError(f"UE {u.ue_id} serving cell must be {cell.cell_id}")
+        if sim.warmup_slots >= sim.num_slots:
+            raise InvalidSystemScenarioError(
+                f"warmup_slots ({sim.warmup_slots}) must be smaller than num_slots ({sim.num_slots})"
+            )
 
+    @staticmethod
+    def _rg_template(sim) -> dict[str, Any]:
+        return dict(num_ofdm_symbols=sim.num_data_symbols_per_slot, fft_size=sim.num_subcarriers,
+                    subcarrier_spacing=sim.subcarrier_spacing_hz, num_streams_per_tx=1)
+
+    def realize_channel(self, scenario: SystemScenario, log: logging.Logger) -> ChannelRealization:
+        """Sionna RT 一次：放置 UE、求解路径、导出 CFR。"""
+        self._validate(scenario)
+        cell = scenario.cells[0]
+        sim = scenario.simulation
         sionna_config.seed = scenario.seed
         sionna_config.precision = "single"
-        device = self._device()
         t0 = time.perf_counter()
-
-        rg_template = dict(num_ofdm_symbols=sim.num_data_symbols_per_slot, fft_size=sim.num_subcarriers,
-                           subcarrier_spacing=sim.subcarrier_spacing_hz, num_streams_per_tx=1)
-        probe_rg = ResourceGrid(num_tx=1, **rg_template)
+        probe_rg = ResourceGrid(num_tx=1, **self._rg_template(sim))
         frequencies = subcarrier_frequencies(num_subcarriers=sim.num_subcarriers,
                                              subcarrier_spacing=sim.subcarrier_spacing_hz)
-        scene = self._build_scene(scenario, occupied_bw)
+        scene = self._build_scene(scenario, sim.num_subcarriers * sim.subcarrier_spacing_hz)
 
         if scenario.ue_generator:
             candidates = generate_candidates(scenario.ue_generator)
@@ -188,51 +200,109 @@ class SionnaSystemBackend(SystemSimulationBackend):
             ue_ids = candidate_ids
         prop_seconds = time.perf_counter() - t0
         log.info("Propagation (Sionna RT) %.2fs; UEs kept=%s (candidate indices %s)", prop_seconds, want, keep)
+        ue_generation = None
+        if scenario.ue_generator:
+            ue_generation = {**scenario.ue_generator.model_dump(mode="json"),
+                             "kept_candidate_indices": keep, "candidates_with_path": len(with_path)}
+        cfr = np.ascontiguousarray(h_all[keep].numpy())
+        return ChannelRealization(
+            ue_ids=tuple(ue_ids),
+            serving_cell_ids=tuple(cell.cell_id for _ in keep),
+            positions=np.asarray(candidates[keep], dtype=float),
+            mean_channel_gain_db=self._mean_gain_db(cfr),
+            arrays={"cfr": cfr},
+            provider=PROVIDER,
+            provider_versions=self._provider_versions(),
+            propagation_fingerprint=propagation_fingerprint(scenario),
+            metadata={"ue_generation": ue_generation, "candidate_indices": keep,
+                      "propagation_seconds": prop_seconds},
+        )
 
-        h = h_all[keep].to(device)
-        num_ue = len(keep)
+    def _check_reusable(self, scenario: SystemScenario, channel: ChannelRealization) -> None:
+        sim = scenario.simulation
+        if channel.provider != PROVIDER:
+            raise InvalidSystemScenarioError(f"Channel realization provider '{channel.provider}' != '{PROVIDER}'")
+        if channel.propagation_fingerprint != propagation_fingerprint(scenario):
+            raise InvalidSystemScenarioError(
+                "Channel realization was generated for different propagation conditions; it cannot be reused"
+            )
+        cfr = channel.arrays.get("cfr")
+        if cfr is None or cfr.shape[0] != scenario.ue_count or cfr.shape[-1] != sim.num_subcarriers \
+                or cfr.shape[-2] != sim.num_data_symbols_per_slot:
+            raise InvalidSystemScenarioError(
+                f"Channel realization shape {None if cfr is None else cfr.shape} does not match the scenario grid"
+            )
+
+    def run(
+        self,
+        scenario: SystemScenario,
+        experiment_id: str,
+        log: logging.Logger,
+        channel: ChannelRealization | None = None,
+    ) -> SystemRunOutput:
+        self._validate(scenario)
+        cell = scenario.cells[0]
+        sim = scenario.simulation
+        reused = channel is not None
+        if channel is None:
+            channel = self.realize_channel(scenario, log)
+            prop_seconds = float(channel.metadata.get("propagation_seconds") or 0.0)
+        else:
+            self._check_reusable(scenario, channel)
+            prop_seconds = 0.0
+            log.info("Reusing frozen channel realization (%d UEs); Sionna RT skipped", len(channel.ue_ids))
+        sionna_config.seed = scenario.seed
+        sionna_config.precision = "single"
+        device = self._device()
+
+        cfr = np.ascontiguousarray(channel.arrays["cfr"])
+        # 由实际送入 SYS 的信道重新计算平均增益（复用时各候选应逐位一致）
+        gain_db = self._mean_gain_db(cfr)
+        h = torch.from_numpy(cfr).to(torch.complex64).to(device)
+        num_ue = len(channel.ue_ids)
         t_sys = time.perf_counter()
-        trace = self._run_sys(h, num_ue, cell.tx_power_dbm, sim, rg_template, device, log)
+        trace = self._run_sys(h, num_ue, cell.tx_power_dbm, sim, self._rg_template(sim), device, log)
         sys_seconds = time.perf_counter() - t_sys
         log.info("System (Sionna SYS, device=%s) %.2fs for %d slots", device, sys_seconds, sim.num_slots)
 
         num_re_total = sim.num_data_symbols_per_slot * sim.num_subcarriers
-        duration = sim.simulated_duration_s
+        # KPI 聚合窗口：丢弃前 warmup_slots 个时隙（启动暂态）
+        window = slice(sim.warmup_slots, sim.num_slots)
+        measured_slots = sim.num_slots - sim.warmup_slots
+        duration = measured_slots * sim.slot_duration_s
+        candidate_indices = channel.metadata.get("candidate_indices") or list(range(num_ue))
         ue_results = []
-        for j, (idx, ue_id) in enumerate(zip(keep, ue_ids)):
-            scheduled = trace["harq"][:, j] >= 0
+        for j, ue_id in enumerate(channel.ue_ids):
+            harq = trace["harq"][window, j]
+            scheduled = harq >= 0
             tx = int(scheduled.sum())
-            acks = int((trace["harq"][:, j] == 1).sum())
+            acks = int((harq == 1).sum())
             unavailable: dict[str, str] = {}
             if not tx:
                 unavailable = {k: "UE 未被调度 / UE never scheduled"
                                for k in ("sinr_eff_db_mean", "mcs_index_mean", "tbler")}
             ue_results.append(UserEquipmentResult(
                 ue_id=ue_id,
-                serving_cell_id=cell.cell_id,
-                position=[float(v) for v in candidates[idx]],
-                mean_channel_gain_db=float(10 * np.log10(gain[idx])),
-                sinr_eff_db_mean=float(trace["sinr_eff_db"][scheduled, j].mean()) if tx else None,
-                mcs_index_mean=float(trace["mcs"][scheduled, j].mean()) if tx else None,
+                serving_cell_id=channel.serving_cell_ids[j],
+                position=[float(v) for v in channel.positions[j]],
+                mean_channel_gain_db=float(gain_db[j]),
+                sinr_eff_db_mean=float(trace["sinr_eff_db"][window, j][scheduled].mean()) if tx else None,
+                mcs_index_mean=float(trace["mcs"][window, j][scheduled].mean()) if tx else None,
                 scheduled_slots=tx,
                 acked_slots=acks,
                 tbler=float(1 - acks / tx) if tx else None,
-                allocated_re_per_slot_mean=float(trace["num_re"][:, j].mean()),
-                allocated_re_share=float(trace["num_re"][:, j].sum() / (num_re_total * sim.num_slots)),
-                tx_power_w_mean=float(trace["tx_power_w"][:, j].mean()),
-                decoded_bits=int(trace["decoded_bits"][:, j].sum()),
+                allocated_re_per_slot_mean=float(trace["num_re"][window, j].mean()),
+                allocated_re_share=float(trace["num_re"][window, j].sum() / (num_re_total * measured_slots)),
+                tx_power_w_mean=float(trace["tx_power_w"][window, j].mean()),
+                decoded_bits=int(trace["decoded_bits"][window, j].sum()),
                 simulated_duration_s=duration,
                 unavailable=unavailable,
-                metadata={"candidate_index": idx},
+                metadata={"candidate_index": candidate_indices[j]},
             ))
 
         warns = []
         if device == "cpu":
             warns.append("Sionna SYS ran on CPU (PyTorch CUDA unavailable)")
-        ue_generation = None
-        if scenario.ue_generator:
-            ue_generation = {**scenario.ue_generator.model_dump(mode="json"),
-                             "kept_candidate_indices": keep, "candidates_with_path": len(with_path)}
         result = SystemSimulationResult(
             scenario_id=scenario.scenario_id,
             backend=SIONNA_SYSTEM_BACKEND_ID,
@@ -240,6 +310,7 @@ class SionnaSystemBackend(SystemSimulationBackend):
             provider_versions=self._provider_versions(),
             seed=scenario.seed,
             num_slots=sim.num_slots,
+            warmup_slots=sim.warmup_slots,
             slot_duration_s=sim.slot_duration_s,
             simulated_duration_s=duration,
             num_data_re_per_slot=num_re_total,
@@ -257,12 +328,19 @@ class SionnaSystemBackend(SystemSimulationBackend):
                            "fairness": sim.power_control.fairness, "provider": PROVIDER,
                            "precoding": "RZF (sionna.phy.ofdm.RZFPrecodedChannel)",
                            "sinr": "LMMSE post-equalization (sionna.phy.ofdm.LMMSEPostEqualizationSINR)"},
-            ue_generation=ue_generation,
+            ue_generation=channel.metadata.get("ue_generation"),
+            channel_reused=reused,
             compute_device=device,
             runtime=SystemRuntime(propagation_seconds=prop_seconds, system_seconds=sys_seconds),
             warnings=warns,
         )
         return SystemRunOutput(result=result, slot_trace=trace)
+
+    @staticmethod
+    def _mean_gain_db(cfr: np.ndarray) -> np.ndarray:
+        """每个 UE 的平均信道功率增益 [dB]，在 float64 中由 CFR 计算（与张量形状无关，结果可逐位复现）。"""
+        power = np.abs(cfr.astype(np.complex128)) ** 2
+        return 10 * np.log10(power.reshape(cfr.shape[0], -1).mean(axis=1))
 
     @staticmethod
     def _build_scene(scenario: SystemScenario, occupied_bw: float):

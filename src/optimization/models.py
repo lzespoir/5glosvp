@@ -88,6 +88,21 @@ class OptimizationProblem(BaseModel):
     seed: int
     metadata: dict[str, Any] = Field(default_factory=dict)
 
+    # SearchProblem protocol（Day 4 传播层问题）
+    @property
+    def direction(self) -> Direction:
+        return self.objective.direction
+
+    def candidate_parameters(self) -> list[dict[str, float]]:
+        return self.parameter_space.candidates()
+
+    def incumbents(self) -> list[OptimizationCandidate]:
+        return []
+
+    def tie_break_key(self, candidate: OptimizationCandidate) -> tuple[float, ...]:
+        """目标值完全相同时选择较低发射功率。"""
+        return (-candidate.parameters.get(TX_POWER_PARAMETER, 0.0),)
+
 
 class ObjectiveEvaluation(BaseModel):
     objective_id: str

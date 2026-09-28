@@ -20,7 +20,14 @@ from evaluation.kpi import KpiContext, KpiRegistry, KpiResult, UeThroughputInput
 from simulation.models import new_experiment_id
 
 from .artifacts import RUN_LOG, export_artifacts
-from .base import Capability, ModelType, SystemBackendDescriptor, SystemBackendRegistry
+from .base import (
+    Capability,
+    ChannelRealization,
+    ModelType,
+    SystemBackendDescriptor,
+    SystemBackendRegistry,
+    SystemSimulationBackend,
+)
 from .errors import (
     InvalidSystemScenarioError,
     SystemArtifactNotFoundError,
@@ -31,8 +38,10 @@ from .errors import (
 from .models import (
     ArtifactRef,
     CellTopology,
+    EvaluationContextLink,
     SystemErrorCode,
     SystemExperimentError,
+    SystemExperimentPurpose,
     SystemExperimentRecord,
     SystemExperimentStatus,
     SystemScenario,
@@ -121,18 +130,66 @@ class SystemExperimentService:
     # Create & run
     # ------------------------------------------------------------------
 
-    def create(self, name: str, scenario_id: str, backend_id: str | None = None) -> SystemExperimentRecord:
-        scenario = self._catalog.get(scenario_id)
-        descriptor = self._registry.get(backend_id or scenario.backend)
-        if not descriptor.supports(Capability.SYSTEM_SIMULATION):
-            raise SystemCapabilityNotSupportedError(
-                f"Backend '{descriptor.id}' does not declare capability '{Capability.SYSTEM_SIMULATION.value}'"
-            )
+    def require_backend(
+        self, backend_id: str, *capabilities: Capability
+    ) -> tuple[SystemBackendDescriptor, SystemSimulationBackend, dict[str, Any]]:
+        """按 capability 校验并实例化后端；不可用时抛出平台异常。"""
+        descriptor = self._registry.get(backend_id)
+        for capability in (Capability.SYSTEM_SIMULATION, *capabilities):
+            if not descriptor.supports(capability):
+                raise SystemCapabilityNotSupportedError(
+                    f"Backend '{descriptor.id}' does not declare capability '{capability.value}'"
+                )
         backend = descriptor.factory()
         health = backend.health_check()
         if not health.get("available"):
             raise SystemBackendUnavailableError("; ".join(health.get("errors") or []) or "unavailable")
+        return descriptor, backend, health
 
+    def realize_channel(self, scenario: SystemScenario, backend_id: str) -> ChannelRealization:
+        """生成一次冻结信道实现（需要 CHANNEL_REUSE 能力）。"""
+        _, backend, _ = self.require_backend(backend_id, Capability.CHANNEL_REUSE)
+        with self._run_lock:
+            return backend.realize_channel(scenario, logger)
+
+    def create(self, name: str, scenario_id: str, backend_id: str | None = None) -> SystemExperimentRecord:
+        scenario = self._catalog.get(scenario_id)
+        descriptor, backend, health = self.require_backend(backend_id or scenario.backend)
+        return self._create_and_run(name, scenario, descriptor, backend, health)
+
+    def run_in_context(
+        self,
+        name: str,
+        scenario: SystemScenario,
+        backend_id: str,
+        channel: ChannelRealization,
+        *,
+        purpose: SystemExperimentPurpose,
+        optimization_id: str,
+        candidate_id: str,
+        context: EvaluationContextLink,
+    ) -> SystemExperimentRecord:
+        """在冻结评价上下文中运行派生场景（系统优化的基线 / 候选）。"""
+        descriptor, backend, health = self.require_backend(backend_id, Capability.CHANNEL_REUSE)
+        return self._create_and_run(
+            name, scenario, descriptor, backend, health, channel=channel, purpose=purpose,
+            optimization_id=optimization_id, candidate_id=candidate_id, context=context,
+        )
+
+    def _create_and_run(
+        self,
+        name: str,
+        scenario: SystemScenario,
+        descriptor: SystemBackendDescriptor,
+        backend: SystemSimulationBackend,
+        health: dict[str, Any],
+        *,
+        channel: ChannelRealization | None = None,
+        purpose: SystemExperimentPurpose = SystemExperimentPurpose.STANDALONE,
+        optimization_id: str | None = None,
+        candidate_id: str | None = None,
+        context: EvaluationContextLink | None = None,
+    ) -> SystemExperimentRecord:
         experiment_id = new_experiment_id()
         while self._store.exists(experiment_id):
             experiment_id = new_experiment_id()
@@ -145,6 +202,10 @@ class SystemExperimentService:
             backend=descriptor.id,
             backend_version=health.get("version"),
             seed=scenario.seed,
+            purpose=purpose,
+            optimization_id=optimization_id,
+            optimization_candidate_id=candidate_id,
+            evaluation_context=context,
             provenance=self._provenance(descriptor, scenario),
         )
         record.transition(SystemExperimentStatus.CREATED)
@@ -153,8 +214,9 @@ class SystemExperimentService:
         with self._run_lock:
             record.transition(SystemExperimentStatus.RUNNING)
             self._store.update(record)
-            logger.info("%s RUNNING system scenario=%s backend=%s", experiment_id, scenario_id, descriptor.id)
-            self._execute(record, scenario, descriptor, backend)
+            logger.info("%s RUNNING system scenario=%s backend=%s purpose=%s", experiment_id,
+                        scenario.scenario_id, descriptor.id, purpose.value)
+            self._execute(record, scenario, descriptor, backend, channel)
         return record
 
     def _provenance(self, descriptor: SystemBackendDescriptor, scenario: SystemScenario) -> dict[str, Any]:
@@ -176,7 +238,8 @@ class SystemExperimentService:
         record: SystemExperimentRecord,
         scenario: SystemScenario,
         descriptor: SystemBackendDescriptor,
-        backend,
+        backend: SystemSimulationBackend,
+        channel: ChannelRealization | None,
     ) -> None:
         artifact_dir = self._store.artifact_dir(record.experiment_id)
         run_log = logging.getLogger(f"system_simulation.run.{record.experiment_id}")
@@ -189,7 +252,11 @@ class SystemExperimentService:
         try:
             run_log.info("experiment=%s scenario=%s backend=%s seed=%s", record.experiment_id,
                          scenario.scenario_id, descriptor.id, scenario.seed)
-            output = backend.run(scenario, record.experiment_id, run_log)
+            if record.evaluation_context is not None:
+                link = record.evaluation_context
+                run_log.info("evaluation context %s channel=%s sha256=%s", link.evaluation_context_id,
+                             link.channel_realization_id, link.channel_sha256)
+            output = backend.run(scenario, record.experiment_id, run_log, channel=channel)
             result = output.result
             if not result.ue_results:
                 stage = SystemErrorCode.NO_UE_RESULTS
@@ -256,6 +323,10 @@ class SystemExperimentService:
             "git_commit": self._git_commit,
             "experiment_id": record.experiment_id,
             "experiment_type": record.experiment_type.value,
+            "purpose": record.purpose.value,
+            "optimization_id": record.optimization_id,
+            "optimization_candidate_id": record.optimization_candidate_id,
+            "evaluation_context": record.evaluation_context.model_dump() if record.evaluation_context else None,
             "backend": descriptor.id,
             "backend_version": record.backend_version,
             "provider_versions": result.provider_versions if result else {},
@@ -264,6 +335,10 @@ class SystemExperimentService:
                          "ue_count": scenario.ue_count},
             "seed": scenario.seed,
             "traffic_model": scenario.traffic.model_dump(mode="json"),
+            "simulation_horizon": {"num_slots": scenario.simulation.num_slots,
+                                   "warmup_slots": scenario.simulation.warmup_slots,
+                                   "slot_duration_s": scenario.simulation.slot_duration_s},
+            "channel_reused": result.channel_reused if result else None,
             "scheduler": result.scheduler if result else None,
             "link_adaptation": result.link_adaptation if result else None,
             "power_control": result.power_control if result else None,

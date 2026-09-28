@@ -10,10 +10,12 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from collections.abc import Mapping
 from dataclasses import dataclass, field
+from typing import Protocol
 
 import numpy as np
 
-from .models import Direction, ObjectiveEvaluation, OptimizationCandidate, OptimizationProblem
+from .models import Direction, ObjectiveEvaluation, OptimizationCandidate
+from .parameters import ParameterDefinition
 
 
 @dataclass(frozen=True)
@@ -56,6 +58,26 @@ class Objective(ABC):
     def evaluate(self, inputs: ObjectiveInputs, params: Mapping[str, float]) -> ObjectiveEvaluation: ...
 
 
+class SearchProblem(Protocol):
+    """
+    Optimizer 看到的问题：候选参数、优化方向、已评价的现任解（例如基线）与确定性 tie-break。
+    传播层（Day 4）与系统级（Day 6）问题都实现该协议，从而复用同一个 Optimizer。
+    """
+
+    @property
+    def direction(self) -> Direction: ...
+
+    def candidate_parameters(self) -> list[dict[str, float]]: ...
+
+    def incumbents(self) -> list[OptimizationCandidate]:
+        """参与最优选择但无需再次评价的候选（例如同一评价上下文中的基线）。"""
+        ...
+
+    def tie_break_key(self, candidate: OptimizationCandidate) -> tuple[float, ...]:
+        """目标值相同时比较该键，较大者胜出。"""
+        ...
+
+
 class CandidateEvaluator(ABC):
     """评价一个候选配置（运行仿真并计算目标值），由 OptimizationService 实现。"""
 
@@ -83,6 +105,9 @@ class OptimizerInfo:
     # 演示搜索空间：工程演示值，不是标准值或现网配置
     recommended_parameter_space: Mapping[str, tuple[float, ...]] = field(default_factory=dict)
     recommended_parameter_space_source: str = "[A] Assumption — engineering demonstration search space"
+    supported_problem_types: tuple[str, ...] = ("propagation",)
+    # 算法超参数（与网络优化变量分开）；Grid Search 没有超参数
+    hyperparameters: tuple[ParameterDefinition, ...] = ()
 
 
 class Optimizer(ABC):
@@ -95,4 +120,4 @@ class Optimizer(ABC):
         return self.info.id
 
     @abstractmethod
-    def optimize(self, problem: OptimizationProblem, evaluator: CandidateEvaluator) -> SearchResult: ...
+    def optimize(self, problem: SearchProblem, evaluator: CandidateEvaluator) -> SearchResult: ...

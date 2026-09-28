@@ -43,18 +43,18 @@ class _NoSystemBackend(SystemSimulationBackend):
     def health_check(self):
         return {"available": True, "version": "1", "errors": [], "warnings": []}
 
-    def run(self, scenario, experiment_id, log):  # pragma: no cover - 不应被调用
+    def run(self, scenario, experiment_id, log, channel=None):  # pragma: no cover - 不应被调用
         raise AssertionError("must not run")
 
 
 class _EmptyBackend(_NoSystemBackend):
-    def run(self, scenario, experiment_id, log):
+    def run(self, scenario, experiment_id, log, channel=None):
         out = FakeSystemBackend().run(scenario, experiment_id, log)
         return SystemRunOutput(result=out.result.model_copy(update={"ue_results": []}), slot_trace={})
 
 
 class _CrashBackend(_NoSystemBackend):
-    def run(self, scenario, experiment_id, log):
+    def run(self, scenario, experiment_id, log, channel=None):
         raise RuntimeError("solver exploded")
 
 
@@ -177,7 +177,7 @@ def test_domain_layers_do_not_import_engines():
     pattern = re.compile(r"^\s*(from|import)\s+(sionna|mitsuba|drjit|torch|simulation\.backends)\b", re.MULTILINE)
     offenders = [
         str(p.relative_to(REPO_ROOT))
-        for d in ("evaluation", "system_simulation")
+        for d in ("evaluation", "system_simulation", "system_optimization", "optimization")
         for p in (REPO_ROOT / "src" / d).rglob("*.py")
         if pattern.search(p.read_text(encoding="utf-8"))
     ]

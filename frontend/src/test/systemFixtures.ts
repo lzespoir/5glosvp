@@ -72,6 +72,9 @@ export function fixtureSystemExperiment(overrides: Partial<SystemExperimentRespo
     name: 'demo',
     experiment_type: 'system',
     purpose: 'standalone',
+    optimization_id: null,
+    optimization_candidate_id: null,
+    evaluation_context: null,
     status: 'succeeded',
     scenario: { scenario_id: 'SYSTEM-DEMO-001', name_zh: '多用户下行系统仿真演示', name_en: 'Multi-UE Demo' },
     backend: {

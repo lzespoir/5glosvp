@@ -19,7 +19,7 @@ from system_simulation import (
     SystemSimulationResult,
 )
 from system_simulation.base import SystemBackendDescriptor
-from system_simulation.models import ArtifactRef
+from system_simulation.models import ArtifactRef, EvaluationContextLink
 
 from .schemas import API_PREFIX
 
@@ -150,7 +150,10 @@ class SystemExperimentResponse(BaseModel):
     experiment_id: str
     name: str
     experiment_type: str = Field(description="propagation | system")
-    purpose: str
+    purpose: str = Field(description="standalone | optimization_baseline | optimization_candidate")
+    optimization_id: str | None = None
+    optimization_candidate_id: str | None = None
+    evaluation_context: EvaluationContextLink | None = None
     status: SystemExperimentStatus
     scenario: SystemScenarioRef
     backend: SystemBackendRef
@@ -173,7 +176,9 @@ class SystemExperimentResponse(BaseModel):
                     descriptor: SystemBackendDescriptor | None) -> SystemExperimentResponse:
         return cls(
             experiment_id=r.experiment_id, name=r.name, experiment_type=r.experiment_type.value,
-            purpose=r.purpose, status=r.status,
+            purpose=r.purpose.value, optimization_id=r.optimization_id,
+            optimization_candidate_id=r.optimization_candidate_id, evaluation_context=r.evaluation_context,
+            status=r.status,
             scenario=SystemScenarioRef(scenario_id=r.scenario_id, name_zh=r.scenario_name_zh,
                                        name_en=r.scenario_name_en),
             backend=SystemBackendRef(

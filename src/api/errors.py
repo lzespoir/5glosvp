@@ -23,6 +23,13 @@ from optimization import (
     OptimizerNotFoundError,
 )
 from simulation import BackendUnavailableError
+from system_optimization import (
+    BenchmarkProtocolNotFoundError,
+    SystemOptimizationArtifactNotFoundError,
+    SystemOptimizationBusyError,
+    SystemOptimizationNotFoundError,
+    UnsupportedProblemTypeError,
+)
 from system_simulation import (
     InvalidSystemScenarioError,
     SystemArtifactNotFoundError,
@@ -61,6 +68,10 @@ class ErrorCode(str, Enum):
     INVALID_SYSTEM_SCENARIO = "INVALID_SYSTEM_SCENARIO"
     NO_UE_RESULTS = "NO_UE_RESULTS"
     KPI_CALCULATION_FAILED = "KPI_CALCULATION_FAILED"
+    SYSTEM_OPTIMIZATION_NOT_FOUND = "SYSTEM_OPTIMIZATION_NOT_FOUND"
+    BENCHMARK_PROTOCOL_NOT_FOUND = "BENCHMARK_PROTOCOL_NOT_FOUND"
+    SYSTEM_OPTIMIZATION_BUSY = "SYSTEM_OPTIMIZATION_BUSY"
+    UNSUPPORTED_PROBLEM_TYPE = "UNSUPPORTED_PROBLEM_TYPE"
 
 
 # code → (HTTP status, 中文, English)
@@ -89,6 +100,12 @@ _ERRORS: dict[ErrorCode, tuple[int, str, str]] = {
     ErrorCode.INVALID_SYSTEM_SCENARIO: (422, "系统级场景无效", "Invalid system scenario"),
     ErrorCode.NO_UE_RESULTS: (500, "没有 UE 结果", "No UE results"),
     ErrorCode.KPI_CALCULATION_FAILED: (500, "KPI 计算失败", "KPI calculation failed"),
+    ErrorCode.SYSTEM_OPTIMIZATION_NOT_FOUND: (404, "系统级优化不存在", "System optimization not found"),
+    ErrorCode.BENCHMARK_PROTOCOL_NOT_FOUND: (404, "评价协议不存在", "Benchmark protocol not found"),
+    ErrorCode.SYSTEM_OPTIMIZATION_BUSY: (
+        409, "已有系统级优化正在运行，请稍后重试", "Another system optimization is running; retry later"
+    ),
+    ErrorCode.UNSUPPORTED_PROBLEM_TYPE: (422, "优化器不支持该问题类型", "Optimizer does not support this problem type"),
 }
 
 
@@ -116,6 +133,11 @@ _EXCEPTION_CODES: list[tuple[type[Exception], ErrorCode]] = [
     (SystemBackendUnavailableError, ErrorCode.SYSTEM_BACKEND_UNAVAILABLE),
     (SystemCapabilityNotSupportedError, ErrorCode.SYSTEM_CAPABILITY_NOT_SUPPORTED),
     (InvalidSystemScenarioError, ErrorCode.INVALID_SYSTEM_SCENARIO),
+    (SystemOptimizationNotFoundError, ErrorCode.SYSTEM_OPTIMIZATION_NOT_FOUND),
+    (SystemOptimizationArtifactNotFoundError, ErrorCode.ARTIFACT_NOT_FOUND),
+    (BenchmarkProtocolNotFoundError, ErrorCode.BENCHMARK_PROTOCOL_NOT_FOUND),
+    (SystemOptimizationBusyError, ErrorCode.SYSTEM_OPTIMIZATION_BUSY),
+    (UnsupportedProblemTypeError, ErrorCode.UNSUPPORTED_PROBLEM_TYPE),
 ]
 
 

@@ -10,6 +10,7 @@ import { OverviewPage } from './pages/Overview';
 import { ScenariosPage } from './pages/Scenarios';
 import { SystemPage } from './pages/System';
 import { SystemExperimentDetailPage } from './pages/SystemExperimentDetail';
+import { SystemOptimizationDetailPage } from './pages/SystemOptimizationDetail';
 
 export function App() {
   return (
@@ -22,6 +23,7 @@ export function App() {
         <Route path="experiments/:experimentId" element={<ExperimentDetailPage />} />
         <Route path="optimizations" element={<OptimizationsPage />} />
         <Route path="optimizations/:optimizationId" element={<OptimizationDetailPage />} />
+        <Route path="optimizations/system/:optimizationId" element={<SystemOptimizationDetailPage />} />
         <Route path="system" element={<SystemPage />} />
         <Route path="system/experiments/:experimentId" element={<SystemExperimentDetailPage />} />
         <Route path="algorithms" element={<Navigate to="/optimizations" replace />} />

@@ -102,7 +102,7 @@ def test_health(client):
     resp = client.get("/api/v1/health")
     assert resp.status_code == 200
     body = resp.json()
-    assert body["status"] == "ok" and body["service"] == "5glosvp" and body["version"] == "0.3.0"
+    assert body["status"] == "ok" and body["service"] == "5glosvp" and body["version"] == "0.4.0"
     assert body["name_zh"] and body["name_en"]
     assert body["testing"] is False
 

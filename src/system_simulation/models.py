@@ -124,6 +124,8 @@ class PowerControlConfig(_Strict):
 
 class SystemSimulationConfig(_Strict):
     num_slots: int = Field(default=200, ge=1, le=2000)
+    # 前 warmup_slots 个时隙不进入 UE 结果与 KPI 聚合
+    warmup_slots: int = Field(default=0, ge=0)
     subcarrier_spacing_hz: float = 30e3
     num_prb: int = Field(default=273, ge=1, le=275)
     num_data_symbols_per_slot: int = Field(default=12, ge=1, le=14)
@@ -136,13 +138,20 @@ class SystemSimulationConfig(_Strict):
     link_adaptation: LinkAdaptationConfig = Field(default_factory=LinkAdaptationConfig)
     power_control: PowerControlConfig = Field(default_factory=PowerControlConfig)
 
+    @model_validator(mode="after")
+    def _check_warmup(self) -> SystemSimulationConfig:
+        if self.warmup_slots >= self.num_slots:
+            raise ValueError("warmup_slots must be smaller than num_slots")
+        return self
+
     @property
     def num_subcarriers(self) -> int:
         return self.num_prb * 12
 
     @property
     def simulated_duration_s(self) -> float:
-        return self.num_slots * self.slot_duration_s
+        """KPI 聚合时长（不含 warm-up）。"""
+        return (self.num_slots - self.warmup_slots) * self.slot_duration_s
 
 
 class SystemScenario(_Strict):
@@ -252,6 +261,7 @@ class SystemSimulationResult(BaseModel):
     provider_versions: dict[str, str | None] = Field(default_factory=dict)
     seed: int
     num_slots: int
+    warmup_slots: int = 0
     slot_duration_s: float
     simulated_duration_s: float
     num_data_re_per_slot: int
@@ -260,6 +270,7 @@ class SystemSimulationResult(BaseModel):
     link_adaptation: dict[str, Any]
     power_control: dict[str, Any]
     ue_generation: dict[str, Any] | None = None
+    channel_reused: bool = False
     compute_device: str | None = None
     runtime: SystemRuntime = Field(default_factory=SystemRuntime)
     warnings: list[str] = Field(default_factory=list)
@@ -308,11 +319,32 @@ class ArtifactRef(BaseModel):
     description: str | None = None
 
 
+class SystemExperimentPurpose(str, Enum):
+    STANDALONE = "standalone"
+    OPTIMIZATION_BASELINE = "optimization_baseline"
+    OPTIMIZATION_CANDIDATE = "optimization_candidate"
+
+
+class EvaluationContextLink(BaseModel):
+    """系统优化候选实验所属的冻结评价上下文（由优化服务传入并随实验持久化）。"""
+
+    evaluation_context_id: str
+    channel_realization_id: str
+    channel_sha256: str
+    ue_population_id: str
+    traffic_realization_id: str
+    benchmark_protocol_id: str
+    benchmark_protocol_version: str
+
+
 class SystemExperimentRecord(BaseModel):
     experiment_id: str
     name: str
     experiment_type: ExperimentType = ExperimentType.SYSTEM
-    purpose: Literal["standalone"] = "standalone"
+    purpose: SystemExperimentPurpose = SystemExperimentPurpose.STANDALONE
+    optimization_id: str | None = None
+    optimization_candidate_id: str | None = None
+    evaluation_context: EvaluationContextLink | None = None
     status: SystemExperimentStatus = SystemExperimentStatus.CREATED
     scenario_id: str
     scenario_name_zh: str

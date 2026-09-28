@@ -1,5 +1,5 @@
 import { ArrowLeftOutlined } from '@ant-design/icons';
-import { Alert, Button, Card, Col, Descriptions, Row, Skeleton, Space } from 'antd';
+import { Alert, Button, Card, Col, Descriptions, Row, Skeleton, Space, Tag } from 'antd';
 import { useCallback, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
@@ -12,7 +12,16 @@ import { StatusTag } from '../../components/StatusTag';
 import { SystemModelBadge } from '../../components/SystemModelBadge';
 import { UeThroughputChart } from '../../components/UeThroughputChart';
 import { formatDateTime, formatSeconds } from '../../utils/format';
-import { AVG_UE_THROUGHPUT, findKpi, modelMeta, P5_EDGE_NOTE, P5_UE_THROUGHPUT, SCIENTIFIC_BOUNDARY } from '../../utils/system';
+import {
+  AVG_UE_THROUGHPUT,
+  findKpi,
+  modelMeta,
+  P5_EDGE_NOTE,
+  P5_UE_THROUGHPUT,
+  SCIENTIFIC_BOUNDARY,
+  systemPurposeMeta,
+} from '../../utils/system';
+import { systemOptimizationPath } from '../../utils/systemOptimization';
 import { KpiCards } from './KpiCards';
 import { KpiDetailModal } from './KpiDetailModal';
 import { SystemProvenance } from './SystemProvenance';
@@ -47,7 +56,12 @@ export function SystemExperimentDetailPage() {
   );
   const onSelectUe = useCallback((id: string) => setUeOpen(id), []);
 
-  const back = (
+  const optimizationId = exp?.optimization_id ?? null;
+  const back = optimizationId ? (
+    <Button icon={<ArrowLeftOutlined />} onClick={() => navigate(systemOptimizationPath(optimizationId))} data-testid="back-to-optimization">
+      返回系统级优化 {optimizationId}
+    </Button>
+  ) : (
     <Button icon={<ArrowLeftOutlined />} onClick={() => navigate('/system')}>
       返回系统级仿真
     </Button>
@@ -71,6 +85,7 @@ export function SystemExperimentDetailPage() {
   }
 
   const meta = modelMeta(exp.backend.model_type);
+  const purpose = systemPurposeMeta(exp.purpose);
   const selectedUe = result?.ue_results.find((u) => u.ue_id === ueOpen);
   const summary = exp.artifacts.find((a) => a.name === 'system_summary.png');
 
@@ -90,6 +105,13 @@ export function SystemExperimentDetailPage() {
             <span>种子 Seed：{exp.seed}</span>
             <span>运行时间 Runtime：{formatSeconds(result?.runtime.total_seconds ?? null, 1)}</span>
             <span>数据来源 Source：{exp.backend.source_type ?? '—'}</span>
+            {purpose && (
+              <span data-testid="experiment-purpose">
+                <Tag color="purple">{purpose.zh} {purpose.en}</Tag>
+                {exp.optimization_candidate_id && <code>{exp.optimization_candidate_id}</code>}
+                {exp.evaluation_context && <span className="muted"> · {exp.evaluation_context.evaluation_context_id}</span>}
+              </span>
+            )}
           </Space>
         }
       />

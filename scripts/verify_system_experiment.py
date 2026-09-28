@@ -5,7 +5,7 @@
 
 只读取实验产物（slot_trace.npz、ue_results.json、kpi.json、result.json），
 不 import 平台的 KPI 引擎（evaluation.kpi），用独立实现复算：
-    UE 吞吐率 = Σ 每时隙成功译码比特 / (时隙数 × 时隙长度) / 1e6
+    UE 吞吐率 = Σ 每时隙成功译码比特（warm-up 之后）/ ((时隙数 − warm-up) × 时隙长度) / 1e6
     网络吞吐率 = Σ UE 吞吐率；平均 = 算术平均；P5 = 手写线性插值百分位（含零吞吐率 UE）
 输出每项检查 PASS/FAIL 与总体结论。
 """
@@ -53,19 +53,22 @@ def verify(exp_dir: Path) -> dict:
 
     exp_id = record["experiment_id"]
     num_slots = int(result["num_slots"])
+    warmup = int(result.get("warmup_slots", 0))
     slot_s = float(result["slot_duration_s"])
-    duration = num_slots * slot_s
+    duration = (num_slots - warmup) * slot_s
     trace_ids = [str(x) for x in trace["ue_ids"]]
-    bits = trace["decoded_bits"]
-    harq = trace["harq"]
+    full_bits = trace["decoded_bits"]
+    # KPI 聚合窗口：丢弃前 warmup 个时隙
+    bits = full_bits[warmup:]
+    harq = trace["harq"][warmup:]
     num_re = trace["num_re"]
 
     check("status_succeeded", record["status"] == "succeeded", record["status"])
     check("ue_count_min_3", len(ues) >= 3, f"{len(ues)} UEs")
-    check("trace_shape", bits.shape == (num_slots, len(ues)) and trace_ids == [u["ue_id"] for u in ues],
-          f"decoded_bits {bits.shape}, ue_ids {trace_ids}")
+    check("trace_shape", full_bits.shape == (num_slots, len(ues)) and trace_ids == [u["ue_id"] for u in ues],
+          f"decoded_bits {full_bits.shape}, ue_ids {trace_ids}")
     check("simulated_duration", close(duration, float(result["simulated_duration_s"])),
-          f"{num_slots} × {slot_s} s = {duration} s")
+          f"({num_slots} − warm-up {warmup}) × {slot_s} s = {duration} s")
 
     recomputed: dict[str, float] = {}
     for j, u in enumerate(ues):

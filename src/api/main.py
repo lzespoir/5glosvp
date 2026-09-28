@@ -22,6 +22,13 @@ from optimization import (
 )
 from simulation.backends import default_registry
 from simulation.backends.system import default_system_registry
+from system_optimization import (
+    FileSystemOptimizationStore,
+    SystemOptimizationService,
+    default_protocol_registry,
+    default_system_objective_registry,
+    default_system_parameter_catalog,
+)
 from system_simulation import FileSystemExperimentStore, SystemExperimentService, SystemScenarioCatalog
 
 from . import __version__
@@ -52,13 +59,23 @@ def build_app(settings: Settings | None = None) -> FastAPI:
         optimizers=default_optimizer_registry(),
         objectives=default_objective_registry(),
     )
+    git_commit = _git_commit()
     system_service = SystemExperimentService(
         store=FileSystemExperimentStore(settings.system_experiments_dir),
         registry=default_system_registry(include_testing=settings.testing),
         catalog=SystemScenarioCatalog(settings.system_configs_dir),
         kpis=default_kpi_registry(),
         platform_version=__version__,
-        git_commit=_git_commit(),
+        git_commit=git_commit,
+    )
+    system_optimization_service = SystemOptimizationService(
+        experiments=system_service,
+        store=FileSystemOptimizationStore(settings.system_optimizations_dir),
+        optimizers=default_optimizer_registry(),
+        objectives=default_system_objective_registry(),
+        protocols=default_protocol_registry(),
+        parameters=default_system_parameter_catalog(),
+        git_commit=git_commit,
     )
     return create_app(
         service,
@@ -66,6 +83,7 @@ def build_app(settings: Settings | None = None) -> FastAPI:
         testing=settings.testing,
         optimization_service=optimization_service,
         system_service=system_service,
+        system_optimization_service=system_optimization_service,
     )
 
 

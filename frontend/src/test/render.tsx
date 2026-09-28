@@ -21,6 +21,8 @@ export function renderWithProviders(ui: ReactElement, { path = '/', route = '/' 
               <Route path={path} element={ui} />
               <Route path="/experiments/:experimentId" element={<div data-testid="detail-route" />} />
               <Route path="/optimizations/:optimizationId" element={<div data-testid="optimization-route" />} />
+              <Route path="/optimizations/system/:optimizationId" element={<div data-testid="system-optimization-route" />} />
+              <Route path="/system/experiments/:experimentId" element={<div data-testid="system-experiment-route" />} />
             </Routes>
           </MemoryRouter>
         </QueryClientProvider>

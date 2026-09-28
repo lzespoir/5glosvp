@@ -235,11 +235,26 @@ export interface SystemExperimentProvenance {
   assumptions?: string[];
 }
 
+export type SystemExperimentPurpose = 'standalone' | 'optimization_baseline' | 'optimization_candidate';
+
+export interface EvaluationContextLink {
+  evaluation_context_id: string;
+  channel_realization_id: string;
+  channel_sha256: string;
+  ue_population_id: string;
+  traffic_realization_id: string;
+  benchmark_protocol_id: string;
+  benchmark_protocol_version: string;
+}
+
 export interface SystemExperimentResponse {
   experiment_id: string;
   name: string;
   experiment_type: 'system';
-  purpose: string;
+  purpose: SystemExperimentPurpose;
+  optimization_id: string | null;
+  optimization_candidate_id: string | null;
+  evaluation_context: EvaluationContextLink | null;
   status: SystemExperimentStatus;
   scenario: { scenario_id: string; name_zh: string; name_en: string };
   backend: {

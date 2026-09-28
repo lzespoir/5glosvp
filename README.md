@@ -20,8 +20,12 @@
   Grid Search (engineering baseline, not a learning algorithm) evaluates real Sionna RT candidates through a unified optimizer interface.
 - **Day 5**：System-Level KPI V0.3 —— 第一个 5G 用户故事“多用户下行系统仿真”。Sionna RT 计算信道，Sionna SYS 完成调度、功率分配、链路自适应与 PHY 抽象，平台 KPI 引擎由成功译码比特计算 UE 吞吐率、网络吞吐率、平均与 P5 UE 吞吐率，并在 Web UI 中给出可追溯的计算链。
   First 5G user story: multi-UE downlink system simulation (Sionna RT → Sionna SYS → versioned throughput KPIs).
+- **Day 6**：System Optimization & Fair Benchmark Protocol V0.4 —— 把 Day 4 优化闭环接到 Day 5 系统级 KPI：Grid Search 在冻结的
+  `SYSTEM_BENCHMARK_V0_1` 协议下比较 Sionna SYS 调度参数 `scheduler_beta` 的候选，基线与所有候选共享同一 UE 集合、同一信道实现（一次 RT，sha256 可复核）、
+  同一业务与时隙数，目标 `NETWORK_THROUGHPUT_MAX_V0_1`，平均 / P5 UE 吞吐率作为次要 KPI 同时展示（负向变化不隐藏）。
+  Fair system-level optimization: one frozen channel realization shared by baseline and all candidates, versioned objective and benchmark protocol.
 
-设计任务书：[`design/001.md`](design/001.md)（Day 1）、[`design/DAY1_FIX_and_DAY2_API.md`](design/DAY1_FIX_and_DAY2_API.md)（Day 1.1 + Day 2）、[`design/DAY3_FRONTEND.md`](design/DAY3_FRONTEND.md)（Day 3）、[`design/DAY4_OPTIMIZATION.md`](design/DAY4_OPTIMIZATION.md)（Day 4）、[`design/DAY5_SYSTEM_LEVEL_KPI.md`](design/DAY5_SYSTEM_LEVEL_KPI.md)（Day 5）。
+设计任务书：[`design/001.md`](design/001.md)（Day 1）、[`design/DAY1_FIX_and_DAY2_API.md`](design/DAY1_FIX_and_DAY2_API.md)（Day 1.1 + Day 2）、[`design/DAY3_FRONTEND.md`](design/DAY3_FRONTEND.md)（Day 3）、[`design/DAY4_OPTIMIZATION.md`](design/DAY4_OPTIMIZATION.md)（Day 4）、[`design/DAY5_SYSTEM_LEVEL_KPI.md`](design/DAY5_SYSTEM_LEVEL_KPI.md)（Day 5）、[`design/DAY6_SYSTEM_OPTIMIZATION.md`](design/DAY6_SYSTEM_OPTIMIZATION.md)（Day 6）。
 
 ## 当前能力 / Current Capabilities
 
@@ -30,12 +34,13 @@
 | 传播仿真 Propagation Simulation（Sionna RT radio map） | ✓ |
 | 参数优化 Optimization（Grid Search，传播层目标函数） | ✓ |
 | 系统级仿真 System-Level Simulation（Sionna SYS，多 UE 下行吞吐率 KPI） | ✓ |
+| 系统级优化 System Optimization（Grid Search，冻结公平评价协议） | ✓ |
 | 实测数据验证 Measured Data Validation | Not Yet |
 | 验收 KPI Acceptance KPI | Not Yet |
 
 ## 当前状态 / Current Status
 
-**Day 1 技术探针 + Day 1.1 修复 + Day 2 Experiment API + Day 3 Web 前端 V0.1 + Day 4 Optimization Loop V0.2 + Day 5 System-Level KPI V0.3：完成 / DONE**
+**Day 1 技术探针 + Day 1.1 修复 + Day 2 Experiment API + Day 3 Web 前端 V0.1 + Day 4 Optimization Loop V0.2 + Day 5 System-Level KPI V0.3 + Day 6 System Optimization V0.4：完成 / DONE**
 
 | 项目 / Item | 值 / Value |
 | --- | --- |
@@ -386,6 +391,44 @@ curl -X POST http://127.0.0.1:8000/api/v1/system-experiments \
 python scripts/verify_system_experiment.py data/system_experiments/EXP-XXXXXXXX --out verification.json
 ```
 
+### 系统级优化 API / System Optimization API（Day 6）
+
+| Method | Path | 说明 |
+| --- | --- | --- |
+| GET | `/api/v1/system-optimizers` | 支持 `system` 问题类型的优化器（Grid Search：`engineering_baseline`，`learning_algorithm = false`，算法超参数单独列出） |
+| GET | `/api/v1/system-objectives` | 系统级目标（`NETWORK_THROUGHPUT_MAX_V0_1`，输入 KPI、公式、文档） |
+| GET | `/api/v1/system-parameters` | 优化变量定义（`scheduler_beta`：continuous，开区间 (0, 1)，推荐候选与来源） |
+| GET | `/api/v1/benchmark-protocols` | 冻结评价协议（`SYSTEM_BENCHMARK_V0_1`：500 slots、warm-up 0、1 次、observed variability 6.9%） |
+| POST | `/api/v1/system-optimizations` | 校验后返回 **202**，后台执行；同一时刻只运行一个（409 `SYSTEM_OPTIMIZATION_BUSY`） |
+| GET | `/api/v1/system-optimizations?limit=&offset=` · `/{id}` · `/{id}/artifacts/{name}` | 列表 / 详情（真实阶段 `progress`：Candidate k/N，不做百分比）/ 产物 |
+
+```bash
+curl -X POST http://127.0.0.1:8000/api/v1/system-optimizations -H 'Content-Type: application/json' -d '{
+  "problem_type": "system", "name": "beta sweep", "scenario_id": "SYSTEM-DEMO-001",
+  "optimizer_id": "grid_search", "objective_id": "NETWORK_THROUGHPUT_MAX_V0_1",
+  "parameter": {"id": "scheduler_beta", "candidate_values": [0.1, 0.3, 0.6, 0.9, 0.99]},
+  "benchmark_protocol_id": "SYSTEM_BENCHMARK_V0_1"}'
+```
+
+执行流程：构造 `CommonEvaluationContext`（一次 Sionna RT → `context/channel.npz`，UE / 信道 / 业务哈希）→ 基线（场景参数值）→
+逐个候选（同一信道，`run(channel=...)` 跳过 RT；与基线相同的候选复用基线实验）→ 选最优（目标最大；平局时基线值优先，其次候选顺序）→
+公平性检查（相同 UE / 信道（含逐位相同的信道增益）/ 业务 / 时隙 / 后端版本、只有优化变量不同）→ 导出证据。
+基线失败或全部候选失败 ⇒ `failed`；单个候选失败保留在候选列表中。每个候选实验标记 `purpose = optimization_baseline / optimization_candidate` 并链接回优化。
+
+仓库 `data/system_optimizations/OPT-XXXXXXXX/`：`optimization.json`、`context/channel.npz`、`artifacts/`（`evaluation-context.json`、
+`benchmark-protocol.json`、`candidate-summary.json`、`comparison.png`、`per-ue-comparison.png`）。
+
+文档：[`docs/objectives/network-throughput-max-v0.1.md`](docs/objectives/network-throughput-max-v0.1.md)、
+[`docs/benchmark/system-benchmark-v0.1.md`](docs/benchmark/system-benchmark-v0.1.md)；协议依据：[`reference/day6_horizon_study/`](reference/day6_horizon_study/README.md)
+（`python scripts/day6_horizon_study.py`）。
+
+独立复核（不 import KPI 引擎、目标函数与优化服务；从 `channel.npz` 与每个实验的 `slot_trace.npz` 复算哈希、KPI、目标、最优选择与改善量）：
+
+```bash
+python scripts/verify_system_optimization.py OPT-XXXXXXXX --out verification.json
+python scripts/export_system_optimization_reference.py OPT-XXXXXXXX   # → reference/system_optimization/OPT-XXXXXXXX/
+```
+
 ## 输出 / Outputs
 
 ### CLI：`outputs/EXP-XXXXXXXX/`
@@ -466,6 +509,9 @@ data/experiments/
 - [`reference/day5_spike/`](reference/day5_spike/)：Day 5 系统级技术探针（Sionna RT → Sionna SYS，结论 GO）。
 - [`reference/system/`](reference/system/)：从浏览器运行的真实系统级实验（`README.md`、`result.json`、`kpi.json`、`verification.json`、`system-summary.png`）与截图。由 `python scripts/export_system_reference.py EXP-XXXXXXXX` 生成。Purpose：System-Level Simulation Validation。
 
+- [`reference/day6_horizon_study/`](reference/day6_horizon_study/README.md)：Day 6 Horizon Study（200/500/1000 slots，warm-up，确定性，RT 漂移），`SYSTEM_BENCHMARK_V0_1` 的依据。
+- [`reference/system_optimization/`](reference/system_optimization/)：从浏览器运行的真实系统级优化（`README.md`、`optimization.json`、`evaluation-context.json`、`benchmark-protocol.json`、`candidate-summary.json`、`verification.json`、图与截图）。Optimizer：Grid Search；Learning Algorithm：No。
+
 类型：Simulation Generated；Measured Data：NO；Huawei Data：NO；Acceptance Evidence：NO。
 
 ## 与任务书的差异 / Deviations from the Spec
@@ -505,6 +551,9 @@ data/experiments/
 - **系统级在 CPU 上运行**：本机 PyTorch 2.14.0+cu130 与驱动（CUDA 12.9）不兼容，Sionna SYS 在 CPU 上计算（200 时隙约 40 s）；`POST /system-experiments` 同步等待，同一时刻只运行一个系统级实验（进程内锁）。
 - 系统级 V0.1 仅支持单 BS / 单小区、静止 UE、full buffer 下行、UE 单天线；开销仅以 12/14 数据符号近似；无小区间干扰、移动性、上行。
 - P5 UE Throughput 在 3–10 个 UE 的样本上统计意义有限，**不等同于**验收口径的边缘用户速率。
+- **系统级优化**：只有一个优化变量（`scheduler_beta`）、一个场景、一个信道实现；`SYSTEM_BENCHMARK_V0_1` 下 500 slots 的绝对 KPI 相对 1000 slots 仍有至多 3.2% 偏差；
+  observed variability 6.9% 来自 3 次运行，是经验界而非置信区间。不同优化运行各自做一次 RT，彼此之间的差异可能来自 RT 漂移，不能当作优化收益。
+  一次参考运行（基线 + 4 个 SYS 评估 × 500 slots）在 CPU 上约 7–9 分钟；后台线程执行，进程重启时未完成的运行标记为 `INTERRUPTED`。
 
 ## 下一步 / Next Step
 
@@ -516,7 +565,12 @@ Day 4 新增冻结概念：`Optimizer`、`Objective`、`CandidateEvaluator`、`O
 
 Day 5 新增冻结概念：`SystemScenario`、`SystemSimulationBackend`（capability 声明）、`SystemSimulationResult`、`SystemExperimentRecord`（`experiment_type = system`）、KPI Engine 与 `UE_THROUGHPUT_V0_1` / `NETWORK_THROUGHPUT_V0_1` / `AVG_UE_THROUGHPUT_V0_1` / `P5_UE_THROUGHPUT_V0_1`（版本化，不得原地修改）。
 
-**Day 6 Ready**：系统级吞吐率 KPI 已可作为优化目标的输入（例如以 `NETWORK_THROUGHPUT_V0_1` / `P5_UE_THROUGHPUT_V0_1` 构造新的版本化 Objective，由 Optimizer 通过系统级实验评价候选）。验收中心、边缘用户速率验收口径、RSRP 与实测数据验证仍未实现。
+Day 6 新增冻结概念：`SearchProblem`（优化器与问题类型解耦）、`ParameterDefinition`（变量 / 算法超参数分离，支持 continuous / vector / algorithm_generated）、
+`ChannelRealization` + `channel_reuse` capability、`CommonEvaluationContext`、`BenchmarkProtocol` 与 `SYSTEM_BENCHMARK_V0_1`、`NETWORK_THROUGHPUT_MAX_V0_1`、
+`SystemOptimizationRecord`（均版本化，不得原地修改）。
+
+**Day 7 Ready**：学习优化算法可作为新的 `Optimizer`（`supported_problem_types` 含 `system`）接入同一 `SearchProblem` / 公共评估上下文 / 冻结协议，
+与 Grid Search 基线在相同条件下对比。验收中心、边缘用户速率验收口径、RSRP 与实测数据验证仍未实现。
 
 ## 目录结构 / Repository Layout
 
@@ -534,8 +588,11 @@ Day 5 新增冻结概念：`SystemScenario`、`SystemSimulationBackend`（capabi
 │   ├── frontend/            # 浏览器实测截图
 │   ├── optimization/        # OPT-XXXXXXXX/ 优化参考证据 + screenshots/
 │   ├── day5_spike/          # 系统级技术探针
-│   └── system/              # EXP-XXXXXXXX/ 系统级参考证据 + screenshots/
+│   ├── system/              # EXP-XXXXXXXX/ 系统级参考证据 + screenshots/
+│   ├── day6_horizon_study/  # SYSTEM_BENCHMARK_V0_1 依据
+│   └── system_optimization/ # OPT-XXXXXXXX/ 系统级优化参考证据 + screenshots/
 ├── docs/objectives/         # 目标函数定义（版本化）
+├── docs/benchmark/          # 评价协议（版本化）
 ├── docs/kpi/                # KPI 定义（版本化）
 ├── docs/system/  docs/architecture/  docs/assumptions.md
 ├── frontend/
@@ -546,7 +603,7 @@ Day 5 新增冻结概念：`SystemScenario`、`SystemSimulationBackend`（capabi
 │       │                 RuntimePanel, RuntimeChart, ProvenancePanel, StatusTimeline, ArtifactsPanel, ErrorState,
 │       │                 ObjectiveHistoryChart, SystemModelBadge, NetworkView, UeThroughputChart)
 │       └── pages/       (Overview, Scenarios, System, SystemExperimentDetail, Optimizations, OptimizationDetail,
-│                         Experiments, ExperimentDetail, ComingSoon)
+│                         SystemOptimizationDetail, Experiments, ExperimentDetail, ComingSoon)
 ├── src/
 │   ├── simulation/
 │   │   ├── base.py  models.py  errors.py  registry.py
@@ -554,17 +611,21 @@ Day 5 新增冻结概念：`SystemScenario`、`SystemSimulationBackend`（capabi
 │   │   └── backends/  (__init__.py, sionna_backend.py, sionna_system_backend.py, system.py)
 │   ├── system_simulation/
 │   │   ├── models.py  errors.py  base.py  service.py  store.py  scenarios.py
-│   │   └── artifacts.py  ue_generation.py  fake_backend.py
+│   │   └── artifacts.py  ue_generation.py  fake_backend.py  realization.py
 │   ├── evaluation/kpi/  (models.py, definitions.py, evaluators.py, registry.py)
 │   ├── experiments/
 │   │   ├── models.py  errors.py  store.py  scenarios.py  service.py
 │   ├── optimization/
-│   │   ├── base.py  models.py  errors.py  registry.py  store.py  service.py
+│   │   ├── base.py  models.py  parameters.py  errors.py  registry.py  store.py  service.py
 │   │   ├── optimizers/grid_search.py
 │   │   └── objectives/propagation_utility.py
+│   ├── system_optimization/
+│   │   ├── models.py  objectives.py  parameters.py  protocols.py  context.py
+│   │   └── service.py  store.py  artifacts.py  errors.py
 │   └── api/
-│       ├── app.py  main.py  settings.py  schemas.py  optimization_schemas.py  system_schemas.py  errors.py  deps.py
-│       └── routes/  (health.py, scenarios.py, experiments.py, optimizations.py, system.py)
+│       ├── app.py  main.py  settings.py  schemas.py  optimization_schemas.py  system_schemas.py
+│       │   system_optimization_schemas.py  errors.py  deps.py
+│       └── routes/  (health.py, scenarios.py, experiments.py, optimizations.py, system.py, system_optimization.py)
 ├── scripts/
 │   ├── check_environment.py
 │   ├── run_sionna_demo.py
@@ -572,7 +633,10 @@ Day 5 新增冻结概念：`SystemScenario`、`SystemSimulationBackend`（capabi
 │   ├── export_optimization_reference.py
 │   ├── day5_system_spike.py
 │   ├── verify_system_experiment.py
-│   └── export_system_reference.py
+│   ├── export_system_reference.py
+│   ├── day6_horizon_study.py
+│   ├── verify_system_optimization.py
+│   └── export_system_optimization_reference.py
 ├── tests/
 │   ├── conftest.py
 │   ├── test_models.py
@@ -585,6 +649,8 @@ Day 5 新增冻结概念：`SystemScenario`、`SystemSimulationBackend`（capabi
 │   ├── system_helpers.py
 │   ├── test_system_models.py  test_kpi.py  test_system_backends.py
 │   ├── test_api_system.py
-│   └── test_system_sionna.py
+│   ├── test_system_sionna.py
+│   ├── test_system_optimization.py  test_api_system_optimization.py  test_verify_system_optimization.py
+│   └── test_system_optimization_sionna.py
 └── outputs/.gitkeep
 ```

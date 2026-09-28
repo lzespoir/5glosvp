@@ -12,7 +12,7 @@ import { StatusTag } from '../../components/StatusTag';
 import { SystemModelBadge } from '../../components/SystemModelBadge';
 import type { SystemBackendView, SystemExperimentResponse, SystemScenarioSummary } from '../../types/system';
 import { formatDateTime, formatHz, formatSeconds, formatValue } from '../../utils/format';
-import { findKpi, NETWORK_THROUGHPUT, SCIENTIFIC_BOUNDARY } from '../../utils/system';
+import { findKpi, NETWORK_THROUGHPUT, SCIENTIFIC_BOUNDARY, systemPurposeMeta } from '../../utils/system';
 import { RunSystemModal } from './RunSystemModal';
 
 const RECENT_LIMIT = 10;
@@ -32,6 +32,14 @@ export const systemExperimentColumns: ColumnsType<SystemExperimentResponse> = [
   { title: '后端 Backend', key: 'backend', render: (_, e) => `${e.backend.id}${e.backend.version ? ` ${e.backend.version}` : ''}` },
   { title: '来源 Source', key: 'source', render: (_, e) => <SystemModelBadge modelType={e.backend.model_type} /> },
   { title: '状态 Status', key: 'status', render: (_, e) => <StatusTag status={e.status} /> },
+  {
+    title: '用途 Purpose',
+    key: 'purpose',
+    render: (_, e) => {
+      const p = systemPurposeMeta(e.purpose);
+      return p ? <Tag color="purple">{p.en}</Tag> : <span className="muted">Standalone</span>;
+    },
+  },
   { title: 'UE', key: 'ue', align: 'right', render: (_, e) => e.result?.ue_results.length ?? '—' },
   {
     title: '网络吞吐率 Network',

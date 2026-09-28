@@ -5,7 +5,15 @@ Optimizer（参数枚举）与 Objective（目标值计算）都不依赖任何�
 OptimizationService 通过 ExperimentService 运行每个候选。
 """
 
-from .base import CandidateEvaluator, Objective, ObjectiveInputs, Optimizer, OptimizerInfo, SearchResult
+from .base import (
+    CandidateEvaluator,
+    Objective,
+    ObjectiveInputs,
+    Optimizer,
+    OptimizerInfo,
+    SearchProblem,
+    SearchResult,
+)
 from .errors import (
     CandidateEvaluationError,
     InvalidParameterSpaceError,
@@ -21,6 +29,14 @@ from .models import (
     OptimizationRecord,
     OptimizationStatus,
     ParameterSpace,
+)
+from .parameters import (
+    ParameterBounds,
+    ParameterDefinition,
+    ParameterRole,
+    ParameterType,
+    ParameterValue,
+    ValueGeneration,
 )
 from .registry import ObjectiveRegistry, OptimizerRegistry, default_objective_registry, default_optimizer_registry
 from .service import MAX_CANDIDATES, OptimizationService
@@ -49,7 +65,14 @@ __all__ = [
     "OptimizerInfo",
     "OptimizerNotFoundError",
     "OptimizerRegistry",
+    "ParameterBounds",
+    "ParameterDefinition",
+    "ParameterRole",
     "ParameterSpace",
+    "ParameterType",
+    "ParameterValue",
+    "SearchProblem",
+    "ValueGeneration",
     "SearchResult",
     "default_objective_registry",
     "default_optimizer_registry",

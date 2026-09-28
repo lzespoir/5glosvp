@@ -6,6 +6,7 @@
 
 from .base import (
     Capability,
+    ChannelRealization,
     ModelType,
     SystemBackendDescriptor,
     SystemBackendRegistry,
@@ -25,7 +26,9 @@ from .fake_backend import FAKE_SYSTEM_BACKEND_ID, FakeSystemBackend
 from .models import (
     BaseStation,
     Cell,
+    EvaluationContextLink,
     ExperimentType,
+    SystemExperimentPurpose,
     SystemExperimentRecord,
     SystemExperimentStatus,
     SystemScenario,
@@ -45,6 +48,8 @@ __all__ = [
     "BaseStation",
     "Capability",
     "Cell",
+    "ChannelRealization",
+    "EvaluationContextLink",
     "ExperimentType",
     "FakeSystemBackend",
     "FileSystemExperimentStore",
@@ -58,6 +63,7 @@ __all__ = [
     "SystemBackendUnavailableError",
     "SystemCapabilityNotSupportedError",
     "SystemExperimentNotFoundError",
+    "SystemExperimentPurpose",
     "SystemExperimentRecord",
     "SystemExperimentService",
     "SystemExperimentStatus",

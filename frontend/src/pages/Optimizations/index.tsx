@@ -1,7 +1,7 @@
-import { Alert, Button, Card, Col, Descriptions, Empty, Row, Skeleton, Table, Tag } from 'antd';
+import { Alert, Button, Card, Col, Descriptions, Empty, Row, Segmented, Skeleton, Table, Tag } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 import { useObjectives, useOptimizations, useOptimizers } from '../../api/optimizations';
 import { ErrorState } from '../../components/ErrorState';
@@ -11,6 +11,7 @@ import type { ObjectiveView, OptimizationResponse, OptimizerView } from '../../t
 import { formatDateTime, formatSeconds } from '../../utils/format';
 import { formatPower, formatSigned, improvementMeta, TX_POWER } from '../../utils/optimization';
 import { CreateOptimizationModal } from './CreateOptimizationModal';
+import { SystemOptimizations } from './SystemOptimizations';
 
 export const PAGE_SIZE = 20;
 
@@ -108,7 +109,39 @@ function ObjectiveCard({ objective }: { objective: ObjectiveView }) {
   );
 }
 
+export type OptimizationType = 'propagation' | 'system';
+
+export function optimizationType(value: string | null): OptimizationType {
+  return value === 'system' ? 'system' : 'propagation';
+}
+
 export function OptimizationsPage() {
+  const [params, setParams] = useSearchParams();
+  const type = optimizationType(params.get('type'));
+  return (
+    <>
+      <PageHeader
+        titleZh="优化中心"
+        titleEn="Optimization Center"
+        subtitle="参数优化闭环 · Parameter optimization loop over real simulations"
+        extra={
+          <Segmented<OptimizationType>
+            aria-label="Optimization type"
+            value={type}
+            onChange={(v) => setParams(v === 'system' ? { type: v } : {})}
+            options={[
+              { value: 'propagation', label: '传播层优化 Propagation' },
+              { value: 'system', label: '系统级优化 System' },
+            ]}
+          />
+        }
+      />
+      {type === 'system' ? <SystemOptimizations /> : <PropagationOptimizations />}
+    </>
+  );
+}
+
+function PropagationOptimizations() {
   const navigate = useNavigate();
   const [page, setPage] = useState(1);
   const [modalOpen, setModalOpen] = useState(false);
@@ -119,16 +152,11 @@ export function OptimizationsPage() {
 
   return (
     <>
-      <PageHeader
-        titleZh="优化中心"
-        titleEn="Optimization Center"
-        subtitle="参数优化闭环 · Parameter optimization loop over real simulations"
-        extra={
-          <Button type="primary" disabled={!catalogReady} onClick={() => setModalOpen(true)}>
-            新建优化实验 New Optimization Run
-          </Button>
-        }
-      />
+      <div className="toolbar-right section-bottom">
+        <Button type="primary" disabled={!catalogReady} onClick={() => setModalOpen(true)}>
+          新建优化实验 New Optimization Run
+        </Button>
+      </div>
       {optimizers.isError || objectives.isError ? (
         <Card className="section-bottom">
           <ErrorState

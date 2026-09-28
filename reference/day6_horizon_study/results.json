@@ -1,0 +1,569 @@
+{
+  "scenario_id": "SYSTEM-DEMO-001",
+  "sionna_version": "2.1.0",
+  "provider_versions": {
+    "sionna": "2.1.0",
+    "sionna-rt": "2.1.0",
+    "mitsuba": "3.9.1",
+    "drjit": "1.5.0",
+    "torch": "2.14.0"
+  },
+  "ue_ids": [
+    "UE-001",
+    "UE-002",
+    "UE-003",
+    "UE-004",
+    "UE-005",
+    "UE-006"
+  ],
+  "betas": [
+    0.1,
+    0.3,
+    0.6,
+    0.9,
+    0.99
+  ],
+  "baseline_beta": 0.9,
+  "horizons": [
+    200,
+    500,
+    1000
+  ],
+  "warmups": [
+    0,
+    20,
+    50,
+    100
+  ],
+  "rt_seconds": 1.0722089969785884,
+  "channel_realization": {
+    "sha256": "2faf4843b1251d2b607807346b14e4b0b5b8d7ec47490344f2c78dc4af796a98",
+    "shape": [
+      6,
+      1,
+      1,
+      8,
+      12,
+      3276
+    ],
+    "dtype": "complex64",
+    "mean_channel_gain_db": [
+      -119.62490844726562,
+      -110.09291076660156,
+      -87.82415771484375,
+      -105.54100036621094,
+      -114.72088623046875,
+      -108.60859680175781
+    ]
+  },
+  "per_beta": [
+    {
+      "beta": 0.1,
+      "sys_seconds_1000_slots": 194.74128520698287,
+      "seconds_per_slot": 0.19474128520698286,
+      "horizons": {
+        "200": {
+          "NETWORK_THROUGHPUT_V0_1": 236.5768,
+          "AVG_UE_THROUGHPUT_V0_1": 39.42946666666666,
+          "P5_UE_THROUGHPUT_V0_1": 9.667159999999999
+        },
+        "500": {
+          "NETWORK_THROUGHPUT_V0_1": 235.661376,
+          "AVG_UE_THROUGHPUT_V0_1": 39.276896,
+          "P5_UE_THROUGHPUT_V0_1": 10.021799999999999
+        },
+        "1000": {
+          "NETWORK_THROUGHPUT_V0_1": 236.282528,
+          "AVG_UE_THROUGHPUT_V0_1": 39.38042133333334,
+          "P5_UE_THROUGHPUT_V0_1": 10.017888
+        }
+      },
+      "warmup_at_1000": {
+        "0": {
+          "NETWORK_THROUGHPUT_V0_1": 236.282528,
+          "AVG_UE_THROUGHPUT_V0_1": 39.38042133333334,
+          "P5_UE_THROUGHPUT_V0_1": 10.017888
+        },
+        "20": {
+          "NETWORK_THROUGHPUT_V0_1": 236.98880000000003,
+          "AVG_UE_THROUGHPUT_V0_1": 39.498133333333335,
+          "P5_UE_THROUGHPUT_V0_1": 10.049102040816326
+        },
+        "50": {
+          "NETWORK_THROUGHPUT_V0_1": 236.94418526315786,
+          "AVG_UE_THROUGHPUT_V0_1": 39.490697543859646,
+          "P5_UE_THROUGHPUT_V0_1": 10.034926315789473
+        },
+        "100": {
+          "NETWORK_THROUGHPUT_V0_1": 236.8500622222222,
+          "AVG_UE_THROUGHPUT_V0_1": 39.47501037037036,
+          "P5_UE_THROUGHPUT_V0_1": 10.032528888888889
+        }
+      },
+      "warmup_at_200": {
+        "0": {
+          "NETWORK_THROUGHPUT_V0_1": 236.5768,
+          "AVG_UE_THROUGHPUT_V0_1": 39.42946666666666,
+          "P5_UE_THROUGHPUT_V0_1": 9.667159999999999
+        },
+        "20": {
+          "NETWORK_THROUGHPUT_V0_1": 240.45475555555558,
+          "AVG_UE_THROUGHPUT_V0_1": 40.0757925925926,
+          "P5_UE_THROUGHPUT_V0_1": 9.798133333333334
+        },
+        "50": {
+          "NETWORK_THROUGHPUT_V0_1": 240.8653866666667,
+          "AVG_UE_THROUGHPUT_V0_1": 40.14423111111112,
+          "P5_UE_THROUGHPUT_V0_1": 9.65816
+        },
+        "100": {
+          "NETWORK_THROUGHPUT_V0_1": 241.97888,
+          "AVG_UE_THROUGHPUT_V0_1": 40.329813333333334,
+          "P5_UE_THROUGHPUT_V0_1": 9.4482
+        }
+      },
+      "per_ue_1000": {
+        "UE-001": 6.378576,
+        "UE-002": 48.995792,
+        "UE-003": 64.500864,
+        "UE-004": 30.681408,
+        "UE-005": 20.935824,
+        "UE-006": 64.790064
+      }
+    },
+    {
+      "beta": 0.3,
+      "sys_seconds_1000_slots": 193.7331434370135,
+      "seconds_per_slot": 0.1937331434370135,
+      "horizons": {
+        "200": {
+          "NETWORK_THROUGHPUT_V0_1": 236.3308,
+          "AVG_UE_THROUGHPUT_V0_1": 39.388466666666666,
+          "P5_UE_THROUGHPUT_V0_1": 10.0673
+        },
+        "500": {
+          "NETWORK_THROUGHPUT_V0_1": 236.35100799999998,
+          "AVG_UE_THROUGHPUT_V0_1": 39.39183466666666,
+          "P5_UE_THROUGHPUT_V0_1": 10.292664
+        },
+        "1000": {
+          "NETWORK_THROUGHPUT_V0_1": 236.42272,
+          "AVG_UE_THROUGHPUT_V0_1": 39.40378666666667,
+          "P5_UE_THROUGHPUT_V0_1": 10.187244
+        }
+      },
+      "warmup_at_1000": {
+        "0": {
+          "NETWORK_THROUGHPUT_V0_1": 236.42272,
+          "AVG_UE_THROUGHPUT_V0_1": 39.40378666666667,
+          "P5_UE_THROUGHPUT_V0_1": 10.187244
+        },
+        "20": {
+          "NETWORK_THROUGHPUT_V0_1": 237.23655510204082,
+          "AVG_UE_THROUGHPUT_V0_1": 39.53942585034014,
+          "P5_UE_THROUGHPUT_V0_1": 10.221914285714284
+        },
+        "50": {
+          "NETWORK_THROUGHPUT_V0_1": 237.19976421052633,
+          "AVG_UE_THROUGHPUT_V0_1": 39.53329403508772,
+          "P5_UE_THROUGHPUT_V0_1": 10.213195789473684
+        },
+        "100": {
+          "NETWORK_THROUGHPUT_V0_1": 236.68266666666665,
+          "AVG_UE_THROUGHPUT_V0_1": 39.447111111111106,
+          "P5_UE_THROUGHPUT_V0_1": 10.186502222222222
+        }
+      },
+      "warmup_at_200": {
+        "0": {
+          "NETWORK_THROUGHPUT_V0_1": 236.3308,
+          "AVG_UE_THROUGHPUT_V0_1": 39.388466666666666,
+          "P5_UE_THROUGHPUT_V0_1": 10.0673
+        },
+        "20": {
+          "NETWORK_THROUGHPUT_V0_1": 240.7514666666667,
+          "AVG_UE_THROUGHPUT_V0_1": 40.12524444444445,
+          "P5_UE_THROUGHPUT_V0_1": 10.242733333333334
+        },
+        "50": {
+          "NETWORK_THROUGHPUT_V0_1": 241.22144,
+          "AVG_UE_THROUGHPUT_V0_1": 40.20357333333333,
+          "P5_UE_THROUGHPUT_V0_1": 10.19168
+        },
+        "100": {
+          "NETWORK_THROUGHPUT_V0_1": 238.57840000000002,
+          "AVG_UE_THROUGHPUT_V0_1": 39.76306666666667,
+          "P5_UE_THROUGHPUT_V0_1": 9.94068
+        }
+      },
+      "per_ue_1000": {
+        "UE-001": 6.64944,
+        "UE-002": 48.725872,
+        "UE-003": 64.840944,
+        "UE-004": 30.615744,
+        "UE-005": 20.800656,
+        "UE-006": 64.790064
+      }
+    },
+    {
+      "beta": 0.6,
+      "sys_seconds_1000_slots": 194.4999268220272,
+      "seconds_per_slot": 0.19449992682202719,
+      "horizons": {
+        "200": {
+          "NETWORK_THROUGHPUT_V0_1": 186.5212,
+          "AVG_UE_THROUGHPUT_V0_1": 31.086866666666666,
+          "P5_UE_THROUGHPUT_V0_1": 11.171700000000001
+        },
+        "500": {
+          "NETWORK_THROUGHPUT_V0_1": 188.125984,
+          "AVG_UE_THROUGHPUT_V0_1": 31.354330666666666,
+          "P5_UE_THROUGHPUT_V0_1": 11.202200000000001
+        },
+        "1000": {
+          "NETWORK_THROUGHPUT_V0_1": 193.86079999999998,
+          "AVG_UE_THROUGHPUT_V0_1": 32.31013333333333,
+          "P5_UE_THROUGHPUT_V0_1": 11.463644
+        }
+      },
+      "warmup_at_1000": {
+        "0": {
+          "NETWORK_THROUGHPUT_V0_1": 193.86079999999998,
+          "AVG_UE_THROUGHPUT_V0_1": 32.31013333333333,
+          "P5_UE_THROUGHPUT_V0_1": 11.463644
+        },
+        "20": {
+          "NETWORK_THROUGHPUT_V0_1": 194.9412244897959,
+          "AVG_UE_THROUGHPUT_V0_1": 32.49020408163265,
+          "P5_UE_THROUGHPUT_V0_1": 11.49926530612245
+        },
+        "50": {
+          "NETWORK_THROUGHPUT_V0_1": 194.30292210526315,
+          "AVG_UE_THROUGHPUT_V0_1": 32.383820350877194,
+          "P5_UE_THROUGHPUT_V0_1": 11.510618947368421
+        },
+        "100": {
+          "NETWORK_THROUGHPUT_V0_1": 194.41265777777778,
+          "AVG_UE_THROUGHPUT_V0_1": 32.40210962962963,
+          "P5_UE_THROUGHPUT_V0_1": 11.446337777777778
+        }
+      },
+      "warmup_at_200": {
+        "0": {
+          "NETWORK_THROUGHPUT_V0_1": 186.5212,
+          "AVG_UE_THROUGHPUT_V0_1": 31.086866666666666,
+          "P5_UE_THROUGHPUT_V0_1": 11.171700000000001
+        },
+        "20": {
+          "NETWORK_THROUGHPUT_V0_1": 191.588,
+          "AVG_UE_THROUGHPUT_V0_1": 31.93133333333333,
+          "P5_UE_THROUGHPUT_V0_1": 11.3332
+        },
+        "50": {
+          "NETWORK_THROUGHPUT_V0_1": 186.87477333333337,
+          "AVG_UE_THROUGHPUT_V0_1": 31.145795555555562,
+          "P5_UE_THROUGHPUT_V0_1": 11.371893333333334
+        },
+        "100": {
+          "NETWORK_THROUGHPUT_V0_1": 184.14831999999998,
+          "AVG_UE_THROUGHPUT_V0_1": 30.691386666666663,
+          "P5_UE_THROUGHPUT_V0_1": 10.724
+        }
+      },
+      "per_ue_1000": {
+        "UE-001": 9.18768,
+        "UE-002": 35.757616,
+        "UE-003": 53.6988,
+        "UE-004": 25.083248,
+        "UE-005": 18.291536,
+        "UE-006": 51.84192
+      }
+    },
+    {
+      "beta": 0.9,
+      "sys_seconds_1000_slots": 195.11135814199224,
+      "seconds_per_slot": 0.19511135814199224,
+      "horizons": {
+        "200": {
+          "NETWORK_THROUGHPUT_V0_1": 130.41744,
+          "AVG_UE_THROUGHPUT_V0_1": 21.73624,
+          "P5_UE_THROUGHPUT_V0_1": 12.01682
+        },
+        "500": {
+          "NETWORK_THROUGHPUT_V0_1": 131.14144,
+          "AVG_UE_THROUGHPUT_V0_1": 21.856906666666664,
+          "P5_UE_THROUGHPUT_V0_1": 12.543232
+        },
+        "1000": {
+          "NETWORK_THROUGHPUT_V0_1": 135.374496,
+          "AVG_UE_THROUGHPUT_V0_1": 22.562416,
+          "P5_UE_THROUGHPUT_V0_1": 13.110100000000001
+        }
+      },
+      "warmup_at_1000": {
+        "0": {
+          "NETWORK_THROUGHPUT_V0_1": 135.374496,
+          "AVG_UE_THROUGHPUT_V0_1": 22.562416,
+          "P5_UE_THROUGHPUT_V0_1": 13.110100000000001
+        },
+        "20": {
+          "NETWORK_THROUGHPUT_V0_1": 135.4664163265306,
+          "AVG_UE_THROUGHPUT_V0_1": 22.577736054421766,
+          "P5_UE_THROUGHPUT_V0_1": 13.162261224489797
+        },
+        "50": {
+          "NETWORK_THROUGHPUT_V0_1": 135.28870736842103,
+          "AVG_UE_THROUGHPUT_V0_1": 22.548117894736837,
+          "P5_UE_THROUGHPUT_V0_1": 13.158391578947366
+        },
+        "100": {
+          "NETWORK_THROUGHPUT_V0_1": 135.79214222222222,
+          "AVG_UE_THROUGHPUT_V0_1": 22.632023703703705,
+          "P5_UE_THROUGHPUT_V0_1": 13.206475555555556
+        }
+      },
+      "warmup_at_200": {
+        "0": {
+          "NETWORK_THROUGHPUT_V0_1": 130.41744,
+          "AVG_UE_THROUGHPUT_V0_1": 21.73624,
+          "P5_UE_THROUGHPUT_V0_1": 12.01682
+        },
+        "20": {
+          "NETWORK_THROUGHPUT_V0_1": 130.36711111111111,
+          "AVG_UE_THROUGHPUT_V0_1": 21.727851851851852,
+          "P5_UE_THROUGHPUT_V0_1": 12.179333333333334
+        },
+        "50": {
+          "NETWORK_THROUGHPUT_V0_1": 128.22176,
+          "AVG_UE_THROUGHPUT_V0_1": 21.370293333333333,
+          "P5_UE_THROUGHPUT_V0_1": 11.95824
+        },
+        "100": {
+          "NETWORK_THROUGHPUT_V0_1": 129.2192,
+          "AVG_UE_THROUGHPUT_V0_1": 21.536533333333335,
+          "P5_UE_THROUGHPUT_V0_1": 11.79092
+        }
+      },
+      "per_ue_1000": {
+        "UE-001": 12.268192,
+        "UE-002": 21.657536,
+        "UE-003": 37.197328,
+        "UE-004": 20.28776,
+        "UE-005": 15.635824,
+        "UE-006": 28.327856
+      }
+    },
+    {
+      "beta": 0.99,
+      "sys_seconds_1000_slots": 193.6947393110022,
+      "seconds_per_slot": 0.1936947393110022,
+      "horizons": {
+        "200": {
+          "NETWORK_THROUGHPUT_V0_1": 86.99144,
+          "AVG_UE_THROUGHPUT_V0_1": 14.498573333333333,
+          "P5_UE_THROUGHPUT_V0_1": 10.30808
+        },
+        "500": {
+          "NETWORK_THROUGHPUT_V0_1": 82.924512,
+          "AVG_UE_THROUGHPUT_V0_1": 13.820751999999999,
+          "P5_UE_THROUGHPUT_V0_1": 9.989367999999999
+        },
+        "1000": {
+          "NETWORK_THROUGHPUT_V0_1": 80.64083199999999,
+          "AVG_UE_THROUGHPUT_V0_1": 13.440138666666664,
+          "P5_UE_THROUGHPUT_V0_1": 9.717516
+        }
+      },
+      "warmup_at_1000": {
+        "0": {
+          "NETWORK_THROUGHPUT_V0_1": 80.64083199999999,
+          "AVG_UE_THROUGHPUT_V0_1": 13.440138666666664,
+          "P5_UE_THROUGHPUT_V0_1": 9.717516
+        },
+        "20": {
+          "NETWORK_THROUGHPUT_V0_1": 79.82785306122449,
+          "AVG_UE_THROUGHPUT_V0_1": 13.304642176870749,
+          "P5_UE_THROUGHPUT_V0_1": 9.665379591836734
+        },
+        "50": {
+          "NETWORK_THROUGHPUT_V0_1": 78.91119157894735,
+          "AVG_UE_THROUGHPUT_V0_1": 13.151865263157893,
+          "P5_UE_THROUGHPUT_V0_1": 9.536808421052632
+        },
+        "100": {
+          "NETWORK_THROUGHPUT_V0_1": 78.66876444444443,
+          "AVG_UE_THROUGHPUT_V0_1": 13.111460740740739,
+          "P5_UE_THROUGHPUT_V0_1": 9.53839111111111
+        }
+      },
+      "warmup_at_200": {
+        "0": {
+          "NETWORK_THROUGHPUT_V0_1": 86.99144,
+          "AVG_UE_THROUGHPUT_V0_1": 14.498573333333333,
+          "P5_UE_THROUGHPUT_V0_1": 10.30808
+        },
+        "20": {
+          "NETWORK_THROUGHPUT_V0_1": 83.27084444444445,
+          "AVG_UE_THROUGHPUT_V0_1": 13.878474074074076,
+          "P5_UE_THROUGHPUT_V0_1": 10.089844444444445
+        },
+        "50": {
+          "NETWORK_THROUGHPUT_V0_1": 78.15392,
+          "AVG_UE_THROUGHPUT_V0_1": 13.025653333333333,
+          "P5_UE_THROUGHPUT_V0_1": 9.360453333333334
+        },
+        "100": {
+          "NETWORK_THROUGHPUT_V0_1": 75.59344,
+          "AVG_UE_THROUGHPUT_V0_1": 12.598906666666666,
+          "P5_UE_THROUGHPUT_V0_1": 9.28652
+        }
+      },
+      "per_ue_1000": {
+        "UE-001": 9.279328,
+        "UE-002": 12.862224,
+        "UE-003": 19.779168,
+        "UE-004": 13.915616,
+        "UE-005": 11.03208,
+        "UE-006": 13.772416
+      }
+    }
+  ],
+  "convergence_vs_1000_percent": {
+    "0.1": {
+      "200": {
+        "NETWORK_THROUGHPUT_V0_1": 0.12454242913804363,
+        "AVG_UE_THROUGHPUT_V0_1": 0.1245424291380316,
+        "P5_UE_THROUGHPUT_V0_1": -3.5010173801104605
+      },
+      "500": {
+        "NETWORK_THROUGHPUT_V0_1": -0.26288528621126966,
+        "AVG_UE_THROUGHPUT_V0_1": -0.26288528621126966,
+        "P5_UE_THROUGHPUT_V0_1": 0.03905014709687006
+      },
+      "1000": {
+        "NETWORK_THROUGHPUT_V0_1": 0.0,
+        "AVG_UE_THROUGHPUT_V0_1": 0.0,
+        "P5_UE_THROUGHPUT_V0_1": 0.0
+      }
+    },
+    "0.3": {
+      "200": {
+        "NETWORK_THROUGHPUT_V0_1": -0.038879512087496314,
+        "AVG_UE_THROUGHPUT_V0_1": -0.03887951208750833,
+        "P5_UE_THROUGHPUT_V0_1": -1.1773940037168078
+      },
+      "500": {
+        "NETWORK_THROUGHPUT_V0_1": -0.03033211021344282,
+        "AVG_UE_THROUGHPUT_V0_1": -0.03033211021345484,
+        "P5_UE_THROUGHPUT_V0_1": 1.0348235499218486
+      },
+      "1000": {
+        "NETWORK_THROUGHPUT_V0_1": 0.0,
+        "AVG_UE_THROUGHPUT_V0_1": 0.0,
+        "P5_UE_THROUGHPUT_V0_1": 0.0
+      }
+    },
+    "0.6": {
+      "200": {
+        "NETWORK_THROUGHPUT_V0_1": -3.78601553279466,
+        "AVG_UE_THROUGHPUT_V0_1": -3.786015532794668,
+        "P5_UE_THROUGHPUT_V0_1": -2.5466945763493625
+      },
+      "500": {
+        "NETWORK_THROUGHPUT_V0_1": -2.958213315946285,
+        "AVG_UE_THROUGHPUT_V0_1": -2.9582133159462884,
+        "P5_UE_THROUGHPUT_V0_1": -2.280636069996583
+      },
+      "1000": {
+        "NETWORK_THROUGHPUT_V0_1": 0.0,
+        "AVG_UE_THROUGHPUT_V0_1": 0.0,
+        "P5_UE_THROUGHPUT_V0_1": 0.0
+      }
+    },
+    "0.9": {
+      "200": {
+        "NETWORK_THROUGHPUT_V0_1": -3.6617355162674032,
+        "AVG_UE_THROUGHPUT_V0_1": -3.661735516267408,
+        "P5_UE_THROUGHPUT_V0_1": -8.33921938047766
+      },
+      "500": {
+        "NETWORK_THROUGHPUT_V0_1": -3.1269228141761687,
+        "AVG_UE_THROUGHPUT_V0_1": -3.1269228141761736,
+        "P5_UE_THROUGHPUT_V0_1": -4.323902945057637
+      },
+      "1000": {
+        "NETWORK_THROUGHPUT_V0_1": 0.0,
+        "AVG_UE_THROUGHPUT_V0_1": 0.0,
+        "P5_UE_THROUGHPUT_V0_1": 0.0
+      }
+    },
+    "0.99": {
+      "200": {
+        "NETWORK_THROUGHPUT_V0_1": 7.875176684685011,
+        "AVG_UE_THROUGHPUT_V0_1": 7.875176684685016,
+        "P5_UE_THROUGHPUT_V0_1": 6.077314408332341
+      },
+      "500": {
+        "NETWORK_THROUGHPUT_V0_1": 2.83191522627148,
+        "AVG_UE_THROUGHPUT_V0_1": 2.8319152262714846,
+        "P5_UE_THROUGHPUT_V0_1": 2.7975462041945605
+      },
+      "1000": {
+        "NETWORK_THROUGHPUT_V0_1": 0.0,
+        "AVG_UE_THROUGHPUT_V0_1": 0.0,
+        "P5_UE_THROUGHPUT_V0_1": 0.0
+      }
+    }
+  },
+  "network_throughput_ranking": {
+    "200": [
+      0.1,
+      0.3,
+      0.6,
+      0.9,
+      0.99
+    ],
+    "500": [
+      0.3,
+      0.1,
+      0.6,
+      0.9,
+      0.99
+    ],
+    "1000": [
+      0.3,
+      0.1,
+      0.6,
+      0.9,
+      0.99
+    ]
+  },
+  "determinism": {
+    "repeat_200_bit_identical": true,
+    "prefix_200_equals_run_200": true,
+    "prefix_500_equals_run_500": true,
+    "sys_seconds_200": 38.90524265298154,
+    "sys_seconds_500": 97.3386143539683
+  },
+  "rt_drift": {
+    "channel_a_sha256": "2faf4843b1251d2b607807346b14e4b0b5b8d7ec47490344f2c78dc4af796a98",
+    "channel_b_sha256": "df0a235cb4a8647b6f4785efbd38971afce7c92a77d0964e551e1f959a6c3f17",
+    "identical": false,
+    "max_abs_gain_diff_db": 0.0031280517578125,
+    "kpi_channel_a_200": {
+      "NETWORK_THROUGHPUT_V0_1": 130.41744,
+      "AVG_UE_THROUGHPUT_V0_1": 21.73624,
+      "P5_UE_THROUGHPUT_V0_1": 12.01682
+    },
+    "kpi_channel_b_200": {
+      "NETWORK_THROUGHPUT_V0_1": 131.20392,
+      "AVG_UE_THROUGHPUT_V0_1": 21.867320000000003,
+      "P5_UE_THROUGHPUT_V0_1": 12.74162
+    },
+    "relative_diff_percent": {
+      "NETWORK_THROUGHPUT_V0_1": 0.6030481812861926,
+      "AVG_UE_THROUGHPUT_V0_1": 0.6030481812862036,
+      "P5_UE_THROUGHPUT_V0_1": 6.031545783327038
+    }
+  }
+}

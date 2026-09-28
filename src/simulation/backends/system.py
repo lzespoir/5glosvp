@@ -14,6 +14,7 @@ SYSTEM_CAPABILITIES = (
     Capability.LINK_ADAPTATION,
     Capability.UE_METRICS,
     Capability.THROUGHPUT,
+    Capability.CHANNEL_REUSE,
 )
 
 
@@ -38,7 +39,8 @@ def default_system_registry(include_testing: bool = False) -> SystemBackendRegis
                 name_zh="系统级测试假后端（仅软件测试）",
                 name_en="Fake System Backend (software testing only)",
                 factory=FakeSystemBackend,
-                capabilities=(Capability.SYSTEM_SIMULATION, Capability.UE_METRICS, Capability.THROUGHPUT),
+                capabilities=(Capability.SYSTEM_SIMULATION, Capability.UE_METRICS, Capability.THROUGHPUT,
+                              Capability.CHANNEL_REUSE),
                 model_type=ModelType.TEST_FIXTURE,
                 source_type="test_fixture",
                 provider="fixture",

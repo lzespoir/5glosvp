@@ -1,4 +1,4 @@
-import type { KpiResult, SystemModelType, UserEquipmentResult } from '../types/system';
+import type { KpiResult, SystemExperimentPurpose, SystemModelType, UserEquipmentResult } from '../types/system';
 
 export const UE_THROUGHPUT = 'UE_THROUGHPUT_V0_1';
 export const NETWORK_THROUGHPUT = 'NETWORK_THROUGHPUT_V0_1';
@@ -50,4 +50,19 @@ export type UeField = keyof Pick<
 /** 值缺失时返回后端给出的原因（前端不补 0、不推算）。 */
 export function unavailableReason(ue: UserEquipmentResult, field: UeField): string {
   return ue.unavailable[field] ?? '后端未返回该值 / Not returned by backend';
+}
+
+export function systemPurposeMeta(purpose: SystemExperimentPurpose): { zh: string; en: string } | null {
+  switch (purpose) {
+    case 'standalone':
+      return null;
+    case 'optimization_baseline':
+      return { zh: '优化基线', en: 'Optimization Baseline' };
+    case 'optimization_candidate':
+      return { zh: '优化候选', en: 'Optimization Candidate' };
+    default: {
+      const unreachable: never = purpose;
+      throw new Error(`Unknown system experiment purpose: ${String(unreachable)}`);
+    }
+  }
 }
