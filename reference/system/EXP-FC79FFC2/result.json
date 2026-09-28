@@ -1,0 +1,355 @@
+{
+  "result": {
+    "scenario_id": "SYSTEM-DEMO-001",
+    "cells": [
+      {
+        "cell_id": "CELL-001",
+        "bs_id": "BS-001",
+        "position": [
+          -150.3,
+          21.63,
+          42.5
+        ],
+        "carrier_frequency_hz": 3500000000.0,
+        "bandwidth_hz": 100000000.0,
+        "tx_power_dbm": 44.0
+      }
+    ],
+    "backend": "sionna_system",
+    "backend_version": "2.1.0",
+    "provider_versions": {
+      "sionna": "2.1.0",
+      "sionna-rt": "2.1.0",
+      "mitsuba": "3.9.1",
+      "drjit": "1.5.0",
+      "torch": "2.14.0"
+    },
+    "seed": 20260927,
+    "num_slots": 200,
+    "slot_duration_s": 0.0005,
+    "simulated_duration_s": 0.1,
+    "num_data_re_per_slot": 39312,
+    "ue_results": [
+      {
+        "ue_id": "UE-001",
+        "serving_cell_id": "CELL-001",
+        "position": [
+          -342.10913838788576,
+          -220.87275209268782,
+          1.5
+        ],
+        "mean_channel_gain_db": -119.62492370605469,
+        "sinr_eff_db_mean": -2.2708709518302164,
+        "mcs_index_mean": 3.0849056603773586,
+        "scheduled_slots": 106,
+        "acked_slots": 74,
+        "tbler": 0.30188679245283023,
+        "allocated_re_per_slot_mean": 15718.32,
+        "allocated_re_share": 0.39983516483516485,
+        "tx_power_w_mean": 9.666874021291733,
+        "decoded_bits": 1197064,
+        "simulated_duration_s": 0.1,
+        "throughput_mbps": 11.97064,
+        "throughput_metric_id": "UE_THROUGHPUT_V0_1",
+        "unavailable": {},
+        "metadata": {
+          "candidate_index": 0
+        }
+      },
+      {
+        "ue_id": "UE-002",
+        "serving_cell_id": "CELL-001",
+        "position": [
+          -84.41809684827984,
+          77.79360558407842,
+          1.5
+        ],
+        "mean_channel_gain_db": -110.08411407470703,
+        "sinr_eff_db_mean": 17.503382523854572,
+        "mcs_index_mean": 22.9,
+        "scheduled_slots": 30,
+        "acked_slots": 26,
+        "tbler": 0.1333333333333333,
+        "allocated_re_per_slot_mean": 3285.6,
+        "allocated_re_share": 0.08357753357753357,
+        "tx_power_w_mean": 2.0463207602500915,
+        "decoded_bits": 2245648,
+        "simulated_duration_s": 0.1,
+        "throughput_mbps": 22.45648,
+        "throughput_metric_id": "UE_THROUGHPUT_V0_1",
+        "unavailable": {},
+        "metadata": {
+          "candidate_index": 1
+        }
+      },
+      {
+        "ue_id": "UE-003",
+        "serving_cell_id": "CELL-001",
+        "position": [
+          338.57322515626845,
+          -301.8467416081978,
+          1.5
+        ],
+        "mean_channel_gain_db": -87.82415771484375,
+        "sinr_eff_db_mean": 27.585219296542082,
+        "mcs_index_mean": 26.318181818181817,
+        "scheduled_slots": 22,
+        "acked_slots": 22,
+        "tbler": 0.0,
+        "allocated_re_per_slot_mean": 3580.92,
+        "allocated_re_share": 0.09108974358974359,
+        "tx_power_w_mean": 2.361201310157776,
+        "decoded_bits": 3661064,
+        "simulated_duration_s": 0.1,
+        "throughput_mbps": 36.61064,
+        "throughput_metric_id": "UE_THROUGHPUT_V0_1",
+        "unavailable": {},
+        "metadata": {
+          "candidate_index": 3
+        }
+      },
+      {
+        "ue_id": "UE-004",
+        "serving_cell_id": "CELL-001",
+        "position": [
+          204.11321843883263,
+          -167.29492341709968,
+          1.5
+        ],
+        "mean_channel_gain_db": -105.54100036621094,
+        "sinr_eff_db_mean": 9.926038814627606,
+        "mcs_index_mean": 14.956521739130435,
+        "scheduled_slots": 46,
+        "acked_slots": 39,
+        "tbler": 0.15217391304347827,
+        "allocated_re_per_slot_mean": 6322.86,
+        "allocated_re_share": 0.1608379120879121,
+        "tx_power_w_mean": 4.022910478115082,
+        "decoded_bits": 2167472,
+        "simulated_duration_s": 0.1,
+        "throughput_mbps": 21.67472,
+        "throughput_metric_id": "UE_THROUGHPUT_V0_1",
+        "unavailable": {},
+        "metadata": {
+          "candidate_index": 12
+        }
+      },
+      {
+        "ue_id": "UE-005",
+        "serving_cell_id": "CELL-001",
+        "position": [
+          -242.9730797379679,
+          -198.76839908588778,
+          1.5
+        ],
+        "mean_channel_gain_db": -114.72088623046875,
+        "sinr_eff_db_mean": 7.860967228378075,
+        "mcs_index_mean": 11.63768115942029,
+        "scheduled_slots": 69,
+        "acked_slots": 58,
+        "tbler": 0.1594202898550725,
+        "allocated_re_per_slot_mean": 7452.42,
+        "allocated_re_share": 0.18957112332112333,
+        "tx_power_w_mean": 5.186761472225189,
+        "decoded_bits": 1584952,
+        "simulated_duration_s": 0.1,
+        "throughput_mbps": 15.84952,
+        "throughput_metric_id": "UE_THROUGHPUT_V0_1",
+        "unavailable": {},
+        "metadata": {
+          "candidate_index": 19
+        }
+      },
+      {
+        "ue_id": "UE-006",
+        "serving_cell_id": "CELL-001",
+        "position": [
+          -228.39261421269393,
+          124.55462880936813,
+          1.5
+        ],
+        "mean_channel_gain_db": -108.60859680175781,
+        "sinr_eff_db_mean": 19.515212611148232,
+        "mcs_index_mean": 26.105263157894736,
+        "scheduled_slots": 19,
+        "acked_slots": 18,
+        "tbler": 0.052631578947368474,
+        "allocated_re_per_slot_mean": 2951.88,
+        "allocated_re_share": 0.07508852258852258,
+        "tx_power_w_mean": 1.8767153716087341,
+        "decoded_bits": 2941912,
+        "simulated_duration_s": 0.1,
+        "throughput_mbps": 29.41912,
+        "throughput_metric_id": "UE_THROUGHPUT_V0_1",
+        "unavailable": {},
+        "metadata": {
+          "candidate_index": 21
+        }
+      }
+    ],
+    "scheduler": {
+      "id": "pf_su_mimo",
+      "name": "Proportional Fair SU-MIMO",
+      "implementation": "sionna.sys.PFSchedulerSUMIMO",
+      "beta": 0.9,
+      "provider": "sionna_sys"
+    },
+    "link_adaptation": {
+      "id": "olla",
+      "name": "Outer-Loop Link Adaptation",
+      "implementation": "sionna.sys.OuterLoopLinkAdaptation",
+      "bler_target": 0.1,
+      "mcs_table_index": 1,
+      "phy_abstraction": "sionna.sys.PHYAbstraction",
+      "provider": "sionna_sys"
+    },
+    "power_control": {
+      "id": "downlink_fair",
+      "implementation": "sionna.sys.downlink_fair_power_control",
+      "guaranteed_power_ratio": 0.5,
+      "fairness": 0.0,
+      "provider": "sionna_sys",
+      "precoding": "RZF (sionna.phy.ofdm.RZFPrecodedChannel)",
+      "sinr": "LMMSE post-equalization (sionna.phy.ofdm.LMMSEPostEqualizationSINR)"
+    },
+    "ue_generation": {
+      "type": "uniform_area_with_path",
+      "count": 6,
+      "seed": 20260927,
+      "area_center": [
+        0.0,
+        0.0
+      ],
+      "area_size": [
+        850.0,
+        670.0
+      ],
+      "height_m": 1.5,
+      "max_candidates": 60,
+      "source": "[A] 区域内均匀撒点，按生成顺序保留前 6 个存在传播路径的位置",
+      "kept_candidate_indices": [
+        0,
+        1,
+        3,
+        12,
+        19,
+        21
+      ],
+      "candidates_with_path": 17
+    },
+    "compute_device": "cpu",
+    "runtime": {
+      "propagation_seconds": 0.7225301190046594,
+      "system_seconds": 39.98060601798352,
+      "total_seconds": 40.720249378995504
+    },
+    "warnings": [
+      "Sionna SYS ran on CPU (PyTorch CUDA unavailable)"
+    ]
+  },
+  "kpis": [
+    {
+      "metric_id": "UE_THROUGHPUT_V0_1",
+      "version": "0.1",
+      "name_zh": "用户吞吐率",
+      "name_en": "UE Throughput",
+      "unit": "Mbps",
+      "scope": "ue",
+      "available": true,
+      "value": null,
+      "per_ue": {
+        "UE-001": 11.97064,
+        "UE-002": 22.45648,
+        "UE-003": 36.61064,
+        "UE-004": 21.67472,
+        "UE-005": 15.84952,
+        "UE-006": 29.41912
+      },
+      "unavailable_reason": null,
+      "sample_size": 6,
+      "calculation_method": "decoded_bits / simulated_duration_s / 1e6",
+      "source_experiment": "EXP-FC79FFC2",
+      "backend": "sionna_system",
+      "scenario_id": "SYSTEM-DEMO-001",
+      "seed": 20260927,
+      "source_type": "simulation",
+      "measured": false,
+      "assumptions": [
+        "[A] Full Buffer 下行业务（所有 UE 始终有数据待发）"
+      ],
+      "acceptance_kpi": false
+    },
+    {
+      "metric_id": "NETWORK_THROUGHPUT_V0_1",
+      "version": "0.1",
+      "name_zh": "网络吞吐率",
+      "name_en": "Network Throughput",
+      "unit": "Mbps",
+      "scope": "network",
+      "available": true,
+      "value": 137.98112,
+      "per_ue": null,
+      "unavailable_reason": null,
+      "sample_size": 6,
+      "calculation_method": "sum(T_u)",
+      "source_experiment": "EXP-FC79FFC2",
+      "backend": "sionna_system",
+      "scenario_id": "SYSTEM-DEMO-001",
+      "seed": 20260927,
+      "source_type": "simulation",
+      "measured": false,
+      "assumptions": [
+        "[A] Full Buffer 下行业务（所有 UE 始终有数据待发）"
+      ],
+      "acceptance_kpi": false
+    },
+    {
+      "metric_id": "AVG_UE_THROUGHPUT_V0_1",
+      "version": "0.1",
+      "name_zh": "平均用户吞吐率",
+      "name_en": "Average UE Throughput",
+      "unit": "Mbps",
+      "scope": "network",
+      "available": true,
+      "value": 22.996853333333334,
+      "per_ue": null,
+      "unavailable_reason": null,
+      "sample_size": 6,
+      "calculation_method": "mean(T_u)",
+      "source_experiment": "EXP-FC79FFC2",
+      "backend": "sionna_system",
+      "scenario_id": "SYSTEM-DEMO-001",
+      "seed": 20260927,
+      "source_type": "simulation",
+      "measured": false,
+      "assumptions": [
+        "[A] Full Buffer 下行业务（所有 UE 始终有数据待发）"
+      ],
+      "acceptance_kpi": false
+    },
+    {
+      "metric_id": "P5_UE_THROUGHPUT_V0_1",
+      "version": "0.1",
+      "name_zh": "P5 用户吞吐率",
+      "name_en": "P5 UE Throughput",
+      "unit": "Mbps",
+      "scope": "network",
+      "available": true,
+      "value": 12.94036,
+      "per_ue": null,
+      "unavailable_reason": null,
+      "sample_size": 6,
+      "calculation_method": "numpy.percentile(T_u, 5, method='linear')",
+      "source_experiment": "EXP-FC79FFC2",
+      "backend": "sionna_system",
+      "scenario_id": "SYSTEM-DEMO-001",
+      "seed": 20260927,
+      "source_type": "simulation",
+      "measured": false,
+      "assumptions": [
+        "[A] Full Buffer 下行业务（所有 UE 始终有数据待发）"
+      ],
+      "acceptance_kpi": false
+    }
+  ]
+}

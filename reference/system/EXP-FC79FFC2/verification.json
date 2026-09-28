@@ -1,0 +1,211 @@
+{
+  "experiment_id": "EXP-FC79FFC2",
+  "verifier": "scripts/verify_system_experiment.py (independent; does not import evaluation.kpi)",
+  "verified_at": "2026-09-28T07:56:08.118294+00:00",
+  "overall": "PASS",
+  "independent_values": {
+    "ue_throughput_mbps": {
+      "UE-001": 11.97064,
+      "UE-002": 22.45648,
+      "UE-003": 36.61064,
+      "UE-004": 21.67472,
+      "UE-005": 15.84952,
+      "UE-006": 29.41912
+    },
+    "network_throughput_mbps": 137.98112,
+    "avg_ue_throughput_mbps": 22.996853333333334,
+    "p5_ue_throughput_mbps": 12.94036
+  },
+  "checks": [
+    {
+      "check": "status_succeeded",
+      "status": "PASS",
+      "detail": "succeeded"
+    },
+    {
+      "check": "ue_count_min_3",
+      "status": "PASS",
+      "detail": "6 UEs"
+    },
+    {
+      "check": "trace_shape",
+      "status": "PASS",
+      "detail": "decoded_bits (200, 6), ue_ids ['UE-001', 'UE-002', 'UE-003', 'UE-004', 'UE-005', 'UE-006']"
+    },
+    {
+      "check": "simulated_duration",
+      "status": "PASS",
+      "detail": "200 × 0.0005 s = 0.1 s"
+    },
+    {
+      "check": "UE-001.decoded_bits",
+      "status": "PASS",
+      "detail": "trace Σ=1197064 vs ue_results=1197064"
+    },
+    {
+      "check": "UE-001.throughput",
+      "status": "PASS",
+      "detail": "independent=11.970640 Mbps, ue_results=11.97064, kpi=11.97064"
+    },
+    {
+      "check": "UE-001.slots",
+      "status": "PASS",
+      "detail": "scheduled=106 acked=74"
+    },
+    {
+      "check": "UE-001.finite",
+      "status": "PASS",
+      "detail": "11.97064"
+    },
+    {
+      "check": "UE-002.decoded_bits",
+      "status": "PASS",
+      "detail": "trace Σ=2245648 vs ue_results=2245648"
+    },
+    {
+      "check": "UE-002.throughput",
+      "status": "PASS",
+      "detail": "independent=22.456480 Mbps, ue_results=22.45648, kpi=22.45648"
+    },
+    {
+      "check": "UE-002.slots",
+      "status": "PASS",
+      "detail": "scheduled=30 acked=26"
+    },
+    {
+      "check": "UE-002.finite",
+      "status": "PASS",
+      "detail": "22.45648"
+    },
+    {
+      "check": "UE-003.decoded_bits",
+      "status": "PASS",
+      "detail": "trace Σ=3661064 vs ue_results=3661064"
+    },
+    {
+      "check": "UE-003.throughput",
+      "status": "PASS",
+      "detail": "independent=36.610640 Mbps, ue_results=36.61064, kpi=36.61064"
+    },
+    {
+      "check": "UE-003.slots",
+      "status": "PASS",
+      "detail": "scheduled=22 acked=22"
+    },
+    {
+      "check": "UE-003.finite",
+      "status": "PASS",
+      "detail": "36.61064"
+    },
+    {
+      "check": "UE-004.decoded_bits",
+      "status": "PASS",
+      "detail": "trace Σ=2167472 vs ue_results=2167472"
+    },
+    {
+      "check": "UE-004.throughput",
+      "status": "PASS",
+      "detail": "independent=21.674720 Mbps, ue_results=21.67472, kpi=21.67472"
+    },
+    {
+      "check": "UE-004.slots",
+      "status": "PASS",
+      "detail": "scheduled=46 acked=39"
+    },
+    {
+      "check": "UE-004.finite",
+      "status": "PASS",
+      "detail": "21.67472"
+    },
+    {
+      "check": "UE-005.decoded_bits",
+      "status": "PASS",
+      "detail": "trace Σ=1584952 vs ue_results=1584952"
+    },
+    {
+      "check": "UE-005.throughput",
+      "status": "PASS",
+      "detail": "independent=15.849520 Mbps, ue_results=15.84952, kpi=15.84952"
+    },
+    {
+      "check": "UE-005.slots",
+      "status": "PASS",
+      "detail": "scheduled=69 acked=58"
+    },
+    {
+      "check": "UE-005.finite",
+      "status": "PASS",
+      "detail": "15.84952"
+    },
+    {
+      "check": "UE-006.decoded_bits",
+      "status": "PASS",
+      "detail": "trace Σ=2941912 vs ue_results=2941912"
+    },
+    {
+      "check": "UE-006.throughput",
+      "status": "PASS",
+      "detail": "independent=29.419120 Mbps, ue_results=29.41912, kpi=29.41912"
+    },
+    {
+      "check": "UE-006.slots",
+      "status": "PASS",
+      "detail": "scheduled=19 acked=18"
+    },
+    {
+      "check": "UE-006.finite",
+      "status": "PASS",
+      "detail": "29.41912"
+    },
+    {
+      "check": "NETWORK_THROUGHPUT_V0_1",
+      "status": "PASS",
+      "detail": "independent Σ=137.981120 vs kpi=137.98112"
+    },
+    {
+      "check": "AVG_UE_THROUGHPUT_V0_1",
+      "status": "PASS",
+      "detail": "independent mean=22.996853 vs kpi=22.996853333333334"
+    },
+    {
+      "check": "P5_UE_THROUGHPUT_V0_1",
+      "status": "PASS",
+      "detail": "independent manual P5=12.940360 vs kpi=12.94036"
+    },
+    {
+      "check": "p5_population_includes_all_ues",
+      "status": "PASS",
+      "detail": "sample_size=6"
+    },
+    {
+      "check": "re_budget",
+      "status": "PASS",
+      "detail": "max Σ RE/slot=39312 ≤ 39312"
+    },
+    {
+      "check": "UE_THROUGHPUT_V0_1.provenance",
+      "status": "PASS",
+      "detail": "source=EXP-FC79FFC2 backend=sionna_system source_type=simulation measured=False"
+    },
+    {
+      "check": "NETWORK_THROUGHPUT_V0_1.provenance",
+      "status": "PASS",
+      "detail": "source=EXP-FC79FFC2 backend=sionna_system source_type=simulation measured=False"
+    },
+    {
+      "check": "AVG_UE_THROUGHPUT_V0_1.provenance",
+      "status": "PASS",
+      "detail": "source=EXP-FC79FFC2 backend=sionna_system source_type=simulation measured=False"
+    },
+    {
+      "check": "P5_UE_THROUGHPUT_V0_1.provenance",
+      "status": "PASS",
+      "detail": "source=EXP-FC79FFC2 backend=sionna_system source_type=simulation measured=False"
+    },
+    {
+      "check": "not_test_fixture",
+      "status": "PASS",
+      "detail": "sionna_sys"
+    }
+  ]
+}

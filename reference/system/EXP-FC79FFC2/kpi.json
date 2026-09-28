@@ -1,0 +1,105 @@
+[
+  {
+    "metric_id": "UE_THROUGHPUT_V0_1",
+    "version": "0.1",
+    "name_zh": "用户吞吐率",
+    "name_en": "UE Throughput",
+    "unit": "Mbps",
+    "scope": "ue",
+    "available": true,
+    "value": null,
+    "per_ue": {
+      "UE-001": 11.97064,
+      "UE-002": 22.45648,
+      "UE-003": 36.61064,
+      "UE-004": 21.67472,
+      "UE-005": 15.84952,
+      "UE-006": 29.41912
+    },
+    "unavailable_reason": null,
+    "sample_size": 6,
+    "calculation_method": "decoded_bits / simulated_duration_s / 1e6",
+    "source_experiment": "EXP-FC79FFC2",
+    "backend": "sionna_system",
+    "scenario_id": "SYSTEM-DEMO-001",
+    "seed": 20260927,
+    "source_type": "simulation",
+    "measured": false,
+    "assumptions": [
+      "[A] Full Buffer 下行业务（所有 UE 始终有数据待发）"
+    ],
+    "acceptance_kpi": false
+  },
+  {
+    "metric_id": "NETWORK_THROUGHPUT_V0_1",
+    "version": "0.1",
+    "name_zh": "网络吞吐率",
+    "name_en": "Network Throughput",
+    "unit": "Mbps",
+    "scope": "network",
+    "available": true,
+    "value": 137.98112,
+    "per_ue": null,
+    "unavailable_reason": null,
+    "sample_size": 6,
+    "calculation_method": "sum(T_u)",
+    "source_experiment": "EXP-FC79FFC2",
+    "backend": "sionna_system",
+    "scenario_id": "SYSTEM-DEMO-001",
+    "seed": 20260927,
+    "source_type": "simulation",
+    "measured": false,
+    "assumptions": [
+      "[A] Full Buffer 下行业务（所有 UE 始终有数据待发）"
+    ],
+    "acceptance_kpi": false
+  },
+  {
+    "metric_id": "AVG_UE_THROUGHPUT_V0_1",
+    "version": "0.1",
+    "name_zh": "平均用户吞吐率",
+    "name_en": "Average UE Throughput",
+    "unit": "Mbps",
+    "scope": "network",
+    "available": true,
+    "value": 22.996853333333334,
+    "per_ue": null,
+    "unavailable_reason": null,
+    "sample_size": 6,
+    "calculation_method": "mean(T_u)",
+    "source_experiment": "EXP-FC79FFC2",
+    "backend": "sionna_system",
+    "scenario_id": "SYSTEM-DEMO-001",
+    "seed": 20260927,
+    "source_type": "simulation",
+    "measured": false,
+    "assumptions": [
+      "[A] Full Buffer 下行业务（所有 UE 始终有数据待发）"
+    ],
+    "acceptance_kpi": false
+  },
+  {
+    "metric_id": "P5_UE_THROUGHPUT_V0_1",
+    "version": "0.1",
+    "name_zh": "P5 用户吞吐率",
+    "name_en": "P5 UE Throughput",
+    "unit": "Mbps",
+    "scope": "network",
+    "available": true,
+    "value": 12.94036,
+    "per_ue": null,
+    "unavailable_reason": null,
+    "sample_size": 6,
+    "calculation_method": "numpy.percentile(T_u, 5, method='linear')",
+    "source_experiment": "EXP-FC79FFC2",
+    "backend": "sionna_system",
+    "scenario_id": "SYSTEM-DEMO-001",
+    "seed": 20260927,
+    "source_type": "simulation",
+    "measured": false,
+    "assumptions": [
+      "[A] Full Buffer 下行业务（所有 UE 始终有数据待发）"
+    ],
+    "acceptance_kpi": false
+  }
+]
