@@ -80,7 +80,12 @@ def _comparison_png(path: Path, record: SystemOptimizationRecord) -> None:
             marker = "s" if c.is_baseline else "o"
             ax.errorbar([_param(c, pid)], [stat.mean], yerr=[[stat.mean - stat.min], [stat.max - stat.mean]],
                         fmt=marker, color=color, ms=8, capsize=3)
-            ax.annotate(c.candidate_id, (_param(c, pid), stat.mean), textcoords="offset points", xytext=(5, 5),
+            if c.reused_baseline:
+                continue
+            label = c.candidate_id
+            if c.is_baseline:
+                label = " = ".join([c.candidate_id] + [o.candidate_id for o in evaluated if o.reused_baseline])
+            ax.annotate(label, (_param(c, pid), stat.mean), textcoords="offset points", xytext=(5, 5),
                         fontsize=7)
         ax.set_title(title, fontsize=10)
         ax.set_xlabel(f"{record.parameter.name_en} [{record.parameter.unit}]")

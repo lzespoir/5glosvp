@@ -1,4 +1,4 @@
-import { Alert, App, Button, Collapse, Descriptions, Form, Input, Modal, Result, Select, Space, Tag } from 'antd';
+import { Alert, App, Button, Col, Collapse, Descriptions, Form, Input, Modal, Result, Row, Select, Space, Tag } from 'antd';
 import dayjs from 'dayjs';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -141,6 +141,7 @@ export function CreateSystemOptimizationModal({ open, optimizers, objectives, pa
           </Form.Item>
           <Form.Item label="场景 Scenario">
             <Select
+              style={{ width: '100%' }}
               aria-label="Scenario"
               value={selectedScenarioId || undefined}
               loading={scenarios.isLoading}
@@ -148,46 +149,58 @@ export function CreateSystemOptimizationModal({ open, optimizers, objectives, pa
               options={(scenarios.data ?? []).map((s) => ({ value: s.scenario_id, label: `${s.name_zh} · ${s.scenario_id}` }))}
             />
           </Form.Item>
-          <Space size="middle" style={{ display: 'flex' }} align="start">
-            <Form.Item label="优化目标 Objective" style={{ flex: 1 }}>
-              <Select
-                aria-label="Objective"
-                value={objectiveId || undefined}
-                onChange={setObjectiveId}
-                options={objectives.map((o) => ({ value: o.id, label: `${o.id} (${o.direction})` }))}
-              />
-            </Form.Item>
-            <Form.Item label="优化变量 Variable" style={{ flex: 1 }}>
-              <Select
-                aria-label="Variable"
-                value={parameterId || undefined}
-                onChange={(id: string) => {
-                  setParameterId(id);
-                  const next = parameters.find((p) => p.definition.id === id);
-                  setCandidateText((next?.recommended_values ?? []).join(', '));
-                }}
-                options={parameters.map((p) => ({ value: p.definition.id, label: `${p.definition.name_en} (${p.definition.id})` }))}
-              />
-            </Form.Item>
-          </Space>
-          <Space size="middle" style={{ display: 'flex' }} align="start">
-            <Form.Item label="优化器 Optimizer" style={{ flex: 1 }}>
-              <Select
-                aria-label="Optimizer"
-                value={optimizerId || undefined}
-                onChange={setOptimizerId}
-                options={optimizers.map((o) => ({ value: o.id, label: `${o.name_zh} ${o.name_en}` }))}
-              />
-            </Form.Item>
-            <Form.Item label="评估协议 Benchmark Protocol" style={{ flex: 1 }}>
-              <Select
-                aria-label="Benchmark protocol"
-                value={protocolId || undefined}
-                onChange={setProtocolId}
-                options={protocols.map((p) => ({ value: p.protocol_id, label: `${p.protocol_id} v${p.version}` }))}
-              />
-            </Form.Item>
-          </Space>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item label="优化目标 Objective">
+                <Select
+                  style={{ width: '100%' }}
+                  aria-label="Objective"
+                  value={objectiveId || undefined}
+                  onChange={setObjectiveId}
+                  options={objectives.map((o) => ({ value: o.id, label: `${o.id} (${o.direction})` }))}
+                />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item label="优化变量 Variable">
+                <Select
+                  style={{ width: '100%' }}
+                  aria-label="Variable"
+                  value={parameterId || undefined}
+                  onChange={(id: string) => {
+                    setParameterId(id);
+                    const next = parameters.find((p) => p.definition.id === id);
+                    setCandidateText((next?.recommended_values ?? []).join(', '));
+                  }}
+                  options={parameters.map((p) => ({ value: p.definition.id, label: `${p.definition.name_en} (${p.definition.id})` }))}
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item label="优化器 Optimizer">
+                <Select
+                  style={{ width: '100%' }}
+                  aria-label="Optimizer"
+                  value={optimizerId || undefined}
+                  onChange={setOptimizerId}
+                  options={optimizers.map((o) => ({ value: o.id, label: `${o.name_zh} ${o.name_en}` }))}
+                />
+              </Form.Item>
+            </Col>
+            <Col span={12}>
+              <Form.Item label="评估协议 Benchmark Protocol">
+                <Select
+                  style={{ width: '100%' }}
+                  aria-label="Benchmark protocol"
+                  value={protocolId || undefined}
+                  onChange={setProtocolId}
+                  options={protocols.map((p) => ({ value: p.protocol_id, label: `${p.protocol_id} v${p.version}` }))}
+                />
+              </Form.Item>
+            </Col>
+          </Row>
           {parameter && (
             <Form.Item
               label={

@@ -45,7 +45,7 @@ export function EvaluationProtocolPanel({ optimization: o }: Props) {
         </Descriptions.Item>
         <Descriptions.Item label="重复 Repeats">{p.num_repeats} · {p.aggregation_method}</Descriptions.Item>
         <Descriptions.Item label="种子策略 Seed Policy">{p.seed_policy}</Descriptions.Item>
-        <Descriptions.Item label="已观测波动 Observed Variability" span={2}>
+        <Descriptions.Item label="已观测波动 Observed Variability" span="filled">
           ±{p.observed_variability.relative_percent}% ({p.observed_variability.kpi_id})
           <div className="muted">{p.observed_variability.description_zh}</div>
         </Descriptions.Item>
@@ -66,7 +66,7 @@ export function EvaluationProtocolPanel({ optimization: o }: Props) {
             <Descriptions.Item label="后端 Backend">
               {ctx.backend_id} {ctx.backend_version && <Tag>v{ctx.backend_version}</Tag>}
             </Descriptions.Item>
-            <Descriptions.Item label="哈希规则 Hash Rule" span={2}>
+            <Descriptions.Item label="哈希规则 Hash Rule" span="filled">
               <span className="muted">{ctx.channel_realization.hash_rule}</span>
             </Descriptions.Item>
           </>
