@@ -30,6 +30,7 @@ function navLabel(zh: string, en: string) {
 const NAV_ITEMS: NonNullable<MenuProps['items']> = [
   { key: '/overview', icon: <DashboardOutlined />, label: navLabel('平台概览', 'Overview') },
   { key: '/scenarios', icon: <EnvironmentOutlined />, label: navLabel('场景中心', 'Scenario Center') },
+  { key: '/user-association', icon: <ClusterOutlined />, label: navLabel('用户关联', 'User Association') },
   { key: '/system', icon: <ClusterOutlined />, label: navLabel('系统级仿真', 'System Simulation') },
   { key: '/optimizations', icon: <FunctionOutlined />, label: navLabel('优化中心', 'Optimization Center') },
   { key: '/algorithms', icon: <NodeIndexOutlined />, label: navLabel('算法中心', 'Algorithm Center') },
@@ -38,7 +39,7 @@ const NAV_ITEMS: NonNullable<MenuProps['items']> = [
 ];
 
 function selectedNavKey(pathname: string): string {
-  const keys = ['/overview', '/scenarios', '/system', '/optimizations', '/algorithms', '/experiments', '/acceptance'];
+  const keys = ['/overview', '/scenarios', '/user-association', '/system', '/optimizations', '/algorithms', '/experiments', '/acceptance'];
   const match = keys.find((k) =>
     pathname.startsWith(k),
   );

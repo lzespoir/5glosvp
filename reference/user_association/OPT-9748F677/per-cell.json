@@ -1,0 +1,42 @@
+{
+  "baseline": [
+    {
+      "cell_id": "CELL-001",
+      "associated_ue_count": 6,
+      "throughput_mbps": 459.06215949376224,
+      "average_ue_throughput_mbps": 76.51035991562703
+    },
+    {
+      "cell_id": "CELL-002",
+      "associated_ue_count": 4,
+      "throughput_mbps": 883.4770262608721,
+      "average_ue_throughput_mbps": 220.86925656521802
+    },
+    {
+      "cell_id": "CELL-003",
+      "associated_ue_count": 2,
+      "throughput_mbps": 703.1215578738961,
+      "average_ue_throughput_mbps": 351.56077893694805
+    }
+  ],
+  "best": [
+    {
+      "cell_id": "CELL-001",
+      "associated_ue_count": 6,
+      "throughput_mbps": 459.06215949376224,
+      "average_ue_throughput_mbps": 76.51035991562703
+    },
+    {
+      "cell_id": "CELL-002",
+      "associated_ue_count": 4,
+      "throughput_mbps": 883.4770262608721,
+      "average_ue_throughput_mbps": 220.86925656521802
+    },
+    {
+      "cell_id": "CELL-003",
+      "associated_ue_count": 2,
+      "throughput_mbps": 703.1215578738961,
+      "average_ue_throughput_mbps": 351.56077893694805
+    }
+  ]
+}

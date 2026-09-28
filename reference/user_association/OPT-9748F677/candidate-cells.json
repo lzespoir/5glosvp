@@ -1,0 +1,188 @@
+{
+  "UE-003": [
+    {
+      "cell_id": "CELL-001",
+      "link_available": true,
+      "link_gain_db": -105.66077001490211,
+      "rank": 1
+    },
+    {
+      "cell_id": "CELL-003",
+      "link_available": true,
+      "link_gain_db": -112.06579745055672,
+      "rank": 2
+    },
+    {
+      "cell_id": "CELL-002",
+      "link_available": true,
+      "link_gain_db": -115.03160047044558,
+      "rank": 3
+    }
+  ],
+  "UE-004": [
+    {
+      "cell_id": "CELL-001",
+      "link_available": true,
+      "link_gain_db": -100.24337456496167,
+      "rank": 1
+    },
+    {
+      "cell_id": "CELL-003",
+      "link_available": true,
+      "link_gain_db": -112.34923562234277,
+      "rank": 2
+    },
+    {
+      "cell_id": "CELL-002",
+      "link_available": true,
+      "link_gain_db": -129.98000252338625,
+      "rank": 3
+    }
+  ],
+  "UE-005": [
+    {
+      "cell_id": "CELL-001",
+      "link_available": true,
+      "link_gain_db": -100.27660945026471,
+      "rank": 1
+    },
+    {
+      "cell_id": "CELL-002",
+      "link_available": true,
+      "link_gain_db": -112.73088840921022,
+      "rank": 2
+    },
+    {
+      "cell_id": "CELL-003",
+      "link_available": true,
+      "link_gain_db": -118.78942276884766,
+      "rank": 3
+    }
+  ],
+  "UE-006": [
+    {
+      "cell_id": "CELL-001",
+      "link_available": true,
+      "link_gain_db": -96.61639288011375,
+      "rank": 1
+    },
+    {
+      "cell_id": "CELL-002",
+      "link_available": true,
+      "link_gain_db": -113.96499216776189,
+      "rank": 2
+    },
+    {
+      "cell_id": "CELL-003",
+      "link_available": true,
+      "link_gain_db": -114.06000510284804,
+      "rank": 3
+    }
+  ],
+  "UE-007": [
+    {
+      "cell_id": "CELL-001",
+      "link_available": true,
+      "link_gain_db": -97.7315625660228,
+      "rank": 1
+    },
+    {
+      "cell_id": "CELL-003",
+      "link_available": true,
+      "link_gain_db": -118.88314631800813,
+      "rank": 2
+    },
+    {
+      "cell_id": "CELL-002",
+      "link_available": true,
+      "link_gain_db": -151.19872265792333,
+      "rank": 3
+    }
+  ],
+  "UE-008": [
+    {
+      "cell_id": "CELL-001",
+      "link_available": true,
+      "link_gain_db": -89.5436904711151,
+      "rank": 1
+    },
+    {
+      "cell_id": "CELL-003",
+      "link_available": true,
+      "link_gain_db": -107.10790647782738,
+      "rank": 2
+    },
+    {
+      "cell_id": "CELL-002",
+      "link_available": true,
+      "link_gain_db": -153.98713111629868,
+      "rank": 3
+    }
+  ],
+  "UE-009": [
+    {
+      "cell_id": "CELL-002",
+      "link_available": true,
+      "link_gain_db": -112.37091157348334,
+      "rank": 1
+    }
+  ],
+  "UE-010": [
+    {
+      "cell_id": "CELL-003",
+      "link_available": true,
+      "link_gain_db": -104.78263803002204,
+      "rank": 1
+    },
+    {
+      "cell_id": "CELL-002",
+      "link_available": true,
+      "link_gain_db": -120.33992421008071,
+      "rank": 2
+    }
+  ],
+  "UE-012": [
+    {
+      "cell_id": "CELL-002",
+      "link_available": true,
+      "link_gain_db": -124.23988227969205,
+      "rank": 1
+    }
+  ],
+  "UE-014": [
+    {
+      "cell_id": "CELL-003",
+      "link_available": true,
+      "link_gain_db": -93.54854927659491,
+      "rank": 1
+    },
+    {
+      "cell_id": "CELL-002",
+      "link_available": true,
+      "link_gain_db": -120.95764782633928,
+      "rank": 2
+    }
+  ],
+  "UE-015": [
+    {
+      "cell_id": "CELL-002",
+      "link_available": true,
+      "link_gain_db": -85.83259509701526,
+      "rank": 1
+    }
+  ],
+  "UE-017": [
+    {
+      "cell_id": "CELL-002",
+      "link_available": true,
+      "link_gain_db": -93.7646838439322,
+      "rank": 1
+    },
+    {
+      "cell_id": "CELL-003",
+      "link_available": true,
+      "link_gain_db": -132.76314873713056,
+      "rank": 2
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "evidence_id": "EVD-OPT-9748F677",
+  "evidence_type": "user_association_optimization",
+  "source_entity_id": "OPT-9748F677",
+  "task_book_mapping": {
+    "category": "user_access_parameter_optimization",
+    "evidence_level": "simulation"
+  },
+  "verification_status": "independently_verified",
+  "verification_detail": "scripts/verify_user_association.py: PASS (17/17 checks)",
+  "verified": true,
+  "measured": false,
+  "huawei_data": false,
+  "acceptance_eligible": false,
+  "acceptance_reason": [
+    "simulation_only",
+    "not_measured",
+    "not_huawei_data",
+    "engineering_baseline_association"
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "channel_realization_id": "CH-MULTICELL-FBD449D7",
+  "sha256": "fbd449d7dc9b6b717658750d8de664fd5ffd30744bf3068f19b2e63fda613437",
+  "provider": "sionna_rt",
+  "provider_versions": {
+    "sionna": "2.1.0",
+    "sionna-rt": "2.1.0",
+    "mitsuba": "3.9.1",
+    "drjit": "1.5.0",
+    "torch": "2.14.0"
+  },
+  "reused": true
+}

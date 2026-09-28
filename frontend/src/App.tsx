@@ -11,6 +11,7 @@ import { OptimizationDetailPage } from './pages/OptimizationDetail';
 import { OptimizationsPage } from './pages/Optimizations';
 import { OverviewPage } from './pages/Overview';
 import { ScenariosPage } from './pages/Scenarios';
+import { UserAssociationPage } from './pages/UserAssociation';
 import { SystemPage } from './pages/System';
 import { SystemExperimentDetailPage } from './pages/SystemExperimentDetail';
 import { SystemOptimizationDetailPage } from './pages/SystemOptimizationDetail';
@@ -22,6 +23,7 @@ export function App() {
         <Route index element={<OverviewPage />} />
         <Route path="overview" element={<OverviewPage />} />
         <Route path="scenarios" element={<ScenariosPage />} />
+        <Route path="user-association" element={<UserAssociationPage />} />
         <Route path="experiments" element={<ExperimentsPage />} />
         <Route path="experiments/:experimentId" element={<ExperimentDetailPage />} />
         <Route path="optimizations" element={<OptimizationsPage />} />

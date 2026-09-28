@@ -1,0 +1,14 @@
+{
+  "baseline": {
+    "network_throughput_mbps": 2045.6607436285303,
+    "average_ue_throughput_mbps": 170.47172863571086,
+    "p5_ue_throughput_mbps": 49.2471168233655
+  },
+  "best": {
+    "network_throughput_mbps": 2045.6607436285303,
+    "average_ue_throughput_mbps": 170.47172863571086,
+    "p5_ue_throughput_mbps": 49.2471168233655
+  },
+  "p5_floor_mbps": 49.2471168233655,
+  "feasible": true
+}

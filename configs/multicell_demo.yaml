@@ -1,0 +1,34 @@
+scenario_id: MULTICELL-DEMO-001
+name_zh: 多小区用户接入与负载均衡演示
+name_en: Multi-Cell User Association and Load Balancing Demo
+scene: etoile
+seed: 20260928
+frequency_hz: 3.5e9
+bandwidth_hz: 100.0e6
+num_slots: 100
+slot_duration_s: 0.0005
+candidate_k: 3
+traffic_model: full_buffer
+cells:
+  - {cell_id: CELL-001, bs_id: BS-001, position: [-150.3, 21.63, 42.5], carrier_frequency_hz: 3.5e9, bandwidth_hz: 100.0e6, tx_power_dbm: 44.0}
+  - {cell_id: CELL-002, bs_id: BS-002, position: [150.3, 21.63, 42.5], carrier_frequency_hz: 3.5e9, bandwidth_hz: 100.0e6, tx_power_dbm: 44.0}
+  - {cell_id: CELL-003, bs_id: BS-003, position: [0.0, -220.0, 42.5], carrier_frequency_hz: 3.5e9, bandwidth_hz: 100.0e6, tx_power_dbm: 44.0}
+ues:
+  - {ue_id: UE-003, position: [-230.0, -40.0, 1.5]}
+  - {ue_id: UE-004, position: [-195.0, 30.0, 1.5]}
+  - {ue_id: UE-005, position: [-160.0, 100.0, 1.5]}
+  - {ue_id: UE-006, position: [-125.0, 170.0, 1.5]}
+  - {ue_id: UE-007, position: [-90.0, -180.0, 1.5]}
+  - {ue_id: UE-008, position: [-55.0, -110.0, 1.5]}
+  - {ue_id: UE-009, position: [-20.0, -40.0, 1.5]}
+  - {ue_id: UE-010, position: [15.0, 30.0, 1.5]}
+  - {ue_id: UE-012, position: [85.0, 170.0, 1.5]}
+  - {ue_id: UE-014, position: [155.0, -110.0, 1.5]}
+  - {ue_id: UE-015, position: [190.0, -40.0, 1.5]}
+  - {ue_id: UE-017, position: [260.0, 100.0, 1.5]}
+metadata:
+  task_category: user_access_parameter_optimization
+  candidate_cell_policy: CANDIDATE_CELL_POLICY_V0_1_TOP_K_GAIN
+  baseline_policy: ASSOCIATION_BASELINE_V0_1_BEST_LINK
+  interference_model: APPROXIMATE_COCHANNEL_INTERFERENCE_V0_1
+  limitations: simulation_only; bridge_scheduler_not_full_sionna_sys
