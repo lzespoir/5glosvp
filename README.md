@@ -11,18 +11,15 @@
 
 ## 项目目标 / Project Goal
 
-Day 1 只证明一件事：**Sionna RT 可以作为本平台的高保真仿真后端（Simulation Backend），并且其输出可以转换为平台自有的统一结果格式（Canonical Result）。**
+- **Day 1**：证明 Sionna RT 可以作为平台的高保真仿真后端（Simulation Backend），并把输出转换为平台自有的统一结果格式（Canonical Result）。
+- **Day 2**：平台可以通过标准 HTTP API 创建、运行、保存和查询一次真实 Sionna RT 仿真实验。
+  The platform can create, execute, persist, and query a real Sionna RT simulation experiment through a standard HTTP API.
 
-```text
-Scenario Config (YAML) → SionnaBackend → Sionna RT (Ray Tracing) → Radio Map
-    → Canonical SimulationResult → JSON + NPZ + PNG + run.log
-```
-
-设计任务书见 [`design/001.md`](design/001.md)。
+设计任务书：[`design/001.md`](design/001.md)（Day 1）、[`design/DAY1_FIX_and_DAY2_API.md`](design/DAY1_FIX_and_DAY2_API.md)（Day 1.1 + Day 2）。
 
 ## 当前状态 / Current Status
 
-**Day 1 技术探针：成功 / SUCCESS**
+**Day 1 技术探针 + Day 1.1 修复 + Day 2 Experiment API：完成 / DONE**
 
 | 项目 / Item | 值 / Value |
 | --- | --- |
@@ -30,37 +27,61 @@ Scenario Config (YAML) → SionnaBackend → Sionna RT (Ray Tracing) → Radio M
 | Sionna RT | 2.1.0（PyPI `sionna-rt`） |
 | Mitsuba / Dr.Jit | 3.9.1 / 1.5.0 |
 | Mitsuba variant | `cuda_ad_mono_polarized`（RTX 3090；无 GPU 时自动回退 LLVM CPU） |
+| FastAPI / uvicorn | 0.141 / 0.54 |
 | 场景 / Scene | Sionna 内置 `etoile`（巴黎凯旋门周边） |
 | Radio Map API | `sionna.rt.RadioMapSolver` → `PlanarRadioMap` |
 | 主指标 / Metric | RSS [dBm]（同时保存 Path Gain [dB]、SINR [dB]） |
 | 仿真耗时 / Simulation runtime | 首次约 0.4 s（含 Dr.Jit 内核编译），缓存后约 0.04 s（1e7 rays, 170×134 cells） |
 
+### 测试状态的含义 / What test status means
+
+三种状态**相互独立**，不能互相代替：
+
+| 状态 | 命令 | 说明 |
+| --- | --- | --- |
+| Unit Test Status | `pytest -m unit` | 不需要 Sionna / GPU。API 测试使用 FakeBackend（软件测试夹具）。 |
+| Integration Test Status | `pytest -m integration` | 调用真实后端；没有 Sionna 环境时会 **skip**。 |
+| Sionna Runtime Status | `python scripts/check_environment.py` + `pytest -m "integration and sionna"` | 确认本机确实能运行 Sionna RT。 |
+
+**Unit Tests PASS ≠ Sionna Runtime Verified.** 在没有 Sionna 的 CI 上，集成测试会被跳过，此时只能说明软件逻辑正确，不能说明仿真能跑。本仓库 [`reference/`](reference/) 保存了真实 Sionna 运行的参考证据。
+
 ## 架构 / Architecture
 
 ```text
-Application (scripts/, 未来的 FastAPI)
-      ↓
-simulation.runner.run_experiment      —— 与后端无关的实验编排 / backend-agnostic orchestration
-      ↓
-SimulationBackend (src/simulation/base.py)   —— 统一后端接口 / unified interface
-      ↓
-SionnaBackend (src/simulation/backends/sionna_backend.py)  —— 唯一允许 import Sionna 的模块
-      ↓
-Sionna RT
+┌──────────────────────────────┐
+│  HTTP API (src/api)          │  FastAPI Router：只做 HTTP ↔ Schema 转换
+├──────────────────────────────┤
+│  Experiment Service          │  src/experiments/service.py：生命周期、状态、错误
+├──────────────────────────────┤
+│  Experiment Store            │  src/experiments/store.py：唯一知道文件布局的模块
+├──────────────────────────────┤
+│  SimulationBackend           │  src/simulation/base.py + registry.py
+├──────────────────────────────┤
+│  SionnaBackend               │  src/simulation/backends/sionna_backend.py
+├──────────────────────────────┤
+│  Sionna RT                   │
+└──────────────────────────────┘
 ```
+
+依赖只能自上而下。架构约束由测试自动检查：
+
+- 除 `sionna_backend.py` 外不得 `import sionna / mitsuba / drjit`（`test_only_adapter_imports_sionna`）。
+- `src/api`、`src/experiments` 不得 import Sionna 或 `simulation.backends`；唯一例外是生产装配入口 `src/api/main.py`（`test_api_layer_does_not_import_simulation_engines`）。
 
 | 文件 / File | 职责 / Responsibility |
 | --- | --- |
 | `src/simulation/base.py` | `SimulationBackend` 抽象接口：`name` / `health_check` / `load_scenario` / `run` / `export` |
-| `src/simulation/models.py` | 统一数据模型（Pydantic）：`ScenarioConfig`、`TransmitterConfig`、`RadioMapConfig`、`SimulationResult`、`Artifact`、`RadioMapData` |
-| `src/simulation/errors.py` | 平台统一异常：`BackendUnavailableError`、`ScenarioConfigError`、`SimulationRunError`、`ArtifactExportError` |
+| `src/simulation/models.py` | 统一数据模型：`ScenarioConfig`、`SimulationResult`、`RuntimeInfo`、`Artifact`、`RadioMapData` |
+| `src/simulation/registry.py` | `BackendRegistry`：按 id 注册/获取后端，业务代码中不出现 `if backend == ...` |
+| `src/simulation/runner.py` | 与后端无关的实验执行：`run.log`、分段计时 |
 | `src/simulation/artifacts.py` | 与后端无关的产物导出（YAML/JSON/NPZ/PNG） |
-| `src/simulation/runner.py` | 实验编排：生成实验目录、`run.log`、计时（total vs simulation） |
-| `src/simulation/backends/sionna_backend.py` | Sionna RT 适配器：Platform Config → Sionna API → Canonical Result |
-| `scripts/check_environment.py` | 环境检查 |
-| `scripts/run_sionna_demo.py` | 一条命令完成端到端演示 |
-
-**硬性架构约束**：除 `sionna_backend.py` 外，任何模块都不得 `import sionna / mitsuba / drjit`。该约束由测试 `test_only_adapter_imports_sionna` 自动检查。
+| `src/simulation/fake_backend.py` | **仅用于软件单元测试**的确定性假后端，仅在 `TESTING=true` 时注册 |
+| `src/simulation/backends/` | 默认后端注册（`default_registry`）与 Sionna RT 适配器 |
+| `src/experiments/models.py` | `ExperimentRecord`、`ExperimentStatus`、`ExperimentError` |
+| `src/experiments/store.py` | `ExperimentStore` 接口 + `FileExperimentStore`（原子写入、安全路径解析） |
+| `src/experiments/scenarios.py` | `ScenarioCatalog`：读取 `configs/*.yaml` |
+| `src/experiments/service.py` | `ExperimentService`：创建、校验、解析后端、执行、状态迁移、保存结果/错误、解析产物 |
+| `src/api/` | FastAPI：`app.py`（应用工厂）、`main.py`（生产装配）、`schemas.py`、`errors.py`、`routes/` |
 
 ## 安装 / Installation
 
@@ -86,49 +107,159 @@ GPU 为可选项。无 CUDA 时 Sionna RT 会自动使用 LLVM CPU 后端（需�
 
 ## 运行 / Run
 
+### CLI
+
 ```bash
-# 1. 环境检查 / Environment check（期望看到 Sionna RT Backend  READY）
-python scripts/check_environment.py
-python scripts/check_environment.py --json   # 机器可读报告
-
-# 2. 端到端演示 / End-to-end demo（期望看到 STATUS: SUCCESS）
-python scripts/run_sionna_demo.py
-python scripts/run_sionna_demo.py --config configs/sionna_demo.yaml --output-root outputs -v
-
-# 3. 测试 / Tests
-pytest
+python scripts/check_environment.py          # 期望：Sionna RT Backend  READY
+python scripts/run_sionna_demo.py            # 期望：STATUS: SUCCESS，产物在 outputs/EXP-XXXXXXXX/
 ```
 
-场景配置见 `configs/sionna_demo.yaml`。可配置：场景名（内置场景名或 XML 路径）、频率、带宽、随机种子、发射端（位置/朝向/功率）、Radio Map（主指标、格点尺寸、测量平面、最大反射深度、每发射端射线数）。
+### HTTP API 服务 / API Server
+
+```bash
+uvicorn api.main:app --app-dir src --host 127.0.0.1 --port 8000
+# 开发模式 / dev mode
+uvicorn api.main:app --app-dir src --reload
+```
+
+- Swagger UI：<http://127.0.0.1:8000/docs>
+- OpenAPI：<http://127.0.0.1:8000/openapi.json>
+
+环境变量 / Environment variables：
+
+| 变量 | 默认值 | 说明 |
+| --- | --- | --- |
+| `GLOSVP_DATA_DIR` | `data/experiments` | 实验仓库目录 |
+| `GLOSVP_CONFIGS_DIR` | `configs` | 场景配置目录 |
+| `GLOSVP_EXPERIMENT_TIMEOUT` | `600` | 单次实验同步等待上限（秒，软超时） |
+| `TESTING` | 未设置 | `true` 时 `/backends` 额外列出 FakeBackend（仅软件测试） |
+
+### API 冒烟测试 / Smoke Test
+
+```bash
+python scripts/smoke_test_api.py                   # 请求已启动的服务
+python scripts/smoke_test_api.py --in-process      # 不启动服务，进程内装配生产应用
+```
+
+### 测试 / Tests
+
+```bash
+pytest                              # 全部
+pytest -m unit                      # 单元测试（不需要 Sionna/GPU）
+pytest -m "integration and sionna"  # 真实 Sionna 集成测试
+```
+
+每个测试都必须标记 `unit` 或 `integration`（`tests/conftest.py` 强制检查）。
+
+## HTTP API
+
+所有业务 API 前缀 `/api/v1`：
+
+| Method | Path | 说明 |
+| --- | --- | --- |
+| GET | `/api/v1/health` | 平台状态（不运行仿真） |
+| GET | `/api/v1/backends` | 仿真后端列表；不可用时 `available=false` + `reason` |
+| GET | `/api/v1/scenarios` | 可运行场景（读取 `configs/*.yaml`，无效文件跳过并记日志） |
+| GET | `/api/v1/scenarios/{scenario_id}` | 场景详情 |
+| POST | `/api/v1/experiments` | 创建并**同步**运行实验，返回 201 |
+| GET | `/api/v1/experiments?limit=&offset=` | 实验列表，`created_at` 倒序 |
+| GET | `/api/v1/experiments/{experiment_id}` | 实验详情，不存在返回 404 |
+| GET | `/api/v1/experiments/{experiment_id}/artifacts` | 产物列表（含下载 URL） |
+| GET | `/api/v1/experiments/{experiment_id}/artifacts/{name}` | 查看/下载产物（png/json/yaml/log 内联，npz 附件） |
+
+创建实验：
+
+```bash
+curl -X POST http://127.0.0.1:8000/api/v1/experiments \
+  -H 'Content-Type: application/json' \
+  -d '{"name": "第一次 Sionna API 实验", "scenario_id": "SIONNA-DEMO-001"}'
+```
+
+- 实验 ID（`EXP-XXXXXXXX`）由服务端生成，请求中携带 `experiment_id` 会被拒绝（422）。
+- **仿真失败时仍返回 201**，实验 `status = "failed"` 并带 `error: {code, message, type}`；实验记录已持久化，不会停留在 `running`。
+- 后端不可用、场景不存在等请求级错误**不会**创建实验，直接返回错误响应。
+
+### 实验生命周期 / Experiment Lifecycle
+
+```text
+created → queued → running → succeeded
+                          ↘ failed
+```
+
+每次状态迁移写入 `status_history` 与服务日志（`EXP-XXXXXXXX RUNNING scenario=... backend=...`）。
+Day 2 为同步执行；`queued` 已保留在数据模型中，Day 3/4 可改为后台执行。
+
+### 统一错误模型 / Error Model
+
+```json
+{"error": {"code": "SCENARIO_NOT_FOUND", "message_zh": "场景不存在", "message_en": "Scenario not found", "detail": {}}}
+```
+
+| code | HTTP |
+| --- | --- |
+| `SCENARIO_NOT_FOUND` / `EXPERIMENT_NOT_FOUND` / `ARTIFACT_NOT_FOUND` / `NOT_FOUND` | 404 |
+| `INVALID_REQUEST` | 422 |
+| `BACKEND_UNAVAILABLE` | 503 |
+| `INTERNAL_ERROR` | 500 |
+
+实验内的失败码（`experiment.error.code`）：`SIMULATION_FAILED`、`SIMULATION_TIMEOUT`、`BACKEND_UNAVAILABLE`、`SCENARIO_INVALID`、`ARTIFACT_EXPORT_FAILED`。
+Traceback 只写服务日志和实验 `run.log`，不会返回给浏览器。
+
+### 安全 / Security
+
+- **Path Traversal**：产物只能按实验记录中登记的名称访问；`FileExperimentStore.resolve_artifact` 再次校验解析后的真实路径位于该实验的 `artifacts/` 目录内。实验 ID 必须匹配 `^EXP-[0-9A-F]{8}$`。
+- **CORS**：仅允许 `http://localhost` / `http://127.0.0.1` 的 3000、5173 端口，不使用 `allow_origins=["*"]`。
 
 ## 输出 / Outputs
 
-每次运行生成独立目录 `outputs/EXP-XXXXXXXX/`（UUID 前 8 位）：
+### CLI：`outputs/EXP-XXXXXXXX/`
+
+### API：实验仓库 `data/experiments/`
+
+```text
+data/experiments/
+└── EXP-XXXXXXXX/
+    ├── experiment.json      # ExperimentRecord（原子写入：experiment.json.tmp → os.replace）
+    ├── config.yaml          # 创建实验时的场景配置快照
+    └── artifacts/
+        ├── config.yaml
+        ├── result.json
+        ├── metadata.json
+        ├── radio_map.npz
+        ├── radio_map.png
+        └── run.log
+```
 
 | 文件 / File | 内容 / Content |
 | --- | --- |
-| `config.yaml` | 本次运行的场景配置快照（经校验后的完整配置） |
-| `result.json` | 统一仿真结果 `SimulationResult`（状态、时间、指标统计、产物列表、警告） |
-| `metadata.json` | 元数据：引擎版本、场景、频率、带宽、种子、求解器参数、天线、数据来源 |
-| `radio_map.npz` | 数值矩阵：`values`（主指标）、`x`/`y`/`z`（每个格点中心的全局坐标）、`metric`、`unit`、`center`/`size`/`orientation`/`cell_size`、`transmitter_positions`/`transmitter_ids`、`layer_rss`/`layer_path_gain`/`layer_sinr` |
+| `result.json` | 统一仿真结果 `SimulationResult`（状态、时间、`runtime`、指标统计、产物列表、警告） |
+| `metadata.json` | 引擎版本、场景来源、频率、带宽、种子、求解器参数、天线、数据来源、`runtime` |
+| `radio_map.npz` | `values`（主指标）、`x`/`y`/`z`（格点中心全局坐标）、`metric`、`unit`、`center`/`size`/`orientation`/`cell_size`、`transmitter_positions`/`transmitter_ids`、`layer_rss`/`layer_path_gain`/`layer_sinr` |
 | `radio_map.png` | 可视化（标题、colorbar、单位、TX 位置；灰色表示无传播路径） |
-| `run.log` | 运行日志（experiment_id、backend、scene、开始/结束、耗时、产物路径、警告/错误） |
+| `run.log` | 运行日志（仅记录执行该实验的线程） |
 
-读取示例：
+**可迁移性**：`artifacts[].path` 是相对于实验产物目录的路径（如 `radio_map.png`），持久化的元数据中不包含任何本机绝对路径（场景以 `scene_source: "sionna.rt.scene.etoile (built-in)"` 记录）。
 
-```python
-import numpy as np
-d = np.load("outputs/EXP-XXXXXXXX/radio_map.npz")
-values, x, y = d["values"], d["x"], d["y"]   # NaN = 无覆盖
-```
+### 运行耗时 / Runtime
+
+`result.json`、`metadata.json` 与 API 响应中的 `runtime`（全部为真实测量值，单位秒）：
+
+| 字段 | 含义 |
+| --- | --- |
+| `simulation_seconds` | `backend.run()` 内部仿真计算耗时（Sionna 求解 + 结果取回） |
+| `artifact_export_seconds` | `backend.export()` 耗时 |
+| `total_seconds` | 实验开始 → 产物导出完成：场景加载 + 仿真 + 结果转换 + 导出 + 编排开销 |
+| `scenario_load_seconds` | 场景加载耗时（仅文件中，API 未展示） |
+
+`total_seconds ≥ simulation_seconds` 且 `total_seconds ≥ artifact_export_seconds`，但**不等于**两者之和。
+兼容字段 `runtime_seconds` 等于 `runtime.simulation_seconds`。未来预留 `optimization_seconds`（Day 1.1 未实现）。
 
 ### 指标说明 / Metrics
 
 - `metrics.radio_map`：主指标统计（min/max/mean/median/覆盖率），仅统计有传播路径的格点。
 - `metrics.radio_map_layers`：RSS、Path Gain、SINR 三层统计，全部来自 Sionna RT `RadioMap.rss / path_gain / sinr`。
-- `rsrp` / `throughput` / `bler`：Day 1 未实现，统一标记为 `{"status": "not_available", "reason": ...}`，**不伪造数值**。
+- `rsrp` / `throughput` / `bler`：未实现，统一标记为 `{"status": "not_available", "reason": ...}`，**不伪造数值**。
 - 多发射端时按最佳服务小区（max over TX）聚合。
-- 计时：`runtime_seconds` / `simulation_runtime_seconds` 为 Sionna 求解 + 结果取回的真实耗时；`total_runtime_seconds` 另含场景加载与产物导出。
 
 ## 数据来源说明 / Data Provenance
 
@@ -140,42 +271,54 @@ values, x, y = d["values"], d["x"], d["y"]   # NaN = 无覆盖
 | `[A]` Assumption | 工程假设 |
 | `[G]` Generated | 仿真生成 |
 
-Day 1 标注：
-
-- Radio Map：**`[G]` Generated by Sionna RT**，`source_type = "simulation"`，`measured = false`。
+- Radio Map：**`[G]` Generated by Sionna RT**，`source_type = "simulation"`，`measured = false`。API 响应中 `provenance.data_type_zh/en = "仿真生成" / "Simulation Generated"`。
 - 发射天线：`[S]` 3GPP TR 38.901 天线方向图（Sionna 内置实现），仅指天线模型本身。
 - 接收天线：`[A]` 各向同性（isotropic）工程假设。
 - 发射功率 44 dBm、测量高度 1.5 m、发射端坐标：`[A]` 工程假设。
+- FakeBackend 输出：`source_type = "test_fixture"`（软件测试夹具，非仿真结果）。
 
-整个仿真结果**不得**标记为 `[S]` 或 `[M]`。
+整个仿真结果**不得**标记为 `[S]` 或 `[M]`，平台中不得称其为“真实数据 / 实测数据 / 现网数据”。
+
+## 参考运行证据 / Reference Evidence
+
+[`reference/`](reference/) 中保存了当前代码真实运行 Sionna RT 的结果（不含 NPZ）：
+
+- [`reference/sionna_demo/`](reference/sionna_demo/)：CLI demo 运行（`result.json`、`metadata.json`、`radio_map.png`）
+- [`reference/api_experiment/`](reference/api_experiment/)：通过 `POST /api/v1/experiments` 的运行（`experiment.json`、`result.json`、`radio_map.png`）
+
+类型：Simulation Generated；Measured Data：NO；Acceptance Evidence：NO。
 
 ## 与任务书的差异 / Deviations from the Spec
 
 以当前安装的 Sionna RT 2.1.0 实际 API 为准：
 
-1. **指标选择方式**：Sionna RT 2.x 的 `RadioMapSolver` 没有 `metric` 参数，一次求解同时得到 `path_gain`，`rss` / `sinr` 为 `RadioMap` 的派生属性。配置中的 `radio_map.metric` 仅决定平台主指标，三层均会保存。
-2. **测量区域**：对应 `RadioMapSolver(center=, size=, orientation=)`，在配置中为 `radio_map.measurement_area`；省略时由 Sionna 自动覆盖场景包围盒。
+1. **指标选择方式**：`RadioMapSolver` 没有 `metric` 参数，一次求解得到 `path_gain`，`rss` / `sinr` 为派生属性。`radio_map.metric` 仅决定平台主指标，三层均会保存。
+2. **测量区域**：对应 `RadioMapSolver(center=, size=, orientation=)`，配置项为 `radio_map.measurement_area`；省略时自动覆盖场景包围盒。
 3. **随机种子**：`random_seed` 传给 `RadioMapSolver(seed=...)`，同种子结果可复现（有测试验证）。
-4. **发射端坐标**：沿用任务书中的 `[-150.3, 21.63, 42.5]`，已验证位于 `etoile` 场景范围内（x∈[-426.8, 426.8]、y∈[-338.1, 338.1]、建筑最高 50 m）并产生有效覆盖。
-5. **`run()` 接口**：增加可选参数 `experiment_id`，便于编排层预先创建实验目录和日志；接口语义不变。
-6. **CLI 步骤**：任务书中的“配置发射端”并入“加载场景”（`load_scenario`），“转换结果”并入“计算无线电地图”（`run` 直接返回统一结果），因此 CLI 显示 3 个步骤。
-7. **额外模块**：新增 `errors.py`、`artifacts.py`、`runner.py` 三个小型工具模块，使导出与编排与具体后端解耦；另有 `pytest.ini` 设置 `pythonpath = src`。
+4. **发射端坐标**：沿用 `[-150.3, 21.63, 42.5]`，已验证位于 `etoile` 场景范围内并产生有效覆盖。
+5. **`run()` 接口**：增加可选参数 `experiment_id`；接口语义不变。
+6. **CLI 步骤**：“配置发射端”并入“加载场景”，“转换结果”并入“计算无线电地图”，因此显示 3 个步骤。
+7. **API 启动命令**：采用 `src/` 布局，命令为 `uvicorn api.main:app --app-dir src`（而非 `src.api.app:app`）。`api/app.py` 是不依赖具体后端的应用工厂，`api/main.py` 负责生产装配。
+8. **仿真失败的 HTTP 语义**：`POST /experiments` 在仿真失败时返回 201 + `status=failed`（实验已创建并持久化），而不是 5xx。
+9. **额外路由文件**：`/backends` 与 `/health` 同在 `routes/health.py`。
 
 ## 已知限制 / Known Limitations
 
+- **Hard execution timeout is not implemented in Day 2.** 当前为软超时：请求最多等待 `GLOSVP_EXPERIMENT_TIMEOUT` 秒，超时后实验标记为 `failed`（`SIMULATION_TIMEOUT`），但工作线程无法被强制终止，会在后台继续运行直至结束（其结果不会覆盖 `failed` 状态）。
+- 实验在单工作线程中串行执行；并发 POST 会排队（状态 `queued`），每个请求各自同步等待。
+- 进程在实验运行中崩溃时，该实验会停留在 `running`（尚无启动时恢复/清理逻辑）。
+- `FileExperimentStore.list()` 每次扫描全部 `experiment.json`，适合 Day 2 的数据量，不适合大规模实验。
 - 天线阵列固定为 1×1（TX: TR 38.901，RX: isotropic），尚未开放为配置项。
-- 场景仅验证了内置 `etoile`；自定义城市、OSM/Blender 导入不在 Day 1 范围。
-- 未启用漫反射（diffuse reflection）与绕射（diffraction），使用 Sionna 默认：LoS + 镜面反射 + 折射，`max_depth = 5`。
+- 场景仅验证了内置 `etoile`；未启用漫反射与绕射（Sionna 默认：LoS + 镜面反射 + 折射，`max_depth = 5`）。
 - RSS 为宽带接收功率，不等同于 3GPP RSRP；RSRP、吞吐率、BLER 均未实现。
 - 首次运行包含 Dr.Jit 内核编译，耗时明显高于后续运行；比较性能时需区分冷/热启动。
 - 本机未单独验证 LLVM CPU 回退路径的运行耗时（健康检查确认 LLVM 可用）。
-- `artifacts[].path` 为绝对路径，跨机器迁移实验目录时需以 `name` 为准。
 
 ## 下一步 / Next Step
 
-Day 1 成功后，以下概念冻结为正式架构：`SimulationBackend`、`SimulationResult`、`ScenarioConfig`、`Artifact`、`SionnaBackend`。
+以下概念已冻结为正式架构：`SimulationBackend`、`SimulationResult`、`ScenarioConfig`、`Artifact`、`SionnaBackend`、`ExperimentRecord`、`ExperimentStore`、`ExperimentService`、`/api/v1` API Contract。
 
-Day 2：`FastAPI → Experiment API → SimulationBackend → SionnaBackend`，开始 Web 化。
+Day 3：React + TypeScript 平台骨架（Overview / Scenario Center / Experiment Center / Result Viewer），把 `POST /experiments` 变成“运行实验”按钮，并在浏览器中展示 `radio_map.png`。
 
 ## 目录结构 / Repository Layout
 
@@ -185,22 +328,29 @@ Day 2：`FastAPI → Experiment API → SimulationBackend → SionnaBackend`，�
 ├── requirements.txt
 ├── pytest.ini
 ├── configs/sionna_demo.yaml
-├── design/001.md
-├── src/simulation/
-│   ├── __init__.py
-│   ├── base.py
-│   ├── models.py
-│   ├── errors.py
-│   ├── artifacts.py
-│   ├── runner.py
-│   └── backends/
-│       ├── __init__.py
-│       └── sionna_backend.py
+├── design/
+├── reference/
+│   ├── sionna_demo/
+│   └── api_experiment/
+├── src/
+│   ├── simulation/
+│   │   ├── base.py  models.py  errors.py  registry.py
+│   │   ├── artifacts.py  runner.py  fake_backend.py
+│   │   └── backends/  (__init__.py, sionna_backend.py)
+│   ├── experiments/
+│   │   ├── models.py  errors.py  store.py  scenarios.py  service.py
+│   └── api/
+│       ├── app.py  main.py  settings.py  schemas.py  errors.py  deps.py
+│       └── routes/  (health.py, scenarios.py, experiments.py)
 ├── scripts/
 │   ├── check_environment.py
-│   └── run_sionna_demo.py
+│   ├── run_sionna_demo.py
+│   └── smoke_test_api.py
 ├── tests/
+│   ├── conftest.py
 │   ├── test_models.py
-│   └── test_sionna_backend.py
+│   ├── test_sionna_backend.py
+│   ├── test_api.py
+│   └── test_api_sionna.py
 └── outputs/.gitkeep
 ```

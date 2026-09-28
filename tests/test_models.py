@@ -9,6 +9,7 @@ import pytest
 import yaml
 
 from simulation import (
+    Artifact,
     ScenarioConfig,
     ScenarioConfigError,
     SimulationResult,
@@ -17,6 +18,8 @@ from simulation import (
 )
 from simulation.artifacts import export_artifacts
 from simulation.models import RadioMapData, layer_statistics, not_available
+
+pytestmark = pytest.mark.unit
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DEMO_CONFIG = REPO_ROOT / "configs" / "sionna_demo.yaml"
@@ -95,6 +98,13 @@ def test_invalid_config_raises(tmp_path, mutate):
         ScenarioConfig.from_yaml(path)
 
 
+def test_malformed_yaml_raises_config_error(tmp_path):
+    path = tmp_path / "broken.yaml"
+    path.write_text("scenario_id: [unterminated", encoding="utf-8")
+    with pytest.raises(ScenarioConfigError, match="Malformed YAML"):
+        ScenarioConfig.from_yaml(path)
+
+
 def test_missing_config_file_raises(tmp_path):
     with pytest.raises(ScenarioConfigError, match="not found"):
         ScenarioConfig.from_yaml(tmp_path / "missing.yaml")
@@ -115,6 +125,18 @@ def test_simulation_result_serialization():
     assert restored.model_dump() == result.model_dump()
     assert restored.status is SimulationStatus.SUCCESS
     assert restored.metrics["throughput"]["status"] == "not_available"
+
+
+@pytest.mark.parametrize("path", ["/abs/result.json", "../result.json", "a/../../b", "C:\\x.json"])
+def test_artifact_rejects_non_portable_path(path):
+    with pytest.raises(ValueError):
+        Artifact(name="x", path=path, kind="result")
+
+
+def test_result_runtime_defaults_from_legacy_field():
+    result = _make_result()
+    assert result.runtime.simulation_seconds == result.runtime_seconds == 1.0
+    assert result.runtime.total_seconds is None
 
 
 def test_layer_statistics_ignores_uncovered_cells():
@@ -141,6 +163,11 @@ def test_artifact_export(tmp_path):
 
     saved = SimulationResult.from_json((tmp_path / "result.json").read_text(encoding="utf-8"))
     assert {a.name for a in saved.artifacts} >= {"result.json", "metadata.json", "radio_map.npz"}
+    for artifact in saved.artifacts:
+        assert artifact.path == artifact.name  # 相对路径，可跨机器迁移
+        assert (tmp_path / artifact.path).is_file()
+    assert {a.name: a.media_type for a in saved.artifacts}["radio_map.png"] == "image/png"
+    assert str(tmp_path) not in (tmp_path / "result.json").read_text(encoding="utf-8")
 
     npz = np.load(tmp_path / "radio_map.npz")
     np.testing.assert_array_equal(npz["values"], result.radio_map.values)

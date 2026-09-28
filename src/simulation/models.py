@@ -10,12 +10,19 @@ from __future__ import annotations
 import uuid
 from dataclasses import dataclass, field
 from enum import Enum
-from pathlib import Path
+from pathlib import Path, PurePosixPath, PureWindowsPath
 from typing import Any, Literal
 
 import numpy as np
 import yaml
-from pydantic import BaseModel, ConfigDict, Field, ValidationError, field_validator
+from pydantic import (
+    BaseModel,
+    ConfigDict,
+    Field,
+    ValidationError,
+    field_validator,
+    model_validator,
+)
 
 from .errors import ScenarioConfigError
 
@@ -133,8 +140,11 @@ class ScenarioConfig(_StrictModel):
         path = Path(path)
         if not path.is_file():
             raise ScenarioConfigError(f"Scenario config not found: {path}")
-        with path.open("r", encoding="utf-8") as f:
-            data = yaml.safe_load(f)
+        try:
+            with path.open("r", encoding="utf-8") as f:
+                data = yaml.safe_load(f)
+        except yaml.YAMLError as e:
+            raise ScenarioConfigError(f"Malformed YAML in scenario config {path}: {e}") from e
         if not isinstance(data, dict):
             raise ScenarioConfigError(f"Scenario config must be a YAML mapping: {path}")
         try:
@@ -210,12 +220,41 @@ def layer_statistics(values: np.ndarray, metric: str) -> dict[str, Any]:
 
 
 class Artifact(_StrictModel):
-    """实验产物 / Experiment artifact."""
+    """
+    实验产物 / Experiment artifact.
+
+    path 为相对于实验产物目录的路径（可跨机器迁移），禁止写入绝对路径。
+    path is relative to the experiment artifact directory; never absolute.
+    """
 
     name: str
     path: str
     kind: str
+    media_type: str = "application/octet-stream"
     description: str | None = None
+
+    @field_validator("path")
+    @classmethod
+    def _relative_path(cls, v: str) -> str:
+        p = PurePosixPath(v)
+        if p.is_absolute() or PureWindowsPath(v).is_absolute() or ".." in p.parts:
+            raise ValueError(f"artifact path must be relative without '..': {v}")
+        return v
+
+
+class RuntimeInfo(BaseModel):
+    """
+    运行耗时（秒，均为真实测量值）/ Measured runtimes in seconds.
+
+    simulation_seconds: backend.run() 内部仿真计算耗时
+    artifact_export_seconds: backend.export() 耗时
+    total_seconds: 实验开始 → 产物导出完成（含场景加载、结果转换与编排开销）
+    """
+
+    scenario_load_seconds: float | None = None
+    simulation_seconds: float
+    artifact_export_seconds: float | None = None
+    total_seconds: float | None = None
 
 
 class SimulationResult(BaseModel):
@@ -234,8 +273,9 @@ class SimulationResult(BaseModel):
     status: SimulationStatus
     started_at: str
     finished_at: str
-    # 仿真计算耗时（真实测量）/ Measured simulation compute time
+    # 兼容 Day 1 schema：等于 runtime.simulation_seconds（仿真计算耗时）
     runtime_seconds: float
+    runtime: RuntimeInfo
     random_seed: int
     metadata: dict[str, Any] = Field(default_factory=dict)
     metrics: dict[str, Any] = Field(default_factory=dict)
@@ -244,6 +284,13 @@ class SimulationResult(BaseModel):
 
     # 数值数据不进入 JSON，由 artifact 导出为 NPZ
     radio_map: RadioMapData | None = Field(default=None, exclude=True)
+
+    @model_validator(mode="before")
+    @classmethod
+    def _default_runtime(cls, data: Any) -> Any:
+        if isinstance(data, dict) and "runtime" not in data and "runtime_seconds" in data:
+            data = {**data, "runtime": {"simulation_seconds": data["runtime_seconds"]}}
+        return data
 
     def to_json(self) -> str:
         return self.model_dump_json(indent=2)

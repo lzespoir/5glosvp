@@ -103,9 +103,11 @@ def main() -> int:
     result = outcome.result
     stats = result.metrics["radio_map"]
     print(f"\n{SEP}\n")
+    runtime = result.runtime
     print("Runtime / 运行时间")
-    print(f"simulation: {result.runtime_seconds:.2f} s")
-    print(f"total:      {outcome.total_runtime_seconds:.2f} s")
+    print(f"simulation:      {runtime.simulation_seconds:.2f} s")
+    print(f"artifact export: {runtime.artifact_export_seconds:.2f} s")
+    print(f"total:           {runtime.total_seconds:.2f} s")
     print(f"\nRadio Map / 无线电地图 ({stats['metric'].upper()}, {stats['unit']})")
     print(
         f"min {stats['min']:.1f}  max {stats['max']:.1f}  mean {stats['mean']:.1f}  "
@@ -113,7 +115,7 @@ def main() -> int:
     )
     print("\nArtifacts / 实验产物\n")
     for artifact in result.artifacts:
-        print(_relative(Path(artifact.path)))
+        print(_relative(outcome.output_dir / artifact.path))
     if result.warnings:
         print("\nWarnings / 警告")
         for w in result.warnings:

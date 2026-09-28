@@ -7,12 +7,13 @@ Config -> Backend.load_scenario -> Backend.run -> Backend.export
 from __future__ import annotations
 
 import logging
+import threading
 import time
 from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 
-from .artifacts import RUN_LOG, ensure_writable_dir
+from .artifacts import RUN_LOG, ensure_writable_dir, finalize_result_files
 from .base import SimulationBackend
 from .models import ScenarioConfig, SimulationResult, new_experiment_id
 
@@ -32,11 +33,21 @@ STEPS: list[tuple[str, str]] = [
 class ExperimentOutcome:
     result: SimulationResult
     output_dir: Path
-    total_runtime_seconds: float
 
 
 def _noop(_step: str, _status: str) -> None:
     return None
+
+
+class _CurrentThreadFilter(logging.Filter):
+    """run.log 只记录执行本实验的线程产生的日志（避免并发请求日志混入）。"""
+
+    def __init__(self) -> None:
+        super().__init__()
+        self._thread_id = threading.get_ident()
+
+    def filter(self, record: logging.LogRecord) -> bool:
+        return record.thread == self._thread_id
 
 
 def run_experiment(
@@ -46,11 +57,26 @@ def run_experiment(
     on_step: StepCallback = _noop,
     experiment_id: str | None = None,
 ) -> ExperimentOutcome:
+    """在 output_root/<experiment_id>/ 下执行一次实验。"""
     experiment_id = experiment_id or new_experiment_id()
-    output_dir = ensure_writable_dir(Path(output_root) / experiment_id)
+    return execute_experiment(
+        backend, config, Path(output_root) / experiment_id, experiment_id, on_step
+    )
+
+
+def execute_experiment(
+    backend: SimulationBackend,
+    config: ScenarioConfig,
+    output_dir: Path,
+    experiment_id: str,
+    on_step: StepCallback = _noop,
+) -> ExperimentOutcome:
+    """在指定的产物目录中执行一次实验，并写入 run.log。"""
+    output_dir = ensure_writable_dir(Path(output_dir))
 
     handler = logging.FileHandler(output_dir / RUN_LOG, encoding="utf-8")
     handler.setLevel(logging.INFO)
+    handler.addFilter(_CurrentThreadFilter())
     handler.setFormatter(
         logging.Formatter("%(asctime)s %(levelname)s [%(name)s] %(message)s")
     )
@@ -60,7 +86,7 @@ def run_experiment(
     # run.log 始终记录 INFO；控制台输出级别由各 console handler 自身的 level 控制
     root.setLevel(min(previous_level or logging.INFO, logging.INFO))
 
-    t0 = time.perf_counter()
+    t_start = time.perf_counter()
     current = STEPS[0][0]
     try:
         logger.info(
@@ -70,6 +96,7 @@ def run_experiment(
 
         on_step(current, "RUNNING")
         backend.load_scenario(config)
+        scenario_load_seconds = time.perf_counter() - t_start
         on_step(current, "PASS")
 
         current = "run"
@@ -79,19 +106,25 @@ def run_experiment(
 
         current = "export"
         on_step(current, "RUNNING")
-        total_runtime = time.perf_counter() - t0
-        result.metadata["total_runtime_seconds"] = total_runtime
-        result.metadata["simulation_runtime_seconds"] = result.runtime_seconds
+        t_export = time.perf_counter()
         backend.export(result, output_dir)
+        t_end = time.perf_counter()
+        result.runtime.scenario_load_seconds = scenario_load_seconds
+        result.runtime.artifact_export_seconds = t_end - t_export
+        result.runtime.total_seconds = t_end - t_start
+        finalize_result_files(result, output_dir)
         on_step(current, "PASS")
 
         logger.info(
-            "Experiment finish: experiment_id=%s simulation_runtime=%.3f s total_runtime=%.3f s",
-            experiment_id, result.runtime_seconds, total_runtime,
+            "Experiment finish: experiment_id=%s simulation=%.3f s export=%.3f s total=%.3f s",
+            experiment_id,
+            result.runtime.simulation_seconds,
+            result.runtime.artifact_export_seconds,
+            result.runtime.total_seconds,
         )
         for w in result.warnings:
             logger.warning(w)
-        return ExperimentOutcome(result, output_dir, total_runtime)
+        return ExperimentOutcome(result, output_dir)
     except Exception:
         on_step(current, "FAIL")
         logger.exception("Experiment failed at step '%s': experiment_id=%s", current, experiment_id)

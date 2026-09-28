@@ -27,10 +27,15 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 DEMO_CONFIG = REPO_ROOT / "configs" / "sionna_demo.yaml"
 
 _HEALTH = SionnaBackend().health_check()
-requires_sionna = pytest.mark.skipif(
+_skip_without_sionna = pytest.mark.skipif(
     not _HEALTH["available"],
     reason=f"Sionna RT backend not available: {_HEALTH['errors']}",
 )
+
+
+def requires_sionna(func):
+    """真实 Sionna 集成测试 / Real Sionna integration test."""
+    return pytest.mark.integration(pytest.mark.sionna(_skip_without_sionna(func)))
 
 
 def _fast_config(**radio_map_overrides) -> ScenarioConfig:
@@ -42,6 +47,8 @@ def _fast_config(**radio_map_overrides) -> ScenarioConfig:
     return config.model_copy(update={"radio_map": rm})
 
 
+@pytest.mark.integration
+@pytest.mark.sionna
 def test_sionna_backend_health_check():
     report = get_backend("sionna_rt").health_check()
     expected_keys = {
@@ -61,11 +68,13 @@ def test_sionna_backend_health_check():
         assert report["errors"], "unavailable backend must explain why"
 
 
+@pytest.mark.unit
 def test_unknown_backend_raises():
     with pytest.raises(BackendUnavailableError):
         get_backend("does_not_exist")
 
 
+@pytest.mark.unit
 def test_run_without_scenario_raises():
     with pytest.raises((SimulationRunError, BackendUnavailableError)):
         SionnaBackend().run()
@@ -156,9 +165,21 @@ def test_end_to_end_experiment_artifacts(tmp_path):
         assert data["backend"] == "sionna_rt"
         assert data["backend_version"] == _HEALTH["sionna_rt_version"]
     assert metadata["provenance"]["measured"] is False
-    assert metadata["total_runtime_seconds"] >= metadata["simulation_runtime_seconds"] > 0
+
+    for runtime in (result["runtime"], metadata["runtime"]):
+        assert runtime["simulation_seconds"] > 0
+        assert runtime["artifact_export_seconds"] > 0
+        assert runtime["total_seconds"] >= runtime["simulation_seconds"]
+        assert runtime["total_seconds"] >= runtime["artifact_export_seconds"]
+    assert result["runtime_seconds"] == result["runtime"]["simulation_seconds"]
+
+    for artifact in result["artifacts"]:
+        assert not Path(artifact["path"]).is_absolute()
+        assert (out / artifact["path"]).is_file()
+    assert str(tmp_path) not in json.dumps(result) + json.dumps(metadata)
 
 
+@pytest.mark.unit
 def test_only_adapter_imports_sionna():
     """架构约束：只有 sionna_backend.py 可以 import Sionna / Mitsuba / Dr.Jit。"""
     pattern = re.compile(r"^\s*(from|import)\s+(sionna|mitsuba|drjit)\b", re.MULTILINE)

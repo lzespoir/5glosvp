@@ -26,6 +26,9 @@ class SimulationBackend(ABC):
         """
         环境检查，不得抛出异常，失败原因写入返回值
         Check whether the backend is available. Must not raise.
+
+        返回值至少包含 / must contain at least:
+        "available": bool, "version": str | None, "errors": list[str], "warnings": list[str]
         """
         raise NotImplementedError
 

@@ -6,6 +6,8 @@ __pycache__/
 outputs/*
 !outputs/.gitkeep
 
+data/
+
 .DS_Store
 .idea/
 .vscode/

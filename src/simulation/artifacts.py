@@ -33,6 +33,18 @@ RADIO_MAP_NPZ = "radio_map.npz"
 RADIO_MAP_PNG = "radio_map.png"
 RUN_LOG = "run.log"
 
+_MEDIA_TYPES = {
+    ".png": "image/png",
+    ".json": "application/json",
+    ".yaml": "application/yaml",
+    ".npz": "application/octet-stream",
+    ".log": "text/plain",
+}
+
+
+def media_type_for(name: str) -> str:
+    return _MEDIA_TYPES.get(Path(name).suffix.lower(), "application/octet-stream")
+
 
 def ensure_writable_dir(output_dir: Path) -> Path:
     try:
@@ -126,9 +138,13 @@ def export_artifacts(
     output_dir = ensure_writable_dir(Path(output_dir))
 
     def _add(name: str, kind: str, description: str) -> None:
-        path = output_dir / name
-        result.artifacts.append(Artifact(name=name, path=str(path), kind=kind, description=description))
-        logger.info("Artifact written: %s", path)
+        result.artifacts.append(
+            Artifact(
+                name=name, path=name, kind=kind,
+                media_type=media_type_for(name), description=description,
+            )
+        )
+        logger.info("Artifact written: %s", name)
 
     try:
         (output_dir / CONFIG_FILE).write_text(config.to_yaml(), encoding="utf-8")
@@ -144,31 +160,41 @@ def export_artifacts(
             logger.warning(msg)
             result.warnings.append(msg)
 
-        metadata = {
-            "experiment_id": result.experiment_id,
-            "scenario_id": result.scenario_id,
-            "backend": result.backend,
-            "backend_version": result.backend_version,
-            "random_seed": result.random_seed,
-            **result.metadata,
-        }
-        (output_dir / METADATA_FILE).write_text(
-            json.dumps(metadata, indent=2, ensure_ascii=False), encoding="utf-8"
-        )
+        _write_metadata(result, output_dir)
         _add(METADATA_FILE, "metadata", "Experiment metadata and provenance / 元数据与数据来源")
 
         if (output_dir / RUN_LOG).exists():
             _add(RUN_LOG, "log", "Run log / 运行日志")
 
-        result.artifacts.append(
-            Artifact(
-                name=RESULT_FILE,
-                path=str(output_dir / RESULT_FILE),
-                kind="result",
-                description="Canonical simulation result / 平台统一结果",
-            )
-        )
+        _add(RESULT_FILE, "result", "Canonical simulation result / 平台统一结果")
         (output_dir / RESULT_FILE).write_text(result.to_json(), encoding="utf-8")
-        logger.info("Artifact written: %s", output_dir / RESULT_FILE)
     except OSError as e:
         raise ArtifactExportError(f"Failed to write artifacts to {output_dir}: {e}") from e
+
+
+def finalize_result_files(result: SimulationResult, output_dir: Path) -> None:
+    """
+    导出完成后重写 result.json / metadata.json，使其包含最终的 runtime
+    （artifact_export_seconds / total_seconds 只能在导出结束后得到）。
+    """
+    output_dir = Path(output_dir)
+    try:
+        _write_metadata(result, output_dir)
+        (output_dir / RESULT_FILE).write_text(result.to_json(), encoding="utf-8")
+    except OSError as e:
+        raise ArtifactExportError(f"Failed to finalize result files in {output_dir}: {e}") from e
+
+
+def _write_metadata(result: SimulationResult, output_dir: Path) -> None:
+    metadata = {
+        "experiment_id": result.experiment_id,
+        "scenario_id": result.scenario_id,
+        "backend": result.backend,
+        "backend_version": result.backend_version,
+        "random_seed": result.random_seed,
+        **result.metadata,
+        "runtime": result.runtime.model_dump(),
+    }
+    (output_dir / METADATA_FILE).write_text(
+        json.dumps(metadata, indent=2, ensure_ascii=False), encoding="utf-8"
+    )

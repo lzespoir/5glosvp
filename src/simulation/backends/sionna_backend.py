@@ -31,6 +31,7 @@ from ..models import (
     METRIC_UNITS,
     ProvenanceTag,
     RadioMapData,
+    RuntimeInfo,
     ScenarioConfig,
     SimulationResult,
     SimulationStatus,
@@ -100,6 +101,8 @@ class SionnaBackend(SimulationBackend):
         self._config: ScenarioConfig | None = None
         self._scene: Any = None
         self._scene_path: str | None = None
+        # 可迁移的场景来源描述（不含本机绝对路径）
+        self._scene_source: str | None = None
         self._tx_power_dbm: dict[str, float] = {}
         self._warnings: list[str] = []
 
@@ -133,6 +136,7 @@ class SionnaBackend(SimulationBackend):
             "python_ok": py_ok,
             "platform": platform.platform(),
             "sionna_rt_installed": _package_version("sionna-rt") is not None,
+            "version": _package_version("sionna-rt"),
             "sionna_rt_version": _package_version("sionna-rt"),
             "sionna_rt_importable": _SIONNA_IMPORT_ERROR is None,
             "mitsuba_available": False,
@@ -200,8 +204,10 @@ class SionnaBackend(SimulationBackend):
     def _resolve_scene(self, scene_name: str) -> str:
         builtin = getattr(srt.scene, scene_name, None)
         if isinstance(builtin, str) and builtin.endswith(".xml"):
+            self._scene_source = f"sionna.rt.scene.{scene_name} (built-in)"
             return builtin
         if Path(scene_name).is_file():
+            self._scene_source = f"file: {scene_name}"
             return str(Path(scene_name).resolve())
         raise ScenarioConfigError(
             f"Scene '{scene_name}' not found. Built-in scenes: "
@@ -355,6 +361,7 @@ class SionnaBackend(SimulationBackend):
             started_at=started_at,
             finished_at=finished_at,
             runtime_seconds=runtime,
+            runtime=RuntimeInfo(simulation_seconds=runtime),
             random_seed=config.random_seed,
             metadata=self._build_metadata(config, solver_kwargs),
             metrics=metrics,
@@ -408,7 +415,7 @@ class SionnaBackend(SimulationBackend):
                 "python": platform.python_version(),
             },
             "scene": config.scene_name,
-            "scene_path": self._scene_path,
+            "scene_source": self._scene_source,
             "scenario_name_zh": config.name_zh,
             "scenario_name_en": config.name_en,
             "frequency_hz": config.frequency_hz,
