@@ -71,7 +71,7 @@
 67. Recommended next adapter step: obtain owner-supplied semantic metadata, then implement the adapter; do not derive RSRP/SINR from the arrays yet.
 68. Independent scenario verifier: `src/scenarios/verifier.py`.
 69. Verifier result: true; 120 unique semantic definitions, with no duplicate or hash mismatch.
-70. Backend tests: `318 passed` full regression before the additive contracts, plus `6 passed` targeted scenario-system tests after the contracts.
+70. Backend tests: final full regression `319 passed in 177.21s`; the additive scenario-system/contracts target also passed (`6 passed`, with the combined Day11.1 target run at `12 passed`).
 71. Frontend tests: `14` test files, `66 passed`.
 72. Node runtime: `v22.23.2` from conda environment `5glosvp`.
 73. npm runtime: `10.9.8` from conda environment `5glosvp`.
