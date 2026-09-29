@@ -18,6 +18,7 @@ class FrozenMultiCellChannel:
     channel_hash: str
     runtime_seconds: float
     provider_versions: dict[str, str | None]
+    provenance_hash_version: str = "0.2"
 
 class MultiCellBackend:
     """Sionna RT propagation + explicit, deterministic platform system bridge."""
@@ -65,18 +66,37 @@ class MultiCellBackend:
         power = np.abs(h.astype(np.complex128)) ** 2
         gains = power.reshape(len(self.scenario.ues), 1, len(self.scenario.cells), -1).mean(axis=-1)[:, 0, :]
         gains = np.asarray(gains, dtype=np.float64)
-        payload = {"scenario_id": self.scenario.scenario_id, "ue_ids": [u.ue_id for u in self.scenario.ues],
-                   "cell_ids": [c.cell_id for c in self.scenario.cells],
-                   "gains": gains.tolist(), "seed": self.scenario.seed}
-        chash = hashlib.sha256(json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
         versions = {}
         for name in ("sionna", "sionna-rt", "mitsuba", "drjit", "torch"):
             try: versions[name] = metadata.version(name)
             except metadata.PackageNotFoundError: versions[name] = None
+        link_artifact_digest = hashlib.sha256(
+            json.dumps({"ue_ids": [u.ue_id for u in self.scenario.ues],
+                        "cell_ids": [c.cell_id for c in self.scenario.cells],
+                        "gains": gains.tolist()}, sort_keys=True, separators=(",", ":")).encode()
+        ).hexdigest()
+        payload = {
+            "hash_version": "0.2",
+            "scenario_id": self.scenario.scenario_id,
+            "scenario_version": getattr(self.scenario, "version", None),
+            "scene": self.scenario.scene,
+            "frequency_hz": self.scenario.frequency_hz,
+            "bandwidth_hz": self.scenario.bandwidth_hz,
+            "cells": [{"cell_id": c.cell_id, "position": list(c.position),
+                       "antenna_rows": c.antenna_rows, "antenna_cols": c.antenna_cols,
+                       "tx_power_dbm": c.tx_power_dbm} for c in self.scenario.cells],
+            "ues": [{"ue_id": u.ue_id, "position": list(u.position)} for u in self.scenario.ues],
+            "candidate_k": self.scenario.candidate_k,
+            "seed": self.scenario.seed,
+            "link_artifact_digest": link_artifact_digest,
+            "provider_versions": versions,
+            "gains": gains.tolist(),
+        }
+        chash = hashlib.sha256(json.dumps(payload, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
         self.channel = FrozenMultiCellChannel(self.scenario.scenario_id,
             [u.ue_id for u in self.scenario.ues], [c.cell_id for c in self.scenario.cells], gains,
             10 * np.log10(np.maximum(gains, 1e-30)), np.asarray([u.position for u in self.scenario.ues]),
-            chash, time.perf_counter() - t0, versions)
+            chash, time.perf_counter() - t0, versions, "0.2")
         return self.channel
 
     def candidate_cells(self) -> dict[str, list[CandidateCell]]:

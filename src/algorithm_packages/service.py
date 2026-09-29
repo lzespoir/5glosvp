@@ -15,8 +15,6 @@ from typing import Any
 
 import yaml
 
-from algorithm_benchmark.association_optimization import AssociationOptimizationService
-from algorithm_benchmark.service import BenchmarkService
 from algorithms import (
     ALGORITHM_SDK_VERSION,
     Algorithm,
@@ -30,8 +28,8 @@ from algorithms import (
 from algorithms.compatibility import check_compatibility
 from optimization.models import Direction
 from optimization.parameters import ParameterDefinition, ParameterRole, ParameterType
-from user_association.backend import MultiCellBackend
-from user_association.service import UserAssociationService
+from problem_evaluation import default_registry
+from execution import ExecutionManager, RunStatus
 
 
 def _now() -> str:
@@ -61,7 +59,8 @@ class AlgorithmPackageService:
         self.registry_dir.mkdir(parents=True, exist_ok=True)
         self.runs_dir.mkdir(parents=True, exist_ok=True)
         self._lock = threading.RLock()
-        self._threads: dict[str, threading.Thread] = {}
+        self.evaluation_adapters = default_registry()
+        self.execution_manager = ExecutionManager(self.repo_root, self.runs_dir)
 
     # ------------------------------------------------------------------
     # Package discovery / identity
@@ -343,25 +342,39 @@ class AlgorithmPackageService:
         return self.runs_dir / f"{run_id}.json"
 
     def _write_run(self, record: dict[str, Any]) -> None:
-        self._run_path(record["run_id"]).write_text(json.dumps(record, ensure_ascii=False, indent=2), encoding="utf-8")
+        # The parent execution manager may add ownership metadata while the
+        # worker is already starting. Preserve those fields across worker writes.
+        path = self._run_path(record["run_id"])
+        if path.exists():
+            try:
+                current = json.loads(path.read_text(encoding="utf-8"))
+                for key in ("worker_id", "pid", "process_group_id", "cancel_requested", "gpu_cleanup_status"):
+                    if key not in record and key in current:
+                        record[key] = current[key]
+            except (OSError, ValueError):
+                pass
+        path.write_text(json.dumps(record, ensure_ascii=False, indent=2), encoding="utf-8")
 
     def get_experiment(self, run_id: str) -> dict[str, Any]:
         path = self._run_path(run_id)
         if not path.exists():
             raise KeyError(run_id)
-        return json.loads(path.read_text(encoding="utf-8"))
+        record = json.loads(path.read_text(encoding="utf-8"))
+        if record.get("status") in {RunStatus.STARTING.value, RunStatus.RUNNING.value, RunStatus.CANCEL_REQUESTED.value, RunStatus.CANCELLING.value}:
+            return self.execution_manager.enforce_limit(run_id)
+        return record
 
     def create_experiment(self, package_id: str, scenario_id: str, parameters: dict[str, Any], evaluation_budget: int = 8,
                           time_limit_seconds: float | None = None, start_async: bool = True) -> dict[str, Any]:
         package = self.get_package(package_id)
         if package.get("disabled") or package.get("status") != "REGISTERED":
             raise ValueError("INCOMPATIBLE: package is disabled or not registered")
-        if not 1 <= evaluation_budget <= 12:
-            raise ValueError("PARAMETER_ERROR: evaluation_budget must be in [1, 12]")
+        if evaluation_budget < 1:
+            raise ValueError("PARAMETER_ERROR: evaluation_budget must be >= 1")
         parameter_check = self._validate_parameters(package["manifest"], parameters)
         if parameter_check["status"] != "PASS":
             raise ValueError("PARAMETER_ERROR: " + "; ".join(error["message"] for error in parameter_check["errors"]))
-        run_id = f"AEXP-DAY10-{uuid.uuid4().hex[:8].upper()}"
+        run_id = f"AEXP-DAY11-{uuid.uuid4().hex[:8].upper()}"
         record = {
             "run_id": run_id, "status": "queued", "stage": "QUEUED", "package_id": package["package_id"],
             "algorithm_id": package["algorithm_id"], "algorithm_version": package["algorithm_version"],
@@ -371,8 +384,7 @@ class AlgorithmPackageService:
         }
         self._write_run(record)
         if start_async:
-            thread = threading.Thread(target=self._execute_experiment, args=(run_id,), daemon=True, name=f"algorithm-run-{run_id}")
-            self._threads[run_id] = thread; thread.start()
+            self.execution_manager.start(run_id)
         else:
             self._execute_experiment(run_id)
         return self.get_experiment(run_id)
@@ -392,29 +404,34 @@ class AlgorithmPackageService:
         parameters = dict(old["parameters"]); parameters.update(changes.get("parameters", {}))
         return self.create_experiment(changes.get("package_id", old["package_id"]), changes.get("scenario_id", old["scenario_id"]), parameters, changes.get("evaluation_budget", old["evaluation_budget"]), changes.get("time_limit_seconds", old.get("time_limit_seconds")))
 
-    def _execute_experiment(self, run_id: str) -> None:
+    def _execute_experiment(self, run_id: str, cancel_event: Any | None = None) -> None:
         record = self.get_experiment(run_id)
         started = time.perf_counter()
         record.update({"status": "running", "stage": "RUNNING", "started_at": _now(), "logs": [{"source": "platform", "event": "run_started", "at": _now()}]})
         self._write_run(record)
         try:
+            if cancel_event is not None and cancel_event.is_set():
+                record.update({"status": RunStatus.CANCELLED.value, "stage": "CANCELLED", "finished_at": _now()})
+                self._write_run(record)
+                return
             package = self.get_package(record["package_id"])
             path = self._resolve_path(package["path"])
             klass = self._load_class(path, package["manifest"], package["package_hash"])
-            scenarios = UserAssociationService(self.repo_root / "configs").load(record["scenario_id"])
-            backend = MultiCellBackend(scenarios)
-            benchmark_service = BenchmarkService(self.repo_root / "configs", self.repo_root / "reference" / "benchmarks")
-            channel = benchmark_service._load_day8_frozen_channel(scenarios, backend)
-            params = dict(record["parameters"])
-            seed = int(params.get("seed", scenarios.seed))
-            execution = AssociationOptimizationService().run(
-                klass(), scenarios, backend, record["evaluation_budget"], seed, run_id,
-                algorithm_hyperparameters=params,
+            problem_type = str(package["manifest"].get("compatibility", {}).get("problem_types", ["user_association"])[0])
+            evaluated = self.evaluation_adapters.get(problem_type).execute(
+                repo_root=self.repo_root, record=record, package=package, algorithm=klass,
             )
+            execution = evaluated["execution"]
+            channel = evaluated["channel"]
+            if cancel_event is not None and cancel_event.is_set():
+                record.update({"status": RunStatus.CANCELLED.value, "stage": "CANCELLED", "finished_at": _now(), "cancel_requested": True})
+                self._write_run(record)
+                return
             trace = execution["trace"].model_dump(mode="json")
             result = {
                 "status": "completed", "stage": "COMPLETED", "finished_at": _now(),
                 "optimization_id": execution["optimization_id"], "channel_hash": channel.channel_hash,
+                "channel_provenance_hash_version": channel.provenance_hash_version,
                 "channel_realization_id": execution["channel_realization_id"], "evaluations_used": execution["trace"].evaluations_used,
                 "stop_reason": execution["trace"].stop_reason.value if execution["trace"].stop_reason else None,
                 "runtime": execution["runtime"], "best_candidate": execution["best"].model_dump(mode="json"),
@@ -427,24 +444,24 @@ class AlgorithmPackageService:
                     "manifest_hash": package["manifest_hash"], "source_hash": package["source_hash"], "package_hash": package["package_hash"],
                     "sdk_version": package["manifest"]["sdk"]["version"], "scenario_id": record["scenario_id"],
                     "channel_realization_id": execution["channel_realization_id"], "channel_hash": channel.channel_hash,
+                    "channel_provenance_hash_version": channel.provenance_hash_version,
                     "data_source": "simulation", "paper_reproduced": False, "algorithm_correct": False,
                 },
             }
-            if record.get("time_limit_seconds") is not None and time.perf_counter() - started > record["time_limit_seconds"]:
-                result.update({"status": "time_limit_exceeded", "stage": "TIME_LIMIT_EXCEEDED", "stop_reason": "explicit_time_limit"})
             record.update(result)
             self._export_experiment(record, package)
         except Exception as exc:  # noqa: BLE001
-            record.update({"status": "failed", "stage": "FAILED", "finished_at": _now(), "error": {"code": "RUNTIME_ERROR", "message": str(exc), "type": type(exc).__name__}, "logs": record["logs"] + [{"source": "platform", "event": "run_failed", "message": str(exc), "at": _now()}]})
+            state = RunStatus.CANCELLED.value if cancel_event is not None and cancel_event.is_set() else RunStatus.FAILED.value
+            record.update({"status": state, "stage": state.upper(), "finished_at": _now(), "error": {"code": "RUN_CANCELLED" if state == RunStatus.CANCELLED.value else "RUNTIME_ERROR", "message": str(exc), "type": type(exc).__name__}, "logs": record["logs"] + [{"source": "platform", "event": "run_cancelled" if state == RunStatus.CANCELLED.value else "run_failed", "message": str(exc), "at": _now()}]})
         self._write_run(record)
 
     def _export_experiment(self, record: dict[str, Any], package: dict[str, Any]) -> None:
         reference_id = record["run_id"]
         root = self.registry_dir / reference_id
         root.mkdir(parents=True, exist_ok=True)
-        experiment = {k: record.get(k) for k in ("run_id", "status", "stage", "package_id", "algorithm_id", "algorithm_version", "package_hash", "scenario_id", "parameters", "evaluation_budget", "optimization_id", "evaluations_used", "stop_reason", "runtime", "channel_realization_id", "channel_hash")}
-        verification = {"status": "PASS", "verified": True, "algorithm_correct": False, "paper_reproduced": False, "checks": ["package identity", "manifest/source/package hash", "SDK/interface", "platform evaluation", "trace/KPI/evidence"]}
-        evidence = {"evidence_id": f"EVID-{reference_id}", "evidence_type": "external_algorithm_experiment", "source_entity_id": reference_id, "verified": True, "verification_status": "independently_verified", "acceptance_eligible": False, "acceptance_reason": ["simulation_only", "external_algorithm_integration"], "package_hash": package["package_hash"]}
+        experiment = {k: record.get(k) for k in ("run_id", "status", "stage", "package_id", "algorithm_id", "algorithm_version", "package_hash", "scenario_id", "parameters", "evaluation_budget", "optimization_id", "evaluations_used", "stop_reason", "runtime", "channel_realization_id", "channel_hash", "channel_provenance_hash_version")}
+        verification = {"status": "PENDING", "verification_status": "pending", "verified": False, "verifier_id": None, "verified_at": None, "verification_hash": None, "algorithm_correct": False, "paper_reproduced": False, "checks": ["package identity", "manifest/source/package hash", "SDK/interface", "platform evaluation", "trace/KPI/evidence"]}
+        evidence = {"evidence_id": f"EVID-{reference_id}", "evidence_type": "external_algorithm_experiment", "source_entity_id": reference_id, "verified": False, "verification_status": "pending", "verifier_id": None, "verified_at": None, "verification_hash": None, "acceptance_eligible": False, "acceptance_reason": ["simulation_only", "external_algorithm_integration"], "package_hash": package["package_hash"]}
         provenance = record["provenance"]
         files: dict[str, Any] = {
             "manifest.json": package["manifest"], "validation.json": {"status": "PASS", "manifest_hash": package["manifest_hash"], "source_hash": package["source_hash"], "package_hash": package["package_hash"]},
@@ -468,7 +485,9 @@ class AlgorithmPackageService:
                     archive.write(file, file.name)
         record["reference_id"] = reference_id
         record["evidence"] = evidence
-        record["benchmark_id"] = self._export_day10_benchmark(record, package)
+        # Day 10 benchmark creation is now an explicit user-directed action.
+        # Historical BENCH-DAY10-EXT-3C12U001 remains untouched.
+        record["benchmark_id"] = None
         record["export_bundle"] = str(bundle.relative_to(self.repo_root))
 
     def _export_day10_benchmark(self, record: dict[str, Any], package: dict[str, Any]) -> str:

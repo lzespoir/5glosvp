@@ -10,7 +10,7 @@ service = UserAssociationService(REPO_ROOT / "configs", REPO_ROOT / "reference" 
 
 class UserAssociationCreate(BaseModel):
     scenario_id: str = "MULTICELL-DEMO-001"
-    evaluation_budget: int = Field(default=8, ge=1, le=12)
+    evaluation_budget: int = Field(default=8, ge=1)
 
 @router.get("/multicell/scenarios")
 def list_multicell_scenarios():

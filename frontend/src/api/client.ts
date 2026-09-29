@@ -7,7 +7,7 @@ export const API_BASE_URL: string = import.meta.env.VITE_API_BASE_URL || '/api/v
 
 export const apiClient = axios.create({
   baseURL: API_BASE_URL,
-  // POST /experiments 同步等待 Sionna 完成；后端软超时默认 600 s
+  // 请求等待超时与科学运行状态分离；长运行由运行记录轮询和执行管理器负责。
   timeout: 15 * 60 * 1000,
 });
 

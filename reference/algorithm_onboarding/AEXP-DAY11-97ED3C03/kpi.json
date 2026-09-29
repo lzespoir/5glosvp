@@ -1,0 +1,292 @@
+{
+  "baseline": {
+    "association": {
+      "assignments": {
+        "UE-003": "CELL-001",
+        "UE-004": "CELL-001",
+        "UE-005": "CELL-001",
+        "UE-006": "CELL-001",
+        "UE-007": "CELL-001",
+        "UE-008": "CELL-001",
+        "UE-009": "CELL-002",
+        "UE-010": "CELL-003",
+        "UE-012": "CELL-002",
+        "UE-014": "CELL-003",
+        "UE-015": "CELL-002",
+        "UE-017": "CELL-002"
+      }
+    },
+    "association_hash": "11f6f62088685b847f466403dfaeefb0c4138ae7dc1bb16d853d652fcb897c39",
+    "network_throughput_mbps": 2045.6607436285308,
+    "average_ue_throughput_mbps": 170.4717286357109,
+    "p5_ue_throughput_mbps": 49.247116823365495,
+    "cell_metrics": [
+      {
+        "cell_id": "CELL-001",
+        "associated_ue_count": 6,
+        "throughput_mbps": 459.06215949376224,
+        "average_ue_throughput_mbps": 76.51035991562703
+      },
+      {
+        "cell_id": "CELL-002",
+        "associated_ue_count": 4,
+        "throughput_mbps": 883.4770262608721,
+        "average_ue_throughput_mbps": 220.86925656521802
+      },
+      {
+        "cell_id": "CELL-003",
+        "associated_ue_count": 2,
+        "throughput_mbps": 703.1215578738963,
+        "average_ue_throughput_mbps": 351.56077893694817
+      }
+    ],
+    "ue_metrics": [
+      {
+        "ue_id": "UE-003",
+        "serving_cell_id": "CELL-001",
+        "throughput_mbps": 32.594260952046945,
+        "link_gain_db": -105.66077001490211,
+        "sinr_db": 4.592298545466563,
+        "resource_share": 0.16666666666666666
+      },
+      {
+        "ue_id": "UE-004",
+        "serving_cell_id": "CELL-001",
+        "throughput_mbps": 67.77109970794989,
+        "link_gain_db": -100.24337456496167,
+        "sinr_db": 11.973371566348465,
+        "resource_share": 0.16666666666666666
+      },
+      {
+        "ue_id": "UE-005",
+        "serving_cell_id": "CELL-001",
+        "throughput_mbps": 65.009577798711,
+        "link_gain_db": -100.27660945026471,
+        "sinr_db": 11.440906269811215,
+        "resource_share": 0.16666666666666666
+      },
+      {
+        "ue_id": "UE-006",
+        "serving_cell_id": "CELL-001",
+        "throughput_mbps": 80.27437640643751,
+        "link_gain_db": -96.61639288011375,
+        "sinr_db": 14.342066557560372,
+        "resource_share": 0.16666666666666666
+      },
+      {
+        "ue_id": "UE-007",
+        "serving_cell_id": "CELL-001",
+        "throughput_mbps": 115.84735515181514,
+        "link_gain_db": -97.7315625660228,
+        "sinr_db": 20.888869347620684,
+        "resource_share": 0.16666666666666666
+      },
+      {
+        "ue_id": "UE-008",
+        "serving_cell_id": "CELL-001",
+        "throughput_mbps": 97.56548947680176,
+        "link_gain_db": -89.5436904711151,
+        "sinr_db": 17.546337663925602,
+        "resource_share": 0.16666666666666666
+      },
+      {
+        "ue_id": "UE-009",
+        "serving_cell_id": "CELL-002",
+        "throughput_mbps": 154.99914486533987,
+        "link_gain_db": -112.37091157348334,
+        "sinr_db": 18.604275620744758,
+        "resource_share": 0.25
+      },
+      {
+        "ue_id": "UE-010",
+        "serving_cell_id": "CELL-003",
+        "throughput_mbps": 254.5711346631237,
+        "link_gain_db": -104.78263803002204,
+        "sinr_db": 15.197420453352876,
+        "resource_share": 0.5
+      },
+      {
+        "ue_id": "UE-012",
+        "serving_cell_id": "CELL-002",
+        "throughput_mbps": 62.87218071808067,
+        "link_gain_db": -124.23988227969205,
+        "sinr_db": 6.735304914536046,
+        "resource_share": 0.25
+      },
+      {
+        "ue_id": "UE-014",
+        "serving_cell_id": "CELL-003",
+        "throughput_mbps": 448.5504232107726,
+        "link_gain_db": -93.54854927659491,
+        "sinr_db": 26.996763262336966,
+        "resource_share": 0.5
+      },
+      {
+        "ue_id": "UE-015",
+        "serving_cell_id": "CELL-002",
+        "throughput_mbps": 374.9022161034579,
+        "link_gain_db": -85.83259509701526,
+        "sinr_db": 45.14259209721285,
+        "resource_share": 0.25
+      },
+      {
+        "ue_id": "UE-017",
+        "serving_cell_id": "CELL-002",
+        "throughput_mbps": 290.7034845739937,
+        "link_gain_db": -93.7646838439322,
+        "sinr_db": 35.00281522737216,
+        "resource_share": 0.25
+      }
+    ],
+    "p5_floor_mbps": null,
+    "p5_margin_mbps": null,
+    "feasible": true,
+    "channel_reused": true,
+    "runtime_seconds": 0.0010052690049633384
+  },
+  "best_candidate": {
+    "association": {
+      "assignments": {
+        "UE-003": "CELL-001",
+        "UE-004": "CELL-001",
+        "UE-005": "CELL-001",
+        "UE-006": "CELL-001",
+        "UE-007": "CELL-001",
+        "UE-008": "CELL-001",
+        "UE-009": "CELL-002",
+        "UE-010": "CELL-003",
+        "UE-012": "CELL-002",
+        "UE-014": "CELL-003",
+        "UE-015": "CELL-002",
+        "UE-017": "CELL-002"
+      }
+    },
+    "association_hash": "11f6f62088685b847f466403dfaeefb0c4138ae7dc1bb16d853d652fcb897c39",
+    "network_throughput_mbps": 2045.6607436285308,
+    "average_ue_throughput_mbps": 170.4717286357109,
+    "p5_ue_throughput_mbps": 49.247116823365495,
+    "cell_metrics": [
+      {
+        "cell_id": "CELL-001",
+        "associated_ue_count": 6,
+        "throughput_mbps": 459.06215949376224,
+        "average_ue_throughput_mbps": 76.51035991562703
+      },
+      {
+        "cell_id": "CELL-002",
+        "associated_ue_count": 4,
+        "throughput_mbps": 883.4770262608721,
+        "average_ue_throughput_mbps": 220.86925656521802
+      },
+      {
+        "cell_id": "CELL-003",
+        "associated_ue_count": 2,
+        "throughput_mbps": 703.1215578738963,
+        "average_ue_throughput_mbps": 351.56077893694817
+      }
+    ],
+    "ue_metrics": [
+      {
+        "ue_id": "UE-003",
+        "serving_cell_id": "CELL-001",
+        "throughput_mbps": 32.594260952046945,
+        "link_gain_db": -105.66077001490211,
+        "sinr_db": 4.592298545466563,
+        "resource_share": 0.16666666666666666
+      },
+      {
+        "ue_id": "UE-004",
+        "serving_cell_id": "CELL-001",
+        "throughput_mbps": 67.77109970794989,
+        "link_gain_db": -100.24337456496167,
+        "sinr_db": 11.973371566348465,
+        "resource_share": 0.16666666666666666
+      },
+      {
+        "ue_id": "UE-005",
+        "serving_cell_id": "CELL-001",
+        "throughput_mbps": 65.009577798711,
+        "link_gain_db": -100.27660945026471,
+        "sinr_db": 11.440906269811215,
+        "resource_share": 0.16666666666666666
+      },
+      {
+        "ue_id": "UE-006",
+        "serving_cell_id": "CELL-001",
+        "throughput_mbps": 80.27437640643751,
+        "link_gain_db": -96.61639288011375,
+        "sinr_db": 14.342066557560372,
+        "resource_share": 0.16666666666666666
+      },
+      {
+        "ue_id": "UE-007",
+        "serving_cell_id": "CELL-001",
+        "throughput_mbps": 115.84735515181514,
+        "link_gain_db": -97.7315625660228,
+        "sinr_db": 20.888869347620684,
+        "resource_share": 0.16666666666666666
+      },
+      {
+        "ue_id": "UE-008",
+        "serving_cell_id": "CELL-001",
+        "throughput_mbps": 97.56548947680176,
+        "link_gain_db": -89.5436904711151,
+        "sinr_db": 17.546337663925602,
+        "resource_share": 0.16666666666666666
+      },
+      {
+        "ue_id": "UE-009",
+        "serving_cell_id": "CELL-002",
+        "throughput_mbps": 154.99914486533987,
+        "link_gain_db": -112.37091157348334,
+        "sinr_db": 18.604275620744758,
+        "resource_share": 0.25
+      },
+      {
+        "ue_id": "UE-010",
+        "serving_cell_id": "CELL-003",
+        "throughput_mbps": 254.5711346631237,
+        "link_gain_db": -104.78263803002204,
+        "sinr_db": 15.197420453352876,
+        "resource_share": 0.5
+      },
+      {
+        "ue_id": "UE-012",
+        "serving_cell_id": "CELL-002",
+        "throughput_mbps": 62.87218071808067,
+        "link_gain_db": -124.23988227969205,
+        "sinr_db": 6.735304914536046,
+        "resource_share": 0.25
+      },
+      {
+        "ue_id": "UE-014",
+        "serving_cell_id": "CELL-003",
+        "throughput_mbps": 448.5504232107726,
+        "link_gain_db": -93.54854927659491,
+        "sinr_db": 26.996763262336966,
+        "resource_share": 0.5
+      },
+      {
+        "ue_id": "UE-015",
+        "serving_cell_id": "CELL-002",
+        "throughput_mbps": 374.9022161034579,
+        "link_gain_db": -85.83259509701526,
+        "sinr_db": 45.14259209721285,
+        "resource_share": 0.25
+      },
+      {
+        "ue_id": "UE-017",
+        "serving_cell_id": "CELL-002",
+        "throughput_mbps": 290.7034845739937,
+        "link_gain_db": -93.7646838439322,
+        "sinr_db": 35.00281522737216,
+        "resource_share": 0.25
+      }
+    ],
+    "p5_floor_mbps": null,
+    "p5_margin_mbps": null,
+    "feasible": true,
+    "channel_reused": true,
+    "runtime_seconds": 0.0010052690049633384
+  }
+}

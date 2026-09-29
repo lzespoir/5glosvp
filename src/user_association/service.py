@@ -5,6 +5,14 @@ import yaml
 from .backend import MultiCellBackend
 from .models import *
 
+
+class ScenarioNotFoundError(LookupError):
+    """Raised when the requested user-association scenario is not registered."""
+
+    def __init__(self, scenario_id: str):
+        self.scenario_id = scenario_id
+        super().__init__(f"scenario is not registered: {scenario_id}")
+
 class UserAssociationService:
     def __init__(self, configs_dir: Path, reference_dir: Path | None = None):
         self.configs_dir=Path(configs_dir); self.reference_dir=Path(reference_dir or "reference/user_association")
@@ -18,7 +26,21 @@ class UserAssociationService:
 
     def load(self, scenario_id: str) -> MultiCellScenario:
         p=self.configs_dir / f"{scenario_id.lower()}.yaml"
-        if not p.exists(): p=self.configs_dir / "multicell_demo.yaml"
+        if not p.exists():
+            # Configuration filenames are legacy-friendly and are not required
+            # to equal the public scenario_id (for example multicell_demo.yaml
+            # contains MULTICELL-DEMO-001). This is registry lookup, not a
+            # fallback: every candidate is validated against its declared ID.
+            for candidate in sorted(self.configs_dir.glob("multicell*.yaml")):
+                try:
+                    data = yaml.safe_load(candidate.read_text()) or {}
+                except yaml.YAMLError:
+                    continue
+                if str(data.get("scenario_id", "")).casefold() == scenario_id.casefold():
+                    p = candidate
+                    break
+            else:
+                raise ScenarioNotFoundError(scenario_id)
         return MultiCellScenario.model_validate(yaml.safe_load(p.read_text()))
 
     def scenario_view(self, scenario_id: str):

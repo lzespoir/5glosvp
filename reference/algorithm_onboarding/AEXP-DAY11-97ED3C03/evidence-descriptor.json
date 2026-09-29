@@ -1,0 +1,16 @@
+{
+  "evidence_id": "EVID-AEXP-DAY11-97ED3C03",
+  "evidence_type": "external_algorithm_experiment",
+  "source_entity_id": "AEXP-DAY11-97ED3C03",
+  "verified": true,
+  "verification_status": "verified",
+  "verifier_id": "algorithm-onboarding-independent-verifier-v0.2",
+  "verified_at": "2026-09-29T02:32:02.324805+00:00",
+  "verification_hash": "923d3041b81303ddcfe892d1f00436d60ab288f536c9bf446da55a857ed1c389",
+  "acceptance_eligible": false,
+  "acceptance_reason": [
+    "simulation_only",
+    "external_algorithm_integration"
+  ],
+  "package_hash": "c3f7b44a84f1b83ea7d4637bf094344d55e4f467076e1bccbbd57172401c7741"
+}

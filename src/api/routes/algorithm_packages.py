@@ -21,7 +21,7 @@ class ExperimentCreateRequest(BaseModel):
     package_id: str = Field(min_length=1)
     scenario_id: str = "MULTICELL-DEMO-001"
     parameters: dict[str, Any] = Field(default_factory=dict)
-    evaluation_budget: int = Field(default=8, ge=1, le=12)
+    evaluation_budget: int = Field(default=8, ge=1)
     time_limit_seconds: float | None = Field(default=None, gt=0)
 
 
@@ -29,8 +29,12 @@ class CloneRequest(BaseModel):
     package_id: str | None = None
     scenario_id: str | None = None
     parameters: dict[str, Any] = Field(default_factory=dict)
-    evaluation_budget: int | None = Field(default=None, ge=1, le=12)
+    evaluation_budget: int | None = Field(default=None, ge=1)
     time_limit_seconds: float | None = Field(default=None, gt=0)
+
+
+class ForceTerminateRequest(BaseModel):
+    confirmation: str = Field(min_length=1)
 
 
 def _error(exc: Exception) -> HTTPException:
@@ -86,12 +90,42 @@ def create_experiment(body: ExperimentCreateRequest) -> dict[str, Any]:
         raise _error(exc) from exc
 
 
+@router.get("/algorithm-experiments")
+def list_experiments() -> dict[str, Any]:
+    items = []
+    for path in sorted(_service.runs_dir.glob("*.json"), key=lambda item: item.stat().st_mtime, reverse=True):
+        try:
+            items.append(_service.get_experiment(path.stem))
+        except (OSError, ValueError, KeyError):
+            continue
+    return {"items": items, "total": len(items)}
+
+
 @router.get("/algorithm-experiments/{run_id}")
 def get_experiment(run_id: str) -> dict[str, Any]:
     try:
         return _service.get_experiment(run_id)
     except KeyError as exc:
         raise HTTPException(status_code=404, detail={"code": "EXPERIMENT_NOT_FOUND", "message": run_id}) from exc
+
+
+@router.post("/algorithm-experiments/{run_id}/cancel")
+def cancel_experiment(run_id: str) -> dict[str, Any]:
+    try:
+        _service.get_experiment(run_id)
+        return _service.execution_manager.request_cancel(run_id)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail={"code": "EXPERIMENT_NOT_FOUND", "message": run_id}) from exc
+
+
+@router.post("/algorithm-experiments/{run_id}/force-terminate")
+def force_terminate_experiment(run_id: str, body: ForceTerminateRequest) -> dict[str, Any]:
+    try:
+        return _service.execution_manager.force_terminate(run_id, body.confirmation)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail={"code": "EXPERIMENT_NOT_FOUND", "message": run_id}) from exc
+    except ValueError as exc:
+        raise _error(exc) from exc
 
 
 @router.post("/algorithm-experiments/{run_id}/rerun", status_code=202)

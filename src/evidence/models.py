@@ -14,6 +14,11 @@ class EvidenceType(str, Enum):
 
 
 class VerificationStatus(str, Enum):
+    UNVERIFIED = "unverified"
+    PENDING = "pending"
+    VERIFIED = "verified"
+    FAILED = "failed"
+    # Historical values are retained for Day 4-10 evidence compatibility.
     NOT_VERIFIED = "not_verified"
     PLATFORM_CHECKS_PASSED = "platform_checks_passed"
     PLATFORM_CHECKS_FAILED = "platform_checks_failed"
@@ -51,6 +56,10 @@ class EvidenceDescriptor(BaseModel):
     provenance: dict[str, Any]
     verification_status: VerificationStatus
     verification_detail: str = ""
+    verifier_id: str | None = None
+    verified_at: str | None = None
+    verification_hash: str | None = None
+    legacy_verification_semantics: bool = False
     acceptance_eligible: bool
     acceptance_reason: list[AcceptanceIneligibilityReason] = Field(default_factory=list)
     artifacts: list[EvidenceArtifactRef] = Field(default_factory=list)
@@ -64,4 +73,4 @@ class EvidenceDescriptor(BaseModel):
     @computed_field  # type: ignore[prop-decorator]
     @property
     def verified(self) -> bool:
-        return self.verification_status is VerificationStatus.INDEPENDENTLY_VERIFIED
+        return self.verification_status in {VerificationStatus.VERIFIED, VerificationStatus.INDEPENDENTLY_VERIFIED}

@@ -1,0 +1,17 @@
+{
+  "status": "VERIFIED",
+  "verification_status": "verified",
+  "verified": true,
+  "verifier_id": "algorithm-onboarding-independent-verifier-v0.2",
+  "verified_at": "2026-09-29T02:32:02.324805+00:00",
+  "verification_hash": "923d3041b81303ddcfe892d1f00436d60ab288f536c9bf446da55a857ed1c389",
+  "algorithm_correct": false,
+  "paper_reproduced": false,
+  "checks": [
+    "package identity",
+    "manifest/source/package hash",
+    "SDK/interface",
+    "platform evaluation",
+    "trace/KPI/evidence"
+  ]
+}

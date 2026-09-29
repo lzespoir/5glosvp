@@ -17,6 +17,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 
 from algorithms import AlgorithmCompatibilityError, AlgorithmNotFoundError
 from experiments import ArtifactNotFoundError, ExperimentNotFoundError, ScenarioNotFoundError
+from user_association.service import ScenarioNotFoundError as UserAssociationScenarioNotFoundError
 from optimization import (
     InvalidParameterSpaceError,
     ObjectiveNotFoundError,
@@ -144,6 +145,7 @@ def error_response(code: ErrorCode, detail: dict[str, Any] | None = None) -> JSO
 
 _EXCEPTION_CODES: list[tuple[type[Exception], ErrorCode]] = [
     (ScenarioNotFoundError, ErrorCode.SCENARIO_NOT_FOUND),
+    (UserAssociationScenarioNotFoundError, ErrorCode.SCENARIO_NOT_FOUND),
     (ExperimentNotFoundError, ErrorCode.EXPERIMENT_NOT_FOUND),
     (ArtifactNotFoundError, ErrorCode.ARTIFACT_NOT_FOUND),
     (BackendUnavailableError, ErrorCode.BACKEND_UNAVAILABLE),

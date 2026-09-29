@@ -125,7 +125,7 @@ class BenchmarkService:
             problem_id="USER_ASSOCIATION", scenario_set=[scenario_id], protocol_id=protocol.protocol_id,
             protocol_hash=protocol.sha256(), algorithm_configs=algorithm_configs, status="completed",
             created_at=utc_now(), completed_at=utc_now(),
-            provenance={"data_source": "simulation", "provider": "nvidia_sionna", "verification": "independent_verified",
+            provenance={"data_source": "simulation", "provider": "nvidia_sionna", "verification": "pending",
                         "evidence_level": "simulation_evidence", "channel_hash": channel.channel_hash,
                         "channel_realization_id": "CH-MULTICELL-" + channel.channel_hash[:8].upper(),
                         "git_commit": self.git_commit, "repeats": 1, "comparison_eligible": True,
@@ -160,6 +160,7 @@ class BenchmarkService:
             gains_db=__import__("numpy").where(__import__("numpy").asarray(gains) > 0, 10 * __import__("numpy").log10(__import__("numpy").maximum(gains, 1e-30)), -300.0),
             positions=__import__("numpy").asarray([u.position for u in scenario.ues]),
             channel_hash=ch["sha256"], runtime_seconds=0.0, provider_versions=ch["provider_versions"],
+            provenance_hash_version="0.1",
         )
         backend.channel = channel
         return channel
@@ -192,9 +193,11 @@ class BenchmarkService:
             "verification.json": {"status": "pending_independent_verifier", "comparable": True},
             "evidence-descriptor.json": {"evidence_type": "algorithm_benchmark", "benchmark_id": benchmark.benchmark_id,
                 "protocol_id": protocol.protocol_id, "protocol_hash": benchmark.protocol_hash, "run_ids": [x.benchmark_run_id for x in benchmark.runs],
-                "verified": True, "comparison_eligible": True, "comparison_reason": "same frozen protocol",
+                "verified": False, "verification_status": "pending", "verifier_id": None,
+                "verified_at": None, "verification_hash": None,
+                "comparison_eligible": True, "comparison_reason": "same frozen protocol",
                 "acceptance_eligible": False, "data_source": "simulation", "provider": "nvidia_sionna",
-                "verification": "independent_verified", "evidence_level": "simulation_evidence"},
+                "verification": "pending", "evidence_level": "simulation_evidence"},
             "provenance.json": {**benchmark.provenance, "provider_versions": provider_versions},
         }
         for name, value in files.items():
