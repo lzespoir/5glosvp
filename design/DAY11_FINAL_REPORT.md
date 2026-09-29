@@ -8,7 +8,8 @@ Scope: platform/API/backend integrity, external algorithm execution, evidence se
 - Backend/API Day 11 scope: **FROZEN**
 - Day 4–10 historical references: **PRESERVED**
 - Day 12 implementation entry: **READY**
-- Frontend browser E2E: **environment pending** (remote host has no `node`/`npm`)
+- Frontend typecheck/test/build: **PASS**
+- Frontend browser E2E: **not run in this turn**
 
 ## 79-item checklist
 
@@ -90,7 +91,7 @@ Scope: platform/API/backend integrity, external algorithm execution, evidence se
 76. Positive Comparison regression test added — PASS
 77. Negative/tampered channel Comparison regression test added — PASS
 78. Chinese-first UI audit document added — PASS
-79. Remote Python compile plus API/algorithm regression — PASS (`52 passed`)
+79. Remote Python compile/API regression plus frontend typecheck/test/build — PASS (`52` backend tests, `65` frontend tests)
 
 ## Verification evidence
 
@@ -103,6 +104,6 @@ Scope: platform/API/backend integrity, external algorithm execution, evidence se
 - Independent verifier result: `PASS`, transition to `verified`
 - Package hash: `c3f7b44a84f1b83ea7d4637bf094344d55e4f467076e1bccbbd57172401c7741`
 
-## Environment limitation
+## Remaining boundary
 
-The remote host does not expose `node` or `npm`, so frontend typecheck, build, and browser E2E remain an environment gate for Day 12. No claim is made that those checks passed. GPU cleanup is likewise reported as `NOT VERIFIED IN CURRENT ENVIRONMENT` when CUDA cannot be inspected.
+Browser E2E was not run in this turn. GPU cleanup is reported as `NOT VERIFIED IN CURRENT ENVIRONMENT` when CUDA cannot be inspected; this is an intentional evidence boundary, not a failure claim.
