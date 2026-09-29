@@ -420,6 +420,11 @@ class AlgorithmPackageService:
                 record.update({"status": RunStatus.CANCELLED.value, "stage": "CANCELLED", "finished_at": _now()})
                 self._write_run(record)
                 return
+            # Test-only delay used by the browser lifecycle harness.  It is
+            # disabled by default and does not alter normal scientific runs.
+            test_delay = float(os.environ.get("GLOSVP_TEST_WORKER_DELAY_SECONDS", "0"))
+            if test_delay > 0:
+                time.sleep(test_delay)
             package = self.get_package(record["package_id"])
             path = self._resolve_path(package["path"])
             klass = self._load_class(path, package["manifest"], package["package_hash"])
