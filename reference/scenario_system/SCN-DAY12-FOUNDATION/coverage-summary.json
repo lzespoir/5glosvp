@@ -1,0 +1,585 @@
+{
+  "counts": {
+    "theoretical_count": 453600,
+    "valid_count": 408240,
+    "invalid_count": 45360,
+    "executable_count": 37800,
+    "requires_external_asset_count": 306180,
+    "materialized_count": 120,
+    "executed_count": 0,
+    "verified_count": 120,
+    "acceptance_evidence_count": 0
+  },
+  "matrix": [
+    {
+      "row": "coverage_structure",
+      "column": "NETWORK_STRUCTURE",
+      "dimensions": {
+        "scenario_family": "coverage_structure",
+        "optimization_problem": "NETWORK_STRUCTURE"
+      },
+      "counts": {
+        "theoretical_count": 42,
+        "valid_count": 42,
+        "invalid_count": 0,
+        "executable_count": 14,
+        "requires_external_asset_count": 28,
+        "materialized_count": 42,
+        "executed_count": 0,
+        "verified_count": 42,
+        "acceptance_evidence_count": 0
+      },
+      "evidence": []
+    },
+    {
+      "row": "coverage_structure",
+      "column": "USER_ACCESS",
+      "dimensions": {
+        "scenario_family": "coverage_structure",
+        "optimization_problem": "USER_ACCESS"
+      },
+      "counts": {
+        "theoretical_count": 9,
+        "valid_count": 9,
+        "invalid_count": 0,
+        "executable_count": 3,
+        "requires_external_asset_count": 6,
+        "materialized_count": 9,
+        "executed_count": 0,
+        "verified_count": 9,
+        "acceptance_evidence_count": 0
+      },
+      "evidence": []
+    },
+    {
+      "row": "coverage_structure",
+      "column": "SYSTEM_RESOURCE",
+      "dimensions": {
+        "scenario_family": "coverage_structure",
+        "optimization_problem": "SYSTEM_RESOURCE"
+      },
+      "counts": {
+        "theoretical_count": 9,
+        "valid_count": 9,
+        "invalid_count": 0,
+        "executable_count": 3,
+        "requires_external_asset_count": 6,
+        "materialized_count": 9,
+        "executed_count": 0,
+        "verified_count": 9,
+        "acceptance_evidence_count": 0
+      },
+      "evidence": []
+    },
+    {
+      "row": "user_access_load",
+      "column": "NETWORK_STRUCTURE",
+      "dimensions": {
+        "scenario_family": "user_access_load",
+        "optimization_problem": "NETWORK_STRUCTURE"
+      },
+      "counts": {
+        "theoretical_count": 0,
+        "valid_count": 0,
+        "invalid_count": 0,
+        "executable_count": 0,
+        "requires_external_asset_count": 0,
+        "materialized_count": 0,
+        "executed_count": 0,
+        "verified_count": 0,
+        "acceptance_evidence_count": 0
+      },
+      "evidence": []
+    },
+    {
+      "row": "user_access_load",
+      "column": "USER_ACCESS",
+      "dimensions": {
+        "scenario_family": "user_access_load",
+        "optimization_problem": "USER_ACCESS"
+      },
+      "counts": {
+        "theoretical_count": 9,
+        "valid_count": 9,
+        "invalid_count": 0,
+        "executable_count": 3,
+        "requires_external_asset_count": 6,
+        "materialized_count": 9,
+        "executed_count": 0,
+        "verified_count": 9,
+        "acceptance_evidence_count": 0
+      },
+      "evidence": []
+    },
+    {
+      "row": "user_access_load",
+      "column": "SYSTEM_RESOURCE",
+      "dimensions": {
+        "scenario_family": "user_access_load",
+        "optimization_problem": "SYSTEM_RESOURCE"
+      },
+      "counts": {
+        "theoretical_count": 9,
+        "valid_count": 9,
+        "invalid_count": 0,
+        "executable_count": 3,
+        "requires_external_asset_count": 6,
+        "materialized_count": 9,
+        "executed_count": 0,
+        "verified_count": 9,
+        "acceptance_evidence_count": 0
+      },
+      "evidence": []
+    },
+    {
+      "row": "resource_scheduling",
+      "column": "NETWORK_STRUCTURE",
+      "dimensions": {
+        "scenario_family": "resource_scheduling",
+        "optimization_problem": "NETWORK_STRUCTURE"
+      },
+      "counts": {
+        "theoretical_count": 0,
+        "valid_count": 0,
+        "invalid_count": 0,
+        "executable_count": 0,
+        "requires_external_asset_count": 0,
+        "materialized_count": 0,
+        "executed_count": 0,
+        "verified_count": 0,
+        "acceptance_evidence_count": 0
+      },
+      "evidence": []
+    },
+    {
+      "row": "resource_scheduling",
+      "column": "USER_ACCESS",
+      "dimensions": {
+        "scenario_family": "resource_scheduling",
+        "optimization_problem": "USER_ACCESS"
+      },
+      "counts": {
+        "theoretical_count": 6,
+        "valid_count": 6,
+        "invalid_count": 0,
+        "executable_count": 2,
+        "requires_external_asset_count": 4,
+        "materialized_count": 6,
+        "executed_count": 0,
+        "verified_count": 6,
+        "acceptance_evidence_count": 0
+      },
+      "evidence": []
+    },
+    {
+      "row": "resource_scheduling",
+      "column": "SYSTEM_RESOURCE",
+      "dimensions": {
+        "scenario_family": "resource_scheduling",
+        "optimization_problem": "SYSTEM_RESOURCE"
+      },
+      "counts": {
+        "theoretical_count": 6,
+        "valid_count": 6,
+        "invalid_count": 0,
+        "executable_count": 2,
+        "requires_external_asset_count": 4,
+        "materialized_count": 6,
+        "executed_count": 0,
+        "verified_count": 6,
+        "acceptance_evidence_count": 0
+      },
+      "evidence": []
+    },
+    {
+      "row": "mobility_handover",
+      "column": "NETWORK_STRUCTURE",
+      "dimensions": {
+        "scenario_family": "mobility_handover",
+        "optimization_problem": "NETWORK_STRUCTURE"
+      },
+      "counts": {
+        "theoretical_count": 0,
+        "valid_count": 0,
+        "invalid_count": 0,
+        "executable_count": 0,
+        "requires_external_asset_count": 0,
+        "materialized_count": 0,
+        "executed_count": 0,
+        "verified_count": 0,
+        "acceptance_evidence_count": 0
+      },
+      "evidence": []
+    },
+    {
+      "row": "mobility_handover",
+      "column": "USER_ACCESS",
+      "dimensions": {
+        "scenario_family": "mobility_handover",
+        "optimization_problem": "USER_ACCESS"
+      },
+      "counts": {
+        "theoretical_count": 0,
+        "valid_count": 0,
+        "invalid_count": 0,
+        "executable_count": 0,
+        "requires_external_asset_count": 0,
+        "materialized_count": 0,
+        "executed_count": 0,
+        "verified_count": 0,
+        "acceptance_evidence_count": 0
+      },
+      "evidence": []
+    },
+    {
+      "row": "mobility_handover",
+      "column": "SYSTEM_RESOURCE",
+      "dimensions": {
+        "scenario_family": "mobility_handover",
+        "optimization_problem": "SYSTEM_RESOURCE"
+      },
+      "counts": {
+        "theoretical_count": 0,
+        "valid_count": 0,
+        "invalid_count": 0,
+        "executable_count": 0,
+        "requires_external_asset_count": 0,
+        "materialized_count": 0,
+        "executed_count": 0,
+        "verified_count": 0,
+        "acceptance_evidence_count": 0
+      },
+      "evidence": []
+    },
+    {
+      "row": "traffic_hotspot",
+      "column": "NETWORK_STRUCTURE",
+      "dimensions": {
+        "scenario_family": "traffic_hotspot",
+        "optimization_problem": "NETWORK_STRUCTURE"
+      },
+      "counts": {
+        "theoretical_count": 0,
+        "valid_count": 0,
+        "invalid_count": 0,
+        "executable_count": 0,
+        "requires_external_asset_count": 0,
+        "materialized_count": 0,
+        "executed_count": 0,
+        "verified_count": 0,
+        "acceptance_evidence_count": 0
+      },
+      "evidence": []
+    },
+    {
+      "row": "traffic_hotspot",
+      "column": "USER_ACCESS",
+      "dimensions": {
+        "scenario_family": "traffic_hotspot",
+        "optimization_problem": "USER_ACCESS"
+      },
+      "counts": {
+        "theoretical_count": 0,
+        "valid_count": 0,
+        "invalid_count": 0,
+        "executable_count": 0,
+        "requires_external_asset_count": 0,
+        "materialized_count": 0,
+        "executed_count": 0,
+        "verified_count": 0,
+        "acceptance_evidence_count": 0
+      },
+      "evidence": []
+    },
+    {
+      "row": "traffic_hotspot",
+      "column": "SYSTEM_RESOURCE",
+      "dimensions": {
+        "scenario_family": "traffic_hotspot",
+        "optimization_problem": "SYSTEM_RESOURCE"
+      },
+      "counts": {
+        "theoretical_count": 0,
+        "valid_count": 0,
+        "invalid_count": 0,
+        "executable_count": 0,
+        "requires_external_asset_count": 0,
+        "materialized_count": 0,
+        "executed_count": 0,
+        "verified_count": 0,
+        "acceptance_evidence_count": 0
+      },
+      "evidence": []
+    },
+    {
+      "row": "interference",
+      "column": "NETWORK_STRUCTURE",
+      "dimensions": {
+        "scenario_family": "interference",
+        "optimization_problem": "NETWORK_STRUCTURE"
+      },
+      "counts": {
+        "theoretical_count": 0,
+        "valid_count": 0,
+        "invalid_count": 0,
+        "executable_count": 0,
+        "requires_external_asset_count": 0,
+        "materialized_count": 0,
+        "executed_count": 0,
+        "verified_count": 0,
+        "acceptance_evidence_count": 0
+      },
+      "evidence": []
+    },
+    {
+      "row": "interference",
+      "column": "USER_ACCESS",
+      "dimensions": {
+        "scenario_family": "interference",
+        "optimization_problem": "USER_ACCESS"
+      },
+      "counts": {
+        "theoretical_count": 3,
+        "valid_count": 3,
+        "invalid_count": 0,
+        "executable_count": 1,
+        "requires_external_asset_count": 2,
+        "materialized_count": 3,
+        "executed_count": 0,
+        "verified_count": 3,
+        "acceptance_evidence_count": 0
+      },
+      "evidence": []
+    },
+    {
+      "row": "interference",
+      "column": "SYSTEM_RESOURCE",
+      "dimensions": {
+        "scenario_family": "interference",
+        "optimization_problem": "SYSTEM_RESOURCE"
+      },
+      "counts": {
+        "theoretical_count": 3,
+        "valid_count": 3,
+        "invalid_count": 0,
+        "executable_count": 1,
+        "requires_external_asset_count": 2,
+        "materialized_count": 3,
+        "executed_count": 0,
+        "verified_count": 3,
+        "acceptance_evidence_count": 0
+      },
+      "evidence": []
+    },
+    {
+      "row": "beam_antenna",
+      "column": "NETWORK_STRUCTURE",
+      "dimensions": {
+        "scenario_family": "beam_antenna",
+        "optimization_problem": "NETWORK_STRUCTURE"
+      },
+      "counts": {
+        "theoretical_count": 0,
+        "valid_count": 0,
+        "invalid_count": 0,
+        "executable_count": 0,
+        "requires_external_asset_count": 0,
+        "materialized_count": 0,
+        "executed_count": 0,
+        "verified_count": 0,
+        "acceptance_evidence_count": 0
+      },
+      "evidence": []
+    },
+    {
+      "row": "beam_antenna",
+      "column": "USER_ACCESS",
+      "dimensions": {
+        "scenario_family": "beam_antenna",
+        "optimization_problem": "USER_ACCESS"
+      },
+      "counts": {
+        "theoretical_count": 8,
+        "valid_count": 8,
+        "invalid_count": 0,
+        "executable_count": 0,
+        "requires_external_asset_count": 8,
+        "materialized_count": 8,
+        "executed_count": 0,
+        "verified_count": 8,
+        "acceptance_evidence_count": 0
+      },
+      "evidence": []
+    },
+    {
+      "row": "beam_antenna",
+      "column": "SYSTEM_RESOURCE",
+      "dimensions": {
+        "scenario_family": "beam_antenna",
+        "optimization_problem": "SYSTEM_RESOURCE"
+      },
+      "counts": {
+        "theoretical_count": 8,
+        "valid_count": 8,
+        "invalid_count": 0,
+        "executable_count": 0,
+        "requires_external_asset_count": 8,
+        "materialized_count": 8,
+        "executed_count": 0,
+        "verified_count": 8,
+        "acceptance_evidence_count": 0
+      },
+      "evidence": []
+    },
+    {
+      "row": "mixed",
+      "column": "NETWORK_STRUCTURE",
+      "dimensions": {
+        "scenario_family": "mixed",
+        "optimization_problem": "NETWORK_STRUCTURE"
+      },
+      "counts": {
+        "theoretical_count": 0,
+        "valid_count": 0,
+        "invalid_count": 0,
+        "executable_count": 0,
+        "requires_external_asset_count": 0,
+        "materialized_count": 0,
+        "executed_count": 0,
+        "verified_count": 0,
+        "acceptance_evidence_count": 0
+      },
+      "evidence": []
+    },
+    {
+      "row": "mixed",
+      "column": "USER_ACCESS",
+      "dimensions": {
+        "scenario_family": "mixed",
+        "optimization_problem": "USER_ACCESS"
+      },
+      "counts": {
+        "theoretical_count": 4,
+        "valid_count": 4,
+        "invalid_count": 0,
+        "executable_count": 4,
+        "requires_external_asset_count": 0,
+        "materialized_count": 4,
+        "executed_count": 0,
+        "verified_count": 4,
+        "acceptance_evidence_count": 0
+      },
+      "evidence": []
+    },
+    {
+      "row": "mixed",
+      "column": "SYSTEM_RESOURCE",
+      "dimensions": {
+        "scenario_family": "mixed",
+        "optimization_problem": "SYSTEM_RESOURCE"
+      },
+      "counts": {
+        "theoretical_count": 4,
+        "valid_count": 4,
+        "invalid_count": 0,
+        "executable_count": 4,
+        "requires_external_asset_count": 0,
+        "materialized_count": 4,
+        "executed_count": 0,
+        "verified_count": 4,
+        "acceptance_evidence_count": 0
+      },
+      "evidence": []
+    }
+  ],
+  "family_counts": {
+    "coverage_structure": {
+      "theoretical_count": 60,
+      "valid_count": 60,
+      "invalid_count": 0,
+      "executable_count": 20,
+      "requires_external_asset_count": 40,
+      "materialized_count": 60,
+      "executed_count": 0,
+      "verified_count": 60,
+      "acceptance_evidence_count": 0
+    },
+    "user_access_load": {
+      "theoretical_count": 18,
+      "valid_count": 18,
+      "invalid_count": 0,
+      "executable_count": 6,
+      "requires_external_asset_count": 12,
+      "materialized_count": 18,
+      "executed_count": 0,
+      "verified_count": 18,
+      "acceptance_evidence_count": 0
+    },
+    "resource_scheduling": {
+      "theoretical_count": 12,
+      "valid_count": 12,
+      "invalid_count": 0,
+      "executable_count": 4,
+      "requires_external_asset_count": 8,
+      "materialized_count": 12,
+      "executed_count": 0,
+      "verified_count": 12,
+      "acceptance_evidence_count": 0
+    },
+    "mobility_handover": {
+      "theoretical_count": 0,
+      "valid_count": 0,
+      "invalid_count": 0,
+      "executable_count": 0,
+      "requires_external_asset_count": 0,
+      "materialized_count": 0,
+      "executed_count": 0,
+      "verified_count": 0,
+      "acceptance_evidence_count": 0
+    },
+    "traffic_hotspot": {
+      "theoretical_count": 0,
+      "valid_count": 0,
+      "invalid_count": 0,
+      "executable_count": 0,
+      "requires_external_asset_count": 0,
+      "materialized_count": 0,
+      "executed_count": 0,
+      "verified_count": 0,
+      "acceptance_evidence_count": 0
+    },
+    "interference": {
+      "theoretical_count": 6,
+      "valid_count": 6,
+      "invalid_count": 0,
+      "executable_count": 2,
+      "requires_external_asset_count": 4,
+      "materialized_count": 6,
+      "executed_count": 0,
+      "verified_count": 6,
+      "acceptance_evidence_count": 0
+    },
+    "beam_antenna": {
+      "theoretical_count": 16,
+      "valid_count": 16,
+      "invalid_count": 0,
+      "executable_count": 0,
+      "requires_external_asset_count": 16,
+      "materialized_count": 16,
+      "executed_count": 0,
+      "verified_count": 16,
+      "acceptance_evidence_count": 0
+    },
+    "mixed": {
+      "theoretical_count": 8,
+      "valid_count": 8,
+      "invalid_count": 0,
+      "executable_count": 8,
+      "requires_external_asset_count": 0,
+      "materialized_count": 8,
+      "executed_count": 0,
+      "verified_count": 8,
+      "acceptance_evidence_count": 0
+    }
+  }
+}

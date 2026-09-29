@@ -1,0 +1,29 @@
+{
+  "verifier_id": "scenario-independent-verifier",
+  "verifier_version": "0.1",
+  "verified": true,
+  "unique_semantic_definitions": 120,
+  "valid_definitions": 120,
+  "family_counts": {
+    "coverage_structure": 60,
+    "user_access_load": 18,
+    "mixed": 8,
+    "beam_antenna": 16,
+    "resource_scheduling": 12,
+    "interference": 6
+  },
+  "duplicate_canonical_definitions": [],
+  "seed_only_duplicates": [],
+  "mismatches": [],
+  "counts": {
+    "theoretical_count": 453600,
+    "valid_count": 408240,
+    "invalid_count": 45360,
+    "executable_count": 37800,
+    "requires_external_asset_count": 306180,
+    "materialized_count": 120,
+    "executed_count": 0,
+    "verified_count": 120,
+    "acceptance_evidence_count": 0
+  }
+}

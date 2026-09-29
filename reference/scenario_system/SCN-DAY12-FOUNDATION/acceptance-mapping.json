@@ -1,0 +1,47 @@
+[
+  {
+    "key": "task-1-2",
+    "title_zh": "任务书 1.2：5G 网络学习优化仿真验证平台",
+    "title_en": "Task 1.2",
+    "status": "部分实现",
+    "evidence": [
+      "scenario taxonomy",
+      "catalog",
+      "coverage API"
+    ],
+    "note_zh": "已建立场景组合与覆盖管理骨架，非百余场景全部系统级验证。"
+  },
+  {
+    "key": "research-1",
+    "title_zh": "研究内容 1：网络结构参数优化",
+    "title_en": "Research content 1",
+    "status": "部分实现",
+    "evidence": [
+      "NETWORK_STRUCTURE dimension",
+      "coverage_structure family"
+    ],
+    "note_zh": "可表达验证条件，不新增算法。"
+  },
+  {
+    "key": "research-4",
+    "title_zh": "研究内容 4：网络优化应用验证平台",
+    "title_en": "Research content 4",
+    "status": "部分实现",
+    "evidence": [
+      "three optimization problem types",
+      "TrafficModelAdapter contract"
+    ],
+    "note_zh": "真实模型和数据仍按状态标记。"
+  },
+  {
+    "key": "innovation-4",
+    "title_zh": "创新点 4：百余业务场景与模型接入",
+    "title_en": "Innovation point 4",
+    "status": "待接入真实模型/待实测验证",
+    "evidence": [
+      "120 semantic definitions",
+      "A-matrix profile"
+    ],
+    "note_zh": "不能宣称创新点 4 已完成验收。"
+  }
+]

@@ -1,0 +1,404 @@
+{
+  "taxonomy_version": "0.1",
+  "dimensions": [
+    {
+      "key": "environment",
+      "label_zh": "环境",
+      "label_en": "Environment",
+      "options": [
+        {
+          "value": "dense_urban",
+          "label_zh": "密集城区",
+          "label_en": "Dense urban",
+          "status": "SUPPORTED",
+          "description_zh": ""
+        },
+        {
+          "value": "urban",
+          "label_zh": "一般城区",
+          "label_en": "Urban",
+          "status": "SUPPORTED",
+          "description_zh": ""
+        },
+        {
+          "value": "residential",
+          "label_zh": "住宅区",
+          "label_en": "Residential",
+          "status": "SUPPORTED",
+          "description_zh": ""
+        },
+        {
+          "value": "cbd",
+          "label_zh": "CBD/商务区",
+          "label_en": "CBD",
+          "status": "SUPPORTED",
+          "description_zh": ""
+        },
+        {
+          "value": "transport",
+          "label_zh": "交通/道路",
+          "label_en": "Transport",
+          "status": "PARTIAL",
+          "description_zh": ""
+        },
+        {
+          "value": "hotspot",
+          "label_zh": "热点区域",
+          "label_en": "Hotspot",
+          "status": "PARTIAL",
+          "description_zh": ""
+        },
+        {
+          "value": "mixed_urban",
+          "label_zh": "混合城区",
+          "label_en": "Mixed urban",
+          "status": "PARTIAL",
+          "description_zh": ""
+        }
+      ]
+    },
+    {
+      "key": "topology",
+      "label_zh": "网络拓扑",
+      "label_en": "Network topology",
+      "options": [
+        {
+          "value": "single_site_single_cell",
+          "label_zh": "单站单小区",
+          "label_en": "Single site / cell",
+          "status": "SUPPORTED",
+          "description_zh": ""
+        },
+        {
+          "value": "single_site_multi_cell",
+          "label_zh": "单站多小区",
+          "label_en": "Single site / multi-cell",
+          "status": "SUPPORTED",
+          "description_zh": ""
+        },
+        {
+          "value": "multi_site_multi_cell",
+          "label_zh": "多站多小区",
+          "label_en": "Multi-site / multi-cell",
+          "status": "PARTIAL",
+          "description_zh": ""
+        },
+        {
+          "value": "macro_dominant",
+          "label_zh": "宏站主导",
+          "label_en": "Macro dominant",
+          "status": "PARTIAL",
+          "description_zh": ""
+        },
+        {
+          "value": "main_neighbor_cells",
+          "label_zh": "主小区+邻区",
+          "label_en": "Serving + neighbor cells",
+          "status": "DEFINED_NOT_EXECUTABLE",
+          "description_zh": ""
+        }
+      ]
+    },
+    {
+      "key": "ue_population",
+      "label_zh": "UE 群体",
+      "label_en": "UE population",
+      "options": [
+        {
+          "value": "low",
+          "label_zh": "低密度",
+          "label_en": "Low density",
+          "status": "SUPPORTED",
+          "description_zh": ""
+        },
+        {
+          "value": "medium",
+          "label_zh": "中密度",
+          "label_en": "Medium density",
+          "status": "SUPPORTED",
+          "description_zh": ""
+        },
+        {
+          "value": "high",
+          "label_zh": "高密度",
+          "label_en": "High density",
+          "status": "SUPPORTED",
+          "description_zh": ""
+        }
+      ]
+    },
+    {
+      "key": "mobility",
+      "label_zh": "移动性",
+      "label_en": "Mobility",
+      "options": [
+        {
+          "value": "static",
+          "label_zh": "静态",
+          "label_en": "Static",
+          "status": "SUPPORTED",
+          "description_zh": ""
+        },
+        {
+          "value": "mobile",
+          "label_zh": "移动",
+          "label_en": "Mobile",
+          "status": "PLANNED",
+          "description_zh": ""
+        }
+      ]
+    },
+    {
+      "key": "traffic",
+      "label_zh": "流量",
+      "label_en": "Traffic",
+      "options": [
+        {
+          "value": "full_buffer",
+          "label_zh": "全缓存",
+          "label_en": "Full buffer",
+          "status": "SUPPORTED",
+          "description_zh": ""
+        },
+        {
+          "value": "low_load",
+          "label_zh": "低负载",
+          "label_en": "Low load",
+          "status": "SUPPORTED",
+          "description_zh": ""
+        },
+        {
+          "value": "medium_load",
+          "label_zh": "中负载",
+          "label_en": "Medium load",
+          "status": "SUPPORTED",
+          "description_zh": ""
+        },
+        {
+          "value": "high_load",
+          "label_zh": "高负载",
+          "label_en": "High load",
+          "status": "SUPPORTED",
+          "description_zh": ""
+        },
+        {
+          "value": "hotspot_traffic",
+          "label_zh": "热点流量",
+          "label_en": "Hotspot traffic",
+          "status": "PARTIAL",
+          "description_zh": ""
+        },
+        {
+          "value": "time_varying",
+          "label_zh": "时变流量",
+          "label_en": "Time varying",
+          "status": "PARTIAL",
+          "description_zh": ""
+        },
+        {
+          "value": "beam_space_traffic",
+          "label_zh": "波束空间流量",
+          "label_en": "Beam-space traffic",
+          "status": "EXTERNAL_MODEL_REQUIRED",
+          "description_zh": ""
+        },
+        {
+          "value": "measured_traffic",
+          "label_zh": "实测流量",
+          "label_en": "Measured traffic",
+          "status": "REQUIRES_EXTERNAL_DATA",
+          "description_zh": ""
+        }
+      ]
+    },
+    {
+      "key": "radio_condition",
+      "label_zh": "无线条件",
+      "label_en": "Radio condition",
+      "options": [
+        {
+          "value": "coverage_normal",
+          "label_zh": "正常覆盖",
+          "label_en": "Normal coverage",
+          "status": "SUPPORTED",
+          "description_zh": ""
+        },
+        {
+          "value": "coverage_weak",
+          "label_zh": "弱覆盖",
+          "label_en": "Weak coverage",
+          "status": "PARTIAL",
+          "description_zh": ""
+        },
+        {
+          "value": "interference_low",
+          "label_zh": "低干扰",
+          "label_en": "Low interference",
+          "status": "SUPPORTED",
+          "description_zh": ""
+        },
+        {
+          "value": "interference_medium",
+          "label_zh": "中干扰",
+          "label_en": "Medium interference",
+          "status": "PARTIAL",
+          "description_zh": ""
+        },
+        {
+          "value": "interference_high",
+          "label_zh": "强干扰",
+          "label_en": "High interference",
+          "status": "PARTIAL",
+          "description_zh": ""
+        }
+      ]
+    },
+    {
+      "key": "network_function",
+      "label_zh": "网络功能",
+      "label_en": "Network function",
+      "options": [
+        {
+          "value": "coverage",
+          "label_zh": "覆盖",
+          "label_en": "Coverage",
+          "status": "SUPPORTED",
+          "description_zh": ""
+        },
+        {
+          "value": "user_access",
+          "label_zh": "用户接入",
+          "label_en": "User access",
+          "status": "SUPPORTED",
+          "description_zh": ""
+        },
+        {
+          "value": "load_balancing",
+          "label_zh": "负载均衡",
+          "label_en": "Load balancing",
+          "status": "PARTIAL",
+          "description_zh": ""
+        },
+        {
+          "value": "resource_scheduling",
+          "label_zh": "资源调度",
+          "label_en": "Resource scheduling",
+          "status": "PARTIAL",
+          "description_zh": ""
+        },
+        {
+          "value": "handover",
+          "label_zh": "切换",
+          "label_en": "Handover",
+          "status": "PLANNED",
+          "description_zh": ""
+        },
+        {
+          "value": "interference_coordination",
+          "label_zh": "干扰协调",
+          "label_en": "Interference coordination",
+          "status": "PARTIAL",
+          "description_zh": ""
+        }
+      ]
+    },
+    {
+      "key": "optimization_problem",
+      "label_zh": "优化问题",
+      "label_en": "Optimization problem",
+      "options": [
+        {
+          "value": "NETWORK_STRUCTURE",
+          "label_zh": "网络结构参数",
+          "label_en": "Network structure",
+          "status": "SUPPORTED",
+          "description_zh": ""
+        },
+        {
+          "value": "USER_ACCESS",
+          "label_zh": "用户接入参数",
+          "label_en": "User access",
+          "status": "SUPPORTED",
+          "description_zh": ""
+        },
+        {
+          "value": "SYSTEM_RESOURCE",
+          "label_zh": "系统资源参数",
+          "label_en": "System resource",
+          "status": "PARTIAL",
+          "description_zh": ""
+        }
+      ]
+    },
+    {
+      "key": "device_antenna",
+      "label_zh": "设备/天线",
+      "label_en": "Device / antenna",
+      "options": [
+        {
+          "value": "generic_simulation",
+          "label_zh": "通用仿真设备",
+          "label_en": "Generic simulation device",
+          "status": "SUPPORTED",
+          "description_zh": ""
+        },
+        {
+          "value": "measured_a_matrix_pending",
+          "label_zh": "实测 A 矩阵（待适配）",
+          "label_en": "Measured A-matrix pending adapter",
+          "status": "REQUIRES_EXTERNAL_DATA",
+          "description_zh": ""
+        },
+        {
+          "value": "multi_beam_placeholder",
+          "label_zh": "多波束契约占位",
+          "label_en": "Multi-beam contract placeholder",
+          "status": "EXTERNAL_MODEL_REQUIRED",
+          "description_zh": ""
+        }
+      ]
+    }
+  ],
+  "families": [
+    {
+      "value": "coverage_structure",
+      "label_zh": "覆盖与结构",
+      "label_en": "Coverage & Structure"
+    },
+    {
+      "value": "user_access_load",
+      "label_zh": "用户接入与负载",
+      "label_en": "User Access & Load"
+    },
+    {
+      "value": "resource_scheduling",
+      "label_zh": "资源调度",
+      "label_en": "Resource Scheduling"
+    },
+    {
+      "value": "mobility_handover",
+      "label_zh": "移动与切换",
+      "label_en": "Mobility & Handover"
+    },
+    {
+      "value": "traffic_hotspot",
+      "label_zh": "流量热点",
+      "label_en": "Traffic Hotspot"
+    },
+    {
+      "value": "interference",
+      "label_zh": "干扰",
+      "label_en": "Interference"
+    },
+    {
+      "value": "beam_antenna",
+      "label_zh": "波束与天线",
+      "label_en": "Beam & Antenna"
+    },
+    {
+      "value": "mixed",
+      "label_zh": "混合",
+      "label_en": "Mixed"
+    }
+  ]
+}
