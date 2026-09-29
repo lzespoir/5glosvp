@@ -1,0 +1,325 @@
+{
+  "comparison_id": "COMP-DAY11-EBB7F881CE",
+  "created_at": "2026-09-29T09:04:41.444419+00:00",
+  "confirmed_at": "2026-09-29T09:04:41.444433+00:00",
+  "status": "created",
+  "verification_status": "failed",
+  "verified": false,
+  "user_intent": "ALGORITHM_COMPARISON",
+  "selected_run_ids": [
+    "AEXP-DAY11-REF-MISSING",
+    "AEXP-DAY11-AE42414B"
+  ],
+  "compatibility": {
+    "preview_id": "CPREV-97E411C10B",
+    "selected_run_ids": [
+      "AEXP-DAY11-REF-MISSING",
+      "AEXP-DAY11-AE42414B"
+    ],
+    "intent": "ALGORITHM_COMPARISON",
+    "status": "insufficient_context",
+    "dimensions": [
+      {
+        "name": "problem_type",
+        "values": [
+          "user_association",
+          "user_association"
+        ],
+        "equal": true,
+        "frozen_by_default": true,
+        "declared_varying": false
+      },
+      {
+        "name": "dataset_id",
+        "values": [
+          "SIMULATION_MULTICELL_SCENARIO_SET",
+          "SIMULATION_MULTICELL_SCENARIO_SET"
+        ],
+        "equal": true,
+        "frozen_by_default": true,
+        "declared_varying": false
+      },
+      {
+        "name": "dataset_version",
+        "values": [
+          "0.1",
+          "0.1"
+        ],
+        "equal": true,
+        "frozen_by_default": true,
+        "declared_varying": false
+      },
+      {
+        "name": "dataset_hash",
+        "values": [
+          null,
+          "bfb788f896cbe0d9a44b5e06b9830b65fe307033ecdc18b0abc57170a36dac0f"
+        ],
+        "equal": false,
+        "frozen_by_default": true,
+        "declared_varying": false
+      },
+      {
+        "name": "scenario_id",
+        "values": [
+          "MULTICELL-DEMO-001",
+          "MULTICELL-DEMO-001"
+        ],
+        "equal": true,
+        "frozen_by_default": true,
+        "declared_varying": false
+      },
+      {
+        "name": "scenario_version",
+        "values": [
+          "0.1",
+          "0.1"
+        ],
+        "equal": true,
+        "frozen_by_default": true,
+        "declared_varying": false
+      },
+      {
+        "name": "scenario_hash",
+        "values": [
+          "bfb788f896cbe0d9a44b5e06b9830b65fe307033ecdc18b0abc57170a36dac0f",
+          "bfb788f896cbe0d9a44b5e06b9830b65fe307033ecdc18b0abc57170a36dac0f"
+        ],
+        "equal": true,
+        "frozen_by_default": true,
+        "declared_varying": false
+      },
+      {
+        "name": "channel_artifact_id",
+        "values": [
+          "CH-MULTICELL-FBD449D7",
+          "CH-MULTICELL-FBD449D7"
+        ],
+        "equal": true,
+        "frozen_by_default": true,
+        "declared_varying": false
+      },
+      {
+        "name": "channel_hash",
+        "values": [
+          "fbd449d7dc9b6b717658750d8de664fd5ffd30744bf3068f19b2e63fda613437",
+          "fbd449d7dc9b6b717658750d8de664fd5ffd30744bf3068f19b2e63fda613437"
+        ],
+        "equal": true,
+        "frozen_by_default": true,
+        "declared_varying": false
+      },
+      {
+        "name": "traffic_realization_id",
+        "values": [
+          "TRAFFIC-FULL_BUFFER",
+          "TRAFFIC-FULL_BUFFER"
+        ],
+        "equal": true,
+        "frozen_by_default": true,
+        "declared_varying": false
+      },
+      {
+        "name": "traffic_hash",
+        "values": [
+          "9fb7876ba26b724ff8bb88e17f3b6a6aece3a9fa028bbef67688bbd6fdb450d4",
+          "9fb7876ba26b724ff8bb88e17f3b6a6aece3a9fa028bbef67688bbd6fdb450d4"
+        ],
+        "equal": true,
+        "frozen_by_default": true,
+        "declared_varying": false
+      },
+      {
+        "name": "objective_id",
+        "values": [
+          "NETWORK_THROUGHPUT_WITH_P5_FLOOR_V0_1",
+          "NETWORK_THROUGHPUT_WITH_P5_FLOOR_V0_1"
+        ],
+        "equal": true,
+        "frozen_by_default": true,
+        "declared_varying": false
+      },
+      {
+        "name": "objective_version",
+        "values": [
+          "0.1",
+          "0.1"
+        ],
+        "equal": true,
+        "frozen_by_default": true,
+        "declared_varying": false
+      },
+      {
+        "name": "constraints_hash",
+        "values": [
+          "505c608c70ff1dd49946ba47a99dc0bd17f1e0ac5f4276a6755dc842470d115b",
+          "505c608c70ff1dd49946ba47a99dc0bd17f1e0ac5f4276a6755dc842470d115b"
+        ],
+        "equal": true,
+        "frozen_by_default": true,
+        "declared_varying": false
+      },
+      {
+        "name": "kpi_versions",
+        "values": [
+          {
+            "network_throughput": "0.1",
+            "average_ue_throughput": "0.1",
+            "p5_ue_throughput": "0.1"
+          },
+          {
+            "network_throughput": "0.1",
+            "average_ue_throughput": "0.1",
+            "p5_ue_throughput": "0.1"
+          }
+        ],
+        "equal": true,
+        "frozen_by_default": true,
+        "declared_varying": false
+      },
+      {
+        "name": "protocol_id",
+        "values": [
+          "USER_ASSOCIATION_EVALUATION_PROTOCOL_V0_1",
+          "USER_ASSOCIATION_EVALUATION_PROTOCOL_V0_1"
+        ],
+        "equal": true,
+        "frozen_by_default": true,
+        "declared_varying": false
+      },
+      {
+        "name": "protocol_version",
+        "values": [
+          "0.1",
+          "0.1"
+        ],
+        "equal": true,
+        "frozen_by_default": true,
+        "declared_varying": false
+      },
+      {
+        "name": "evaluation_budget",
+        "values": [
+          8,
+          8
+        ],
+        "equal": true,
+        "frozen_by_default": true,
+        "declared_varying": false
+      },
+      {
+        "name": "backend_id",
+        "values": [
+          "sionna_multicell",
+          "sionna_multicell"
+        ],
+        "equal": true,
+        "frozen_by_default": true,
+        "declared_varying": false
+      },
+      {
+        "name": "backend_version",
+        "values": [
+          "frozen-artifact-v0.1",
+          "frozen-artifact-v0.1"
+        ],
+        "equal": true,
+        "frozen_by_default": true,
+        "declared_varying": false
+      },
+      {
+        "name": "algorithm",
+        "values": [
+          {
+            "id": "example_external_optimizer",
+            "version": "0.1.0",
+            "package_hash": "c3f7b44a84f1b83ea7d4637bf094344d55e4f467076e1bccbbd57172401c7741"
+          },
+          {
+            "id": "example_external_optimizer",
+            "version": "0.1.0",
+            "package_hash": "c3f7b44a84f1b83ea7d4637bf094344d55e4f467076e1bccbbd57172401c7741"
+          }
+        ],
+        "equal": true,
+        "frozen_by_default": false,
+        "declared_varying": true
+      },
+      {
+        "name": "algorithm_parameters",
+        "values": [
+          {
+            "seed": 20260929,
+            "candidate_offset": 2
+          },
+          {
+            "seed": 20260929,
+            "candidate_offset": 2
+          }
+        ],
+        "equal": true,
+        "frozen_by_default": false,
+        "declared_varying": true
+      }
+    ],
+    "differences": [],
+    "incompatible_dimensions": [],
+    "declared_differences": [],
+    "missing_dimensions": [
+      "dataset_hash"
+    ],
+    "allowed_actions": [
+      "side_by_side"
+    ],
+    "message_zh": "关键科研身份缺失，证据不足，不能确认直接可比",
+    "created_at": "2026-09-29T09:04:41.444273+00:00"
+  },
+  "views": {
+    "side_by_side": true,
+    "aligned_metrics": false,
+    "convergence_overlay": false
+  },
+  "result_policy": {
+    "ranking": false,
+    "winner": false,
+    "gain": false,
+    "a_over_b": false
+  },
+  "verifier_id": "comparison-independent-verifier-v0.2",
+  "verifier_version": "comparison-independent-verifier-v0.2",
+  "verified_at": "2026-09-29T09:04:51.822060+00:00",
+  "verification_hash": "e3451fb693803166ce2807d513c1a0bf1223f85a5086f99bb1923a30b23dbdfd",
+  "verification": {
+    "status": "FAIL",
+    "comparison_id": "COMP-DAY11-EBB7F881CE",
+    "recomputed_eligibility": "insufficient_context",
+    "stored_eligibility": "insufficient_context",
+    "checks": [
+      {
+        "check": "selected_run_ids_exist",
+        "status": "PASS"
+      },
+      {
+        "check": "stored_selection_matches",
+        "status": "PASS"
+      },
+      {
+        "check": "stored_intent_matches",
+        "status": "PASS"
+      },
+      {
+        "check": "stored_eligibility_matches_recomputed",
+        "status": "PASS",
+        "stored": "insufficient_context",
+        "recomputed": "insufficient_context"
+      },
+      {
+        "check": "result_policy_has_no_ranking",
+        "status": "PASS"
+      }
+    ],
+    "mismatches": [],
+    "verified_at": "2026-09-29T09:04:51.822722+00:00",
+    "verifier_version": "comparison-independent-verifier-v0.2"
+  }
+}

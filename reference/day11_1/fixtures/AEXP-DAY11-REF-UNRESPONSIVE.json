@@ -1,0 +1,886 @@
+{
+  "run_id": "AEXP-DAY11-REF-UNRESPONSIVE",
+  "status": "running",
+  "stage": "RUNNING",
+  "package_id": "example_external_optimizer--0.1.0",
+  "algorithm_id": "example_external_optimizer",
+  "algorithm_version": "0.1.0",
+  "package_hash": "c3f7b44a84f1b83ea7d4637bf094344d55e4f467076e1bccbbd57172401c7741",
+  "sdk_version": "0.1",
+  "scenario_id": "MULTICELL-DEMO-001",
+  "parameters": {
+    "seed": 20260929,
+    "candidate_offset": 2
+  },
+  "evaluation_budget": 8,
+  "time_limit_seconds": null,
+  "created_at": "2026-09-29T08:42:46.656315+00:00",
+  "logs": [
+    {
+      "source": "platform",
+      "event": "run_started",
+      "at": "2026-09-29T08:42:46.736709+00:00"
+    },
+    {
+      "source": "algorithm",
+      "event": "suggest_observe_complete",
+      "evaluations_used": 8,
+      "at": "2026-09-29T08:42:46.773038+00:00"
+    }
+  ],
+  "worker_id": "worker-AEXP-DAY11-REF-UNRESPONSIVE",
+  "heartbeat_at": "2026-09-29T08:42:46.727736+00:00",
+  "cancel_requested": false,
+  "gpu_cleanup_status": "NOT VERIFIED IN CURRENT ENVIRONMENT",
+  "pid": 1966296,
+  "process_group_id": 1966296,
+  "started_at": "2026-09-29T08:59:00+00:00",
+  "problem_type": "user_association",
+  "dataset_id": "SIMULATION_MULTICELL_SCENARIO_SET",
+  "dataset_version": "0.1",
+  "dataset_hash": "bfb788f896cbe0d9a44b5e06b9830b65fe307033ecdc18b0abc57170a36dac0f",
+  "scenario_version": "0.1",
+  "scenario_hash": "bfb788f896cbe0d9a44b5e06b9830b65fe307033ecdc18b0abc57170a36dac0f",
+  "channel_artifact_id": "CH-MULTICELL-FBD449D7",
+  "channel_hash": "fbd449d7dc9b6b717658750d8de664fd5ffd30744bf3068f19b2e63fda613437",
+  "traffic_realization_id": "TRAFFIC-FULL_BUFFER",
+  "traffic_hash": "9fb7876ba26b724ff8bb88e17f3b6a6aece3a9fa028bbef67688bbd6fdb450d4",
+  "objective_id": "NETWORK_THROUGHPUT_WITH_P5_FLOOR_V0_1",
+  "objective_version": "0.1",
+  "constraints_hash": "505c608c70ff1dd49946ba47a99dc0bd17f1e0ac5f4276a6755dc842470d115b",
+  "kpi_versions": {
+    "network_throughput": "0.1",
+    "average_ue_throughput": "0.1",
+    "p5_ue_throughput": "0.1"
+  },
+  "protocol_id": "USER_ASSOCIATION_EVALUATION_PROTOCOL_V0_1",
+  "protocol_version": "0.1",
+  "backend_id": "sionna_multicell",
+  "backend_version": "frozen-artifact-v0.1",
+  "finished_at": "2026-09-29T08:42:46.772977+00:00",
+  "optimization_id": "OPT-BENCH-C3D89FB8",
+  "channel_provenance_hash_version": "0.1",
+  "channel_realization_id": "CH-MULTICELL-FBD449D7",
+  "evaluations_used": 8,
+  "stop_reason": "max_iterations",
+  "runtime": {
+    "optimizer_overhead_time": 0.001976498169824481,
+    "simulation_evaluation_time": 0.004433971829712391,
+    "total_wall_time": 0.006410469999536872
+  },
+  "best_candidate": {
+    "association": {
+      "assignments": {
+        "UE-003": "CELL-001",
+        "UE-004": "CELL-001",
+        "UE-005": "CELL-001",
+        "UE-006": "CELL-001",
+        "UE-007": "CELL-001",
+        "UE-008": "CELL-001",
+        "UE-009": "CELL-002",
+        "UE-010": "CELL-003",
+        "UE-012": "CELL-002",
+        "UE-014": "CELL-003",
+        "UE-015": "CELL-002",
+        "UE-017": "CELL-002"
+      }
+    },
+    "association_hash": "11f6f62088685b847f466403dfaeefb0c4138ae7dc1bb16d853d652fcb897c39",
+    "network_throughput_mbps": 2045.6607436285308,
+    "average_ue_throughput_mbps": 170.4717286357109,
+    "p5_ue_throughput_mbps": 49.247116823365495,
+    "cell_metrics": [
+      {
+        "cell_id": "CELL-001",
+        "associated_ue_count": 6,
+        "throughput_mbps": 459.06215949376224,
+        "average_ue_throughput_mbps": 76.51035991562703
+      },
+      {
+        "cell_id": "CELL-002",
+        "associated_ue_count": 4,
+        "throughput_mbps": 883.4770262608721,
+        "average_ue_throughput_mbps": 220.86925656521802
+      },
+      {
+        "cell_id": "CELL-003",
+        "associated_ue_count": 2,
+        "throughput_mbps": 703.1215578738963,
+        "average_ue_throughput_mbps": 351.56077893694817
+      }
+    ],
+    "ue_metrics": [
+      {
+        "ue_id": "UE-003",
+        "serving_cell_id": "CELL-001",
+        "throughput_mbps": 32.594260952046945,
+        "link_gain_db": -105.66077001490211,
+        "sinr_db": 4.592298545466563,
+        "resource_share": 0.16666666666666666
+      },
+      {
+        "ue_id": "UE-004",
+        "serving_cell_id": "CELL-001",
+        "throughput_mbps": 67.77109970794989,
+        "link_gain_db": -100.24337456496167,
+        "sinr_db": 11.973371566348465,
+        "resource_share": 0.16666666666666666
+      },
+      {
+        "ue_id": "UE-005",
+        "serving_cell_id": "CELL-001",
+        "throughput_mbps": 65.009577798711,
+        "link_gain_db": -100.27660945026471,
+        "sinr_db": 11.440906269811215,
+        "resource_share": 0.16666666666666666
+      },
+      {
+        "ue_id": "UE-006",
+        "serving_cell_id": "CELL-001",
+        "throughput_mbps": 80.27437640643751,
+        "link_gain_db": -96.61639288011375,
+        "sinr_db": 14.342066557560372,
+        "resource_share": 0.16666666666666666
+      },
+      {
+        "ue_id": "UE-007",
+        "serving_cell_id": "CELL-001",
+        "throughput_mbps": 115.84735515181514,
+        "link_gain_db": -97.7315625660228,
+        "sinr_db": 20.888869347620684,
+        "resource_share": 0.16666666666666666
+      },
+      {
+        "ue_id": "UE-008",
+        "serving_cell_id": "CELL-001",
+        "throughput_mbps": 97.56548947680176,
+        "link_gain_db": -89.5436904711151,
+        "sinr_db": 17.546337663925602,
+        "resource_share": 0.16666666666666666
+      },
+      {
+        "ue_id": "UE-009",
+        "serving_cell_id": "CELL-002",
+        "throughput_mbps": 154.99914486533987,
+        "link_gain_db": -112.37091157348334,
+        "sinr_db": 18.604275620744758,
+        "resource_share": 0.25
+      },
+      {
+        "ue_id": "UE-010",
+        "serving_cell_id": "CELL-003",
+        "throughput_mbps": 254.5711346631237,
+        "link_gain_db": -104.78263803002204,
+        "sinr_db": 15.197420453352876,
+        "resource_share": 0.5
+      },
+      {
+        "ue_id": "UE-012",
+        "serving_cell_id": "CELL-002",
+        "throughput_mbps": 62.87218071808067,
+        "link_gain_db": -124.23988227969205,
+        "sinr_db": 6.735304914536046,
+        "resource_share": 0.25
+      },
+      {
+        "ue_id": "UE-014",
+        "serving_cell_id": "CELL-003",
+        "throughput_mbps": 448.5504232107726,
+        "link_gain_db": -93.54854927659491,
+        "sinr_db": 26.996763262336966,
+        "resource_share": 0.5
+      },
+      {
+        "ue_id": "UE-015",
+        "serving_cell_id": "CELL-002",
+        "throughput_mbps": 374.9022161034579,
+        "link_gain_db": -85.83259509701526,
+        "sinr_db": 45.14259209721285,
+        "resource_share": 0.25
+      },
+      {
+        "ue_id": "UE-017",
+        "serving_cell_id": "CELL-002",
+        "throughput_mbps": 290.7034845739937,
+        "link_gain_db": -93.7646838439322,
+        "sinr_db": 35.00281522737216,
+        "resource_share": 0.25
+      }
+    ],
+    "p5_floor_mbps": null,
+    "p5_margin_mbps": null,
+    "feasible": true,
+    "channel_reused": true,
+    "runtime_seconds": 0.001206819899380207
+  },
+  "baseline": {
+    "association": {
+      "assignments": {
+        "UE-003": "CELL-001",
+        "UE-004": "CELL-001",
+        "UE-005": "CELL-001",
+        "UE-006": "CELL-001",
+        "UE-007": "CELL-001",
+        "UE-008": "CELL-001",
+        "UE-009": "CELL-002",
+        "UE-010": "CELL-003",
+        "UE-012": "CELL-002",
+        "UE-014": "CELL-003",
+        "UE-015": "CELL-002",
+        "UE-017": "CELL-002"
+      }
+    },
+    "association_hash": "11f6f62088685b847f466403dfaeefb0c4138ae7dc1bb16d853d652fcb897c39",
+    "network_throughput_mbps": 2045.6607436285308,
+    "average_ue_throughput_mbps": 170.4717286357109,
+    "p5_ue_throughput_mbps": 49.247116823365495,
+    "cell_metrics": [
+      {
+        "cell_id": "CELL-001",
+        "associated_ue_count": 6,
+        "throughput_mbps": 459.06215949376224,
+        "average_ue_throughput_mbps": 76.51035991562703
+      },
+      {
+        "cell_id": "CELL-002",
+        "associated_ue_count": 4,
+        "throughput_mbps": 883.4770262608721,
+        "average_ue_throughput_mbps": 220.86925656521802
+      },
+      {
+        "cell_id": "CELL-003",
+        "associated_ue_count": 2,
+        "throughput_mbps": 703.1215578738963,
+        "average_ue_throughput_mbps": 351.56077893694817
+      }
+    ],
+    "ue_metrics": [
+      {
+        "ue_id": "UE-003",
+        "serving_cell_id": "CELL-001",
+        "throughput_mbps": 32.594260952046945,
+        "link_gain_db": -105.66077001490211,
+        "sinr_db": 4.592298545466563,
+        "resource_share": 0.16666666666666666
+      },
+      {
+        "ue_id": "UE-004",
+        "serving_cell_id": "CELL-001",
+        "throughput_mbps": 67.77109970794989,
+        "link_gain_db": -100.24337456496167,
+        "sinr_db": 11.973371566348465,
+        "resource_share": 0.16666666666666666
+      },
+      {
+        "ue_id": "UE-005",
+        "serving_cell_id": "CELL-001",
+        "throughput_mbps": 65.009577798711,
+        "link_gain_db": -100.27660945026471,
+        "sinr_db": 11.440906269811215,
+        "resource_share": 0.16666666666666666
+      },
+      {
+        "ue_id": "UE-006",
+        "serving_cell_id": "CELL-001",
+        "throughput_mbps": 80.27437640643751,
+        "link_gain_db": -96.61639288011375,
+        "sinr_db": 14.342066557560372,
+        "resource_share": 0.16666666666666666
+      },
+      {
+        "ue_id": "UE-007",
+        "serving_cell_id": "CELL-001",
+        "throughput_mbps": 115.84735515181514,
+        "link_gain_db": -97.7315625660228,
+        "sinr_db": 20.888869347620684,
+        "resource_share": 0.16666666666666666
+      },
+      {
+        "ue_id": "UE-008",
+        "serving_cell_id": "CELL-001",
+        "throughput_mbps": 97.56548947680176,
+        "link_gain_db": -89.5436904711151,
+        "sinr_db": 17.546337663925602,
+        "resource_share": 0.16666666666666666
+      },
+      {
+        "ue_id": "UE-009",
+        "serving_cell_id": "CELL-002",
+        "throughput_mbps": 154.99914486533987,
+        "link_gain_db": -112.37091157348334,
+        "sinr_db": 18.604275620744758,
+        "resource_share": 0.25
+      },
+      {
+        "ue_id": "UE-010",
+        "serving_cell_id": "CELL-003",
+        "throughput_mbps": 254.5711346631237,
+        "link_gain_db": -104.78263803002204,
+        "sinr_db": 15.197420453352876,
+        "resource_share": 0.5
+      },
+      {
+        "ue_id": "UE-012",
+        "serving_cell_id": "CELL-002",
+        "throughput_mbps": 62.87218071808067,
+        "link_gain_db": -124.23988227969205,
+        "sinr_db": 6.735304914536046,
+        "resource_share": 0.25
+      },
+      {
+        "ue_id": "UE-014",
+        "serving_cell_id": "CELL-003",
+        "throughput_mbps": 448.5504232107726,
+        "link_gain_db": -93.54854927659491,
+        "sinr_db": 26.996763262336966,
+        "resource_share": 0.5
+      },
+      {
+        "ue_id": "UE-015",
+        "serving_cell_id": "CELL-002",
+        "throughput_mbps": 374.9022161034579,
+        "link_gain_db": -85.83259509701526,
+        "sinr_db": 45.14259209721285,
+        "resource_share": 0.25
+      },
+      {
+        "ue_id": "UE-017",
+        "serving_cell_id": "CELL-002",
+        "throughput_mbps": 290.7034845739937,
+        "link_gain_db": -93.7646838439322,
+        "sinr_db": 35.00281522737216,
+        "resource_share": 0.25
+      }
+    ],
+    "p5_floor_mbps": null,
+    "p5_margin_mbps": null,
+    "feasible": true,
+    "channel_reused": true,
+    "runtime_seconds": 0.001206819899380207
+  },
+  "trace": {
+    "algorithm_id": "example_external_optimizer",
+    "algorithm_version": "0.1.0",
+    "sdk_version": "0.1",
+    "hyperparameters": {
+      "seed": 20260929,
+      "candidate_offset": 2
+    },
+    "max_evaluations": 8,
+    "initial_state": {
+      "used_candidates": 0,
+      "observed_results": 1
+    },
+    "evaluations": [
+      {
+        "sequence": 0,
+        "round": 0,
+        "candidate_id": "BASELINE",
+        "parameters": {
+          "association_vector": [
+            "CELL-001",
+            "CELL-001",
+            "CELL-001",
+            "CELL-001",
+            "CELL-001",
+            "CELL-001",
+            "CELL-002",
+            "CELL-003",
+            "CELL-002",
+            "CELL-003",
+            "CELL-002",
+            "CELL-002"
+          ]
+        },
+        "objective": 2045.6607436285308,
+        "secondary_metrics": {
+          "network_throughput_mbps": 2045.6607436285308,
+          "average_ue_throughput_mbps": 170.4717286357109,
+          "p5_ue_throughput_mbps": 49.247116823365495
+        },
+        "status": "evaluated",
+        "cache_hit": false,
+        "best_so_far_candidate_id": "BASELINE",
+        "best_so_far_objective": 2045.6607436285308,
+        "at": "2026-09-29T08:42:46.768569+00:00"
+      },
+      {
+        "sequence": 1,
+        "round": 1,
+        "candidate_id": "AEXP-DAY11-AE42414B-CAND-001",
+        "parameters": {
+          "association_vector": [
+            "CELL-001",
+            "CELL-001",
+            "CELL-001",
+            "CELL-001",
+            "CELL-001",
+            "CELL-001",
+            "CELL-002",
+            "CELL-003",
+            "CELL-002",
+            "CELL-003",
+            "CELL-002",
+            "CELL-002"
+          ]
+        },
+        "objective": 2045.6607436285308,
+        "secondary_metrics": {
+          "network_throughput_mbps": 2045.6607436285308,
+          "average_ue_throughput_mbps": 170.4717286357109,
+          "p5_ue_throughput_mbps": 49.247116823365495
+        },
+        "status": "evaluated",
+        "cache_hit": false,
+        "best_so_far_candidate_id": "BASELINE",
+        "best_so_far_objective": 2045.6607436285308,
+        "at": "2026-09-29T08:42:46.769264+00:00"
+      },
+      {
+        "sequence": 2,
+        "round": 1,
+        "candidate_id": "AEXP-DAY11-AE42414B-CAND-002",
+        "parameters": {
+          "association_vector": [
+            "CELL-001",
+            "CELL-001",
+            "CELL-003",
+            "CELL-001",
+            "CELL-001",
+            "CELL-001",
+            "CELL-002",
+            "CELL-003",
+            "CELL-002",
+            "CELL-003",
+            "CELL-002",
+            "CELL-002"
+          ]
+        },
+        "objective": null,
+        "secondary_metrics": {
+          "network_throughput_mbps": 1825.723953607036,
+          "average_ue_throughput_mbps": 152.14366280058633,
+          "p5_ue_throughput_mbps": 21.7984680566282
+        },
+        "status": "evaluated",
+        "cache_hit": false,
+        "best_so_far_candidate_id": "BASELINE",
+        "best_so_far_objective": 2045.6607436285308,
+        "at": "2026-09-29T08:42:46.769729+00:00"
+      },
+      {
+        "sequence": 3,
+        "round": 1,
+        "candidate_id": "AEXP-DAY11-AE42414B-CAND-003",
+        "parameters": {
+          "association_vector": [
+            "CELL-003",
+            "CELL-001",
+            "CELL-001",
+            "CELL-001",
+            "CELL-001",
+            "CELL-001",
+            "CELL-002",
+            "CELL-003",
+            "CELL-002",
+            "CELL-003",
+            "CELL-002",
+            "CELL-002"
+          ]
+        },
+        "objective": null,
+        "secondary_metrics": {
+          "network_throughput_mbps": 1872.9369578816231,
+          "average_ue_throughput_mbps": 156.07807982346858,
+          "p5_ue_throughput_mbps": 38.60753604958716
+        },
+        "status": "evaluated",
+        "cache_hit": false,
+        "best_so_far_candidate_id": "BASELINE",
+        "best_so_far_objective": 2045.6607436285308,
+        "at": "2026-09-29T08:42:46.770164+00:00"
+      },
+      {
+        "sequence": 4,
+        "round": 1,
+        "candidate_id": "AEXP-DAY11-AE42414B-CAND-004",
+        "parameters": {
+          "association_vector": [
+            "CELL-001",
+            "CELL-002",
+            "CELL-001",
+            "CELL-001",
+            "CELL-001",
+            "CELL-001",
+            "CELL-002",
+            "CELL-003",
+            "CELL-002",
+            "CELL-003",
+            "CELL-002",
+            "CELL-002"
+          ]
+        },
+        "objective": null,
+        "secondary_metrics": {
+          "network_throughput_mbps": 1879.4812927937683,
+          "average_ue_throughput_mbps": 156.62344106614736,
+          "p5_ue_throughput_mbps": 21.52519120404066
+        },
+        "status": "evaluated",
+        "cache_hit": false,
+        "best_so_far_candidate_id": "BASELINE",
+        "best_so_far_objective": 2045.6607436285308,
+        "at": "2026-09-29T08:42:46.770600+00:00"
+      },
+      {
+        "sequence": 5,
+        "round": 1,
+        "candidate_id": "AEXP-DAY11-AE42414B-CAND-005",
+        "parameters": {
+          "association_vector": [
+            "CELL-001",
+            "CELL-001",
+            "CELL-001",
+            "CELL-001",
+            "CELL-001",
+            "CELL-001",
+            "CELL-002",
+            "CELL-003",
+            "CELL-002",
+            "CELL-002",
+            "CELL-002",
+            "CELL-002"
+          ]
+        },
+        "objective": null,
+        "secondary_metrics": {
+          "network_throughput_mbps": 1675.0383884399143,
+          "average_ue_throughput_mbps": 139.58653236999285,
+          "p5_ue_throughput_mbps": 17.95039589866891
+        },
+        "status": "evaluated",
+        "cache_hit": false,
+        "best_so_far_candidate_id": "BASELINE",
+        "best_so_far_objective": 2045.6607436285308,
+        "at": "2026-09-29T08:42:46.771078+00:00"
+      },
+      {
+        "sequence": 6,
+        "round": 1,
+        "candidate_id": "AEXP-DAY11-AE42414B-CAND-006",
+        "parameters": {
+          "association_vector": [
+            "CELL-001",
+            "CELL-001",
+            "CELL-001",
+            "CELL-001",
+            "CELL-001",
+            "CELL-001",
+            "CELL-002",
+            "CELL-002",
+            "CELL-002",
+            "CELL-003",
+            "CELL-002",
+            "CELL-002"
+          ]
+        },
+        "objective": null,
+        "secondary_metrics": {
+          "network_throughput_mbps": 2063.7343534754596,
+          "average_ue_throughput_mbps": 171.97786278962164,
+          "p5_ue_throughput_mbps": 18.2822204717802
+        },
+        "status": "evaluated",
+        "cache_hit": false,
+        "best_so_far_candidate_id": "BASELINE",
+        "best_so_far_objective": 2045.6607436285308,
+        "at": "2026-09-29T08:42:46.771637+00:00"
+      },
+      {
+        "sequence": 7,
+        "round": 1,
+        "candidate_id": "AEXP-DAY11-AE42414B-CAND-007",
+        "parameters": {
+          "association_vector": [
+            "CELL-002",
+            "CELL-001",
+            "CELL-001",
+            "CELL-001",
+            "CELL-001",
+            "CELL-001",
+            "CELL-002",
+            "CELL-003",
+            "CELL-002",
+            "CELL-003",
+            "CELL-002",
+            "CELL-002"
+          ]
+        },
+        "objective": null,
+        "secondary_metrics": {
+          "network_throughput_mbps": 1924.2527015924638,
+          "average_ue_throughput_mbps": 160.354391799372,
+          "p5_ue_throughput_mbps": 28.828379522870613
+        },
+        "status": "evaluated",
+        "cache_hit": false,
+        "best_so_far_candidate_id": "BASELINE",
+        "best_so_far_objective": 2045.6607436285308,
+        "at": "2026-09-29T08:42:46.772166+00:00"
+      },
+      {
+        "sequence": 8,
+        "round": 1,
+        "candidate_id": "AEXP-DAY11-AE42414B-CAND-008",
+        "parameters": {
+          "association_vector": [
+            "CELL-001",
+            "CELL-001",
+            "CELL-001",
+            "CELL-001",
+            "CELL-001",
+            "CELL-001",
+            "CELL-002",
+            "CELL-003",
+            "CELL-002",
+            "CELL-003",
+            "CELL-002",
+            "CELL-003"
+          ]
+        },
+        "objective": null,
+        "secondary_metrics": {
+          "network_throughput_mbps": 1718.1806417518649,
+          "average_ue_throughput_mbps": 143.18172014598875,
+          "p5_ue_throughput_mbps": 17.929568165476155
+        },
+        "status": "evaluated",
+        "cache_hit": false,
+        "best_so_far_candidate_id": "BASELINE",
+        "best_so_far_objective": 2045.6607436285308,
+        "at": "2026-09-29T08:42:46.772586+00:00"
+      }
+    ],
+    "rounds": [
+      {
+        "round": 1,
+        "state_before": {
+          "used_candidates": 0,
+          "observed_results": 1
+        },
+        "suggestions": [
+          {
+            "association_vector": [
+              "CELL-001",
+              "CELL-001",
+              "CELL-001",
+              "CELL-001",
+              "CELL-001",
+              "CELL-001",
+              "CELL-002",
+              "CELL-003",
+              "CELL-002",
+              "CELL-003",
+              "CELL-002",
+              "CELL-002"
+            ]
+          },
+          {
+            "association_vector": [
+              "CELL-001",
+              "CELL-001",
+              "CELL-003",
+              "CELL-001",
+              "CELL-001",
+              "CELL-001",
+              "CELL-002",
+              "CELL-003",
+              "CELL-002",
+              "CELL-003",
+              "CELL-002",
+              "CELL-002"
+            ]
+          },
+          {
+            "association_vector": [
+              "CELL-003",
+              "CELL-001",
+              "CELL-001",
+              "CELL-001",
+              "CELL-001",
+              "CELL-001",
+              "CELL-002",
+              "CELL-003",
+              "CELL-002",
+              "CELL-003",
+              "CELL-002",
+              "CELL-002"
+            ]
+          },
+          {
+            "association_vector": [
+              "CELL-001",
+              "CELL-002",
+              "CELL-001",
+              "CELL-001",
+              "CELL-001",
+              "CELL-001",
+              "CELL-002",
+              "CELL-003",
+              "CELL-002",
+              "CELL-003",
+              "CELL-002",
+              "CELL-002"
+            ]
+          },
+          {
+            "association_vector": [
+              "CELL-001",
+              "CELL-001",
+              "CELL-001",
+              "CELL-001",
+              "CELL-001",
+              "CELL-001",
+              "CELL-002",
+              "CELL-003",
+              "CELL-002",
+              "CELL-002",
+              "CELL-002",
+              "CELL-002"
+            ]
+          },
+          {
+            "association_vector": [
+              "CELL-001",
+              "CELL-001",
+              "CELL-001",
+              "CELL-001",
+              "CELL-001",
+              "CELL-001",
+              "CELL-002",
+              "CELL-002",
+              "CELL-002",
+              "CELL-003",
+              "CELL-002",
+              "CELL-002"
+            ]
+          },
+          {
+            "association_vector": [
+              "CELL-002",
+              "CELL-001",
+              "CELL-001",
+              "CELL-001",
+              "CELL-001",
+              "CELL-001",
+              "CELL-002",
+              "CELL-003",
+              "CELL-002",
+              "CELL-003",
+              "CELL-002",
+              "CELL-002"
+            ]
+          },
+          {
+            "association_vector": [
+              "CELL-001",
+              "CELL-001",
+              "CELL-001",
+              "CELL-001",
+              "CELL-001",
+              "CELL-001",
+              "CELL-002",
+              "CELL-003",
+              "CELL-002",
+              "CELL-003",
+              "CELL-002",
+              "CELL-003"
+            ]
+          }
+        ],
+        "evaluated_candidate_ids": [
+          "AEXP-DAY11-AE42414B-CAND-001",
+          "AEXP-DAY11-AE42414B-CAND-002",
+          "AEXP-DAY11-AE42414B-CAND-003",
+          "AEXP-DAY11-AE42414B-CAND-004",
+          "AEXP-DAY11-AE42414B-CAND-005",
+          "AEXP-DAY11-AE42414B-CAND-006",
+          "AEXP-DAY11-AE42414B-CAND-007",
+          "AEXP-DAY11-AE42414B-CAND-008"
+        ],
+        "rejected_suggestions": [],
+        "state_after": {
+          "used_candidates": 8,
+          "observed_results": 9
+        }
+      }
+    ],
+    "evaluations_used": 8,
+    "rejected_suggestions": 0,
+    "stop_reason": "max_iterations",
+    "stop_detail": "reported by the algorithm",
+    "recommendation": {
+      "parameters": {
+        "association_vector": [
+          "CELL-001",
+          "CELL-001",
+          "CELL-001",
+          "CELL-001",
+          "CELL-001",
+          "CELL-001",
+          "CELL-002",
+          "CELL-003",
+          "CELL-002",
+          "CELL-003",
+          "CELL-002",
+          "CELL-002"
+        ]
+      },
+      "note": "evaluated_candidates=9"
+    },
+    "final_state": {
+      "used_candidates": 8,
+      "observed_results": 9
+    },
+    "error": null
+  },
+  "provenance": {
+    "package_id": "example_external_optimizer--0.1.0",
+    "algorithm_id": "example_external_optimizer",
+    "algorithm_version": "0.1.0",
+    "provider": "Day 10 example package",
+    "category": "external",
+    "implementation_origin": "original",
+    "manifest_hash": "59e2de68fd078c8cc1104b1d25123419c5d380de142d54f9306e407158ca1607",
+    "source_hash": "64b12fa31e1900e70f44345669f02147fdfe3887bcf031c5b2f76e64ea0aeb9f",
+    "package_hash": "c3f7b44a84f1b83ea7d4637bf094344d55e4f467076e1bccbbd57172401c7741",
+    "sdk_version": "0.1",
+    "scenario_id": "MULTICELL-DEMO-001",
+    "channel_realization_id": "CH-MULTICELL-FBD449D7",
+    "channel_hash": "fbd449d7dc9b6b717658750d8de664fd5ffd30744bf3068f19b2e63fda613437",
+    "channel_provenance_hash_version": "0.1",
+    "data_source": "simulation",
+    "paper_reproduced": false,
+    "algorithm_correct": false
+  },
+  "reference_id": "AEXP-DAY11-AE42414B",
+  "evidence": {
+    "evidence_id": "EVID-AEXP-DAY11-AE42414B",
+    "evidence_type": "external_algorithm_experiment",
+    "source_entity_id": "AEXP-DAY11-AE42414B",
+    "verified": false,
+    "verification_status": "pending",
+    "verifier_id": null,
+    "verified_at": null,
+    "verification_hash": null,
+    "acceptance_eligible": false,
+    "acceptance_reason": [
+      "simulation_only",
+      "external_algorithm_integration"
+    ],
+    "package_hash": "c3f7b44a84f1b83ea7d4637bf094344d55e4f467076e1bccbbd57172401c7741"
+  },
+  "benchmark_id": null,
+  "export_bundle": "reference/algorithm_onboarding/AEXP-DAY11-AE42414B/experiment-bundle.zip",
+  "reference_fixture": "DAY11.1 deliberately unresponsive owned-worker fixture"
+}

@@ -1,0 +1,16 @@
+{
+  "evidence_id": "EVID-AEXP-DAY11-9EC6CB01",
+  "evidence_type": "external_algorithm_experiment",
+  "source_entity_id": "AEXP-DAY11-9EC6CB01",
+  "verified": false,
+  "verification_status": "pending",
+  "verifier_id": null,
+  "verified_at": null,
+  "verification_hash": null,
+  "acceptance_eligible": false,
+  "acceptance_reason": [
+    "simulation_only",
+    "external_algorithm_integration"
+  ],
+  "package_hash": "c3f7b44a84f1b83ea7d4637bf094344d55e4f467076e1bccbbd57172401c7741"
+}

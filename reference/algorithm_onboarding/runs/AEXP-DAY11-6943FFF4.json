@@ -1,0 +1,55 @@
+{
+  "run_id": "AEXP-DAY11-6943FFF4",
+  "status": "cancelled",
+  "stage": "CANCELLED",
+  "package_id": "example_external_optimizer--0.1.0",
+  "algorithm_id": "example_external_optimizer",
+  "algorithm_version": "0.1.0",
+  "package_hash": "c3f7b44a84f1b83ea7d4637bf094344d55e4f467076e1bccbbd57172401c7741",
+  "sdk_version": "0.1",
+  "scenario_id": "MULTICELL-DEMO-001",
+  "parameters": {
+    "seed": 20260929,
+    "candidate_offset": 1
+  },
+  "evaluation_budget": 8,
+  "time_limit_seconds": null,
+  "created_at": "2026-09-29T09:08:45.609327+00:00",
+  "logs": [
+    {
+      "source": "platform",
+      "event": "run_started",
+      "at": "2026-09-29T09:08:45.649166+00:00"
+    }
+  ],
+  "worker_id": "worker-AEXP-DAY11-6943FFF4",
+  "heartbeat_at": "2026-09-29T09:08:45.610230+00:00",
+  "cancel_requested": true,
+  "gpu_cleanup_status": "NOT VERIFIED IN CURRENT ENVIRONMENT",
+  "started_at": "2026-09-29T09:08:45.649086+00:00",
+  "problem_type": "user_association",
+  "dataset_id": "SIMULATION_MULTICELL_SCENARIO_SET",
+  "dataset_version": "0.1",
+  "dataset_hash": "bfb788f896cbe0d9a44b5e06b9830b65fe307033ecdc18b0abc57170a36dac0f",
+  "scenario_version": "0.1",
+  "scenario_hash": "bfb788f896cbe0d9a44b5e06b9830b65fe307033ecdc18b0abc57170a36dac0f",
+  "channel_artifact_id": "CH-MULTICELL-FBD449D7",
+  "channel_hash": "fbd449d7dc9b6b717658750d8de664fd5ffd30744bf3068f19b2e63fda613437",
+  "traffic_realization_id": "TRAFFIC-FULL_BUFFER",
+  "traffic_hash": "9fb7876ba26b724ff8bb88e17f3b6a6aece3a9fa028bbef67688bbd6fdb450d4",
+  "objective_id": "NETWORK_THROUGHPUT_WITH_P5_FLOOR_V0_1",
+  "objective_version": "0.1",
+  "constraints_hash": "505c608c70ff1dd49946ba47a99dc0bd17f1e0ac5f4276a6755dc842470d115b",
+  "kpi_versions": {
+    "network_throughput": "0.1",
+    "average_ue_throughput": "0.1",
+    "p5_ue_throughput": "0.1"
+  },
+  "protocol_id": "USER_ASSOCIATION_EVALUATION_PROTOCOL_V0_1",
+  "protocol_version": "0.1",
+  "backend_id": "sionna_multicell",
+  "backend_version": "frozen-artifact-v0.1",
+  "finished_at": "2026-09-29T09:09:15.693191+00:00",
+  "pid": 1981350,
+  "process_group_id": 1981350
+}

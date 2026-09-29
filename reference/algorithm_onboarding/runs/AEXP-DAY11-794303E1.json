@@ -1,0 +1,36 @@
+{
+  "run_id": "AEXP-DAY11-794303E1",
+  "status": "cancelled",
+  "stage": "CANCELLED",
+  "package_id": "example_external_optimizer--0.1.0",
+  "algorithm_id": "example_external_optimizer",
+  "algorithm_version": "0.1.0",
+  "package_hash": "c3f7b44a84f1b83ea7d4637bf094344d55e4f467076e1bccbbd57172401c7741",
+  "sdk_version": "0.1",
+  "scenario_id": "MULTICELL-DEMO-001",
+  "parameters": {
+    "seed": 20260929,
+    "candidate_offset": 1
+  },
+  "evaluation_budget": 8,
+  "time_limit_seconds": 1e-06,
+  "created_at": "2026-09-29T08:50:03.363674+00:00",
+  "logs": [
+    {
+      "source": "platform",
+      "event": "run_started",
+      "at": "2026-09-29T08:50:03.404381+00:00"
+    }
+  ],
+  "worker_id": "worker-AEXP-DAY11-794303E1",
+  "heartbeat_at": "2026-09-29T08:50:03.392959+00:00",
+  "cancel_requested": true,
+  "gpu_cleanup_status": "NOT VERIFIED IN CURRENT ENVIRONMENT",
+  "pid": 1959482,
+  "process_group_id": 1952873,
+  "started_at": "2026-09-29T08:50:03.404351+00:00",
+  "cancel_requested_at": "2026-09-29T08:50:03.395155+00:00",
+  "time_limit_pending": true,
+  "time_limit_message": "automatic graceful cancel and escalation are managed by the execution watcher",
+  "finished_at": "2026-09-29T08:50:03.404823+00:00"
+}

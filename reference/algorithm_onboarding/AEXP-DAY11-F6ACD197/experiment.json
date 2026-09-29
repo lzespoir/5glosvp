@@ -1,0 +1,26 @@
+{
+  "run_id": "AEXP-DAY11-F6ACD197",
+  "status": "completed",
+  "stage": "COMPLETED",
+  "package_id": "example_external_optimizer--0.1.0",
+  "algorithm_id": "example_external_optimizer",
+  "algorithm_version": "0.1.0",
+  "package_hash": "c3f7b44a84f1b83ea7d4637bf094344d55e4f467076e1bccbbd57172401c7741",
+  "scenario_id": "MULTICELL-DEMO-001",
+  "parameters": {
+    "seed": 20260929,
+    "candidate_offset": 1
+  },
+  "evaluation_budget": 8,
+  "optimization_id": "OPT-BENCH-E9430384",
+  "evaluations_used": 8,
+  "stop_reason": "max_iterations",
+  "runtime": {
+    "optimizer_overhead_time": 0.0019081649370491505,
+    "simulation_evaluation_time": 0.004292116034775972,
+    "total_wall_time": 0.006200280971825123
+  },
+  "channel_realization_id": "CH-MULTICELL-FBD449D7",
+  "channel_hash": "fbd449d7dc9b6b717658750d8de664fd5ffd30744bf3068f19b2e63fda613437",
+  "channel_provenance_hash_version": "0.1"
+}

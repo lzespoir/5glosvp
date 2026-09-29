@@ -1,0 +1,17 @@
+{
+  "status": "PENDING",
+  "verification_status": "pending",
+  "verified": false,
+  "verifier_id": null,
+  "verified_at": null,
+  "verification_hash": null,
+  "algorithm_correct": false,
+  "paper_reproduced": false,
+  "checks": [
+    "package identity",
+    "manifest/source/package hash",
+    "SDK/interface",
+    "platform evaluation",
+    "trace/KPI/evidence"
+  ]
+}

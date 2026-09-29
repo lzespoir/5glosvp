@@ -4,7 +4,7 @@ Purpose: Algorithm Benchmark and Comparative Validation
 
 Problem: User Association
 Data Source: Simulation
-Verification: Independent
+Verification: Historical legacy semantics; see design/DAY11_EVIDENCE_MIGRATION.md
 Comparison Eligible: YES
 Acceptance Eligible: NO
 

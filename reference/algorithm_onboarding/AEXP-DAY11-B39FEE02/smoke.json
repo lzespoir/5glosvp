@@ -1,0 +1,5 @@
+{
+  "status": "PASS",
+  "evaluator": "fake_lightweight_evaluator",
+  "real_sionna_used": false
+}

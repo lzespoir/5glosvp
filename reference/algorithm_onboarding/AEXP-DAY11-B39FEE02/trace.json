@@ -1,0 +1,486 @@
+{
+  "algorithm_id": "example_external_optimizer",
+  "algorithm_version": "0.1.0",
+  "sdk_version": "0.1",
+  "hyperparameters": {
+    "seed": 20260929,
+    "candidate_offset": 1
+  },
+  "max_evaluations": 8,
+  "initial_state": {
+    "used_candidates": 0,
+    "observed_results": 1
+  },
+  "evaluations": [
+    {
+      "sequence": 0,
+      "round": 0,
+      "candidate_id": "BASELINE",
+      "parameters": {
+        "association_vector": [
+          "CELL-001",
+          "CELL-001",
+          "CELL-001",
+          "CELL-001",
+          "CELL-001",
+          "CELL-001",
+          "CELL-002",
+          "CELL-003",
+          "CELL-002",
+          "CELL-003",
+          "CELL-002",
+          "CELL-002"
+        ]
+      },
+      "objective": 2045.6607436285308,
+      "secondary_metrics": {
+        "network_throughput_mbps": 2045.6607436285308,
+        "average_ue_throughput_mbps": 170.4717286357109,
+        "p5_ue_throughput_mbps": 49.247116823365495
+      },
+      "status": "evaluated",
+      "cache_hit": false,
+      "best_so_far_candidate_id": "BASELINE",
+      "best_so_far_objective": 2045.6607436285308,
+      "at": "2026-09-29T09:08:01.964336+00:00"
+    },
+    {
+      "sequence": 1,
+      "round": 1,
+      "candidate_id": "AEXP-DAY11-B39FEE02-CAND-001",
+      "parameters": {
+        "association_vector": [
+          "CELL-001",
+          "CELL-001",
+          "CELL-001",
+          "CELL-001",
+          "CELL-001",
+          "CELL-001",
+          "CELL-002",
+          "CELL-003",
+          "CELL-002",
+          "CELL-003",
+          "CELL-002",
+          "CELL-002"
+        ]
+      },
+      "objective": 2045.6607436285308,
+      "secondary_metrics": {
+        "network_throughput_mbps": 2045.6607436285308,
+        "average_ue_throughput_mbps": 170.4717286357109,
+        "p5_ue_throughput_mbps": 49.247116823365495
+      },
+      "status": "evaluated",
+      "cache_hit": false,
+      "best_so_far_candidate_id": "BASELINE",
+      "best_so_far_objective": 2045.6607436285308,
+      "at": "2026-09-29T09:08:01.965067+00:00"
+    },
+    {
+      "sequence": 2,
+      "round": 1,
+      "candidate_id": "AEXP-DAY11-B39FEE02-CAND-002",
+      "parameters": {
+        "association_vector": [
+          "CELL-001",
+          "CELL-001",
+          "CELL-001",
+          "CELL-001",
+          "CELL-002",
+          "CELL-001",
+          "CELL-002",
+          "CELL-003",
+          "CELL-002",
+          "CELL-003",
+          "CELL-002",
+          "CELL-002"
+        ]
+      },
+      "objective": null,
+      "secondary_metrics": {
+        "network_throughput_mbps": 1821.7610729074154,
+        "average_ue_throughput_mbps": 151.81342274228462,
+        "p5_ue_throughput_mbps": 21.512270194869092
+      },
+      "status": "evaluated",
+      "cache_hit": false,
+      "best_so_far_candidate_id": "BASELINE",
+      "best_so_far_objective": 2045.6607436285308,
+      "at": "2026-09-29T09:08:01.965536+00:00"
+    },
+    {
+      "sequence": 3,
+      "round": 1,
+      "candidate_id": "AEXP-DAY11-B39FEE02-CAND-003",
+      "parameters": {
+        "association_vector": [
+          "CELL-001",
+          "CELL-001",
+          "CELL-003",
+          "CELL-001",
+          "CELL-001",
+          "CELL-001",
+          "CELL-002",
+          "CELL-003",
+          "CELL-002",
+          "CELL-003",
+          "CELL-002",
+          "CELL-002"
+        ]
+      },
+      "objective": null,
+      "secondary_metrics": {
+        "network_throughput_mbps": 1825.723953607036,
+        "average_ue_throughput_mbps": 152.14366280058633,
+        "p5_ue_throughput_mbps": 21.7984680566282
+      },
+      "status": "evaluated",
+      "cache_hit": false,
+      "best_so_far_candidate_id": "BASELINE",
+      "best_so_far_objective": 2045.6607436285308,
+      "at": "2026-09-29T09:08:01.965994+00:00"
+    },
+    {
+      "sequence": 4,
+      "round": 1,
+      "candidate_id": "AEXP-DAY11-B39FEE02-CAND-004",
+      "parameters": {
+        "association_vector": [
+          "CELL-003",
+          "CELL-001",
+          "CELL-001",
+          "CELL-001",
+          "CELL-001",
+          "CELL-001",
+          "CELL-002",
+          "CELL-003",
+          "CELL-002",
+          "CELL-003",
+          "CELL-002",
+          "CELL-002"
+        ]
+      },
+      "objective": null,
+      "secondary_metrics": {
+        "network_throughput_mbps": 1872.9369578816231,
+        "average_ue_throughput_mbps": 156.07807982346858,
+        "p5_ue_throughput_mbps": 38.60753604958716
+      },
+      "status": "evaluated",
+      "cache_hit": false,
+      "best_so_far_candidate_id": "BASELINE",
+      "best_so_far_objective": 2045.6607436285308,
+      "at": "2026-09-29T09:08:01.966430+00:00"
+    },
+    {
+      "sequence": 5,
+      "round": 1,
+      "candidate_id": "AEXP-DAY11-B39FEE02-CAND-005",
+      "parameters": {
+        "association_vector": [
+          "CELL-001",
+          "CELL-002",
+          "CELL-001",
+          "CELL-001",
+          "CELL-001",
+          "CELL-001",
+          "CELL-002",
+          "CELL-003",
+          "CELL-002",
+          "CELL-003",
+          "CELL-002",
+          "CELL-002"
+        ]
+      },
+      "objective": null,
+      "secondary_metrics": {
+        "network_throughput_mbps": 1879.4812927937683,
+        "average_ue_throughput_mbps": 156.62344106614736,
+        "p5_ue_throughput_mbps": 21.52519120404066
+      },
+      "status": "evaluated",
+      "cache_hit": false,
+      "best_so_far_candidate_id": "BASELINE",
+      "best_so_far_objective": 2045.6607436285308,
+      "at": "2026-09-29T09:08:01.966886+00:00"
+    },
+    {
+      "sequence": 6,
+      "round": 1,
+      "candidate_id": "AEXP-DAY11-B39FEE02-CAND-006",
+      "parameters": {
+        "association_vector": [
+          "CELL-001",
+          "CELL-001",
+          "CELL-001",
+          "CELL-001",
+          "CELL-001",
+          "CELL-001",
+          "CELL-002",
+          "CELL-003",
+          "CELL-002",
+          "CELL-002",
+          "CELL-002",
+          "CELL-002"
+        ]
+      },
+      "objective": null,
+      "secondary_metrics": {
+        "network_throughput_mbps": 1675.0383884399143,
+        "average_ue_throughput_mbps": 139.58653236999285,
+        "p5_ue_throughput_mbps": 17.95039589866891
+      },
+      "status": "evaluated",
+      "cache_hit": false,
+      "best_so_far_candidate_id": "BASELINE",
+      "best_so_far_objective": 2045.6607436285308,
+      "at": "2026-09-29T09:08:01.967476+00:00"
+    },
+    {
+      "sequence": 7,
+      "round": 1,
+      "candidate_id": "AEXP-DAY11-B39FEE02-CAND-007",
+      "parameters": {
+        "association_vector": [
+          "CELL-001",
+          "CELL-001",
+          "CELL-001",
+          "CELL-001",
+          "CELL-001",
+          "CELL-001",
+          "CELL-002",
+          "CELL-002",
+          "CELL-002",
+          "CELL-003",
+          "CELL-002",
+          "CELL-002"
+        ]
+      },
+      "objective": null,
+      "secondary_metrics": {
+        "network_throughput_mbps": 2063.7343534754596,
+        "average_ue_throughput_mbps": 171.97786278962164,
+        "p5_ue_throughput_mbps": 18.2822204717802
+      },
+      "status": "evaluated",
+      "cache_hit": false,
+      "best_so_far_candidate_id": "BASELINE",
+      "best_so_far_objective": 2045.6607436285308,
+      "at": "2026-09-29T09:08:01.967941+00:00"
+    },
+    {
+      "sequence": 8,
+      "round": 1,
+      "candidate_id": "AEXP-DAY11-B39FEE02-CAND-008",
+      "parameters": {
+        "association_vector": [
+          "CELL-002",
+          "CELL-001",
+          "CELL-001",
+          "CELL-001",
+          "CELL-001",
+          "CELL-001",
+          "CELL-002",
+          "CELL-003",
+          "CELL-002",
+          "CELL-003",
+          "CELL-002",
+          "CELL-002"
+        ]
+      },
+      "objective": null,
+      "secondary_metrics": {
+        "network_throughput_mbps": 1924.2527015924638,
+        "average_ue_throughput_mbps": 160.354391799372,
+        "p5_ue_throughput_mbps": 28.828379522870613
+      },
+      "status": "evaluated",
+      "cache_hit": false,
+      "best_so_far_candidate_id": "BASELINE",
+      "best_so_far_objective": 2045.6607436285308,
+      "at": "2026-09-29T09:08:01.968380+00:00"
+    }
+  ],
+  "rounds": [
+    {
+      "round": 1,
+      "state_before": {
+        "used_candidates": 0,
+        "observed_results": 1
+      },
+      "suggestions": [
+        {
+          "association_vector": [
+            "CELL-001",
+            "CELL-001",
+            "CELL-001",
+            "CELL-001",
+            "CELL-001",
+            "CELL-001",
+            "CELL-002",
+            "CELL-003",
+            "CELL-002",
+            "CELL-003",
+            "CELL-002",
+            "CELL-002"
+          ]
+        },
+        {
+          "association_vector": [
+            "CELL-001",
+            "CELL-001",
+            "CELL-001",
+            "CELL-001",
+            "CELL-002",
+            "CELL-001",
+            "CELL-002",
+            "CELL-003",
+            "CELL-002",
+            "CELL-003",
+            "CELL-002",
+            "CELL-002"
+          ]
+        },
+        {
+          "association_vector": [
+            "CELL-001",
+            "CELL-001",
+            "CELL-003",
+            "CELL-001",
+            "CELL-001",
+            "CELL-001",
+            "CELL-002",
+            "CELL-003",
+            "CELL-002",
+            "CELL-003",
+            "CELL-002",
+            "CELL-002"
+          ]
+        },
+        {
+          "association_vector": [
+            "CELL-003",
+            "CELL-001",
+            "CELL-001",
+            "CELL-001",
+            "CELL-001",
+            "CELL-001",
+            "CELL-002",
+            "CELL-003",
+            "CELL-002",
+            "CELL-003",
+            "CELL-002",
+            "CELL-002"
+          ]
+        },
+        {
+          "association_vector": [
+            "CELL-001",
+            "CELL-002",
+            "CELL-001",
+            "CELL-001",
+            "CELL-001",
+            "CELL-001",
+            "CELL-002",
+            "CELL-003",
+            "CELL-002",
+            "CELL-003",
+            "CELL-002",
+            "CELL-002"
+          ]
+        },
+        {
+          "association_vector": [
+            "CELL-001",
+            "CELL-001",
+            "CELL-001",
+            "CELL-001",
+            "CELL-001",
+            "CELL-001",
+            "CELL-002",
+            "CELL-003",
+            "CELL-002",
+            "CELL-002",
+            "CELL-002",
+            "CELL-002"
+          ]
+        },
+        {
+          "association_vector": [
+            "CELL-001",
+            "CELL-001",
+            "CELL-001",
+            "CELL-001",
+            "CELL-001",
+            "CELL-001",
+            "CELL-002",
+            "CELL-002",
+            "CELL-002",
+            "CELL-003",
+            "CELL-002",
+            "CELL-002"
+          ]
+        },
+        {
+          "association_vector": [
+            "CELL-002",
+            "CELL-001",
+            "CELL-001",
+            "CELL-001",
+            "CELL-001",
+            "CELL-001",
+            "CELL-002",
+            "CELL-003",
+            "CELL-002",
+            "CELL-003",
+            "CELL-002",
+            "CELL-002"
+          ]
+        }
+      ],
+      "evaluated_candidate_ids": [
+        "AEXP-DAY11-B39FEE02-CAND-001",
+        "AEXP-DAY11-B39FEE02-CAND-002",
+        "AEXP-DAY11-B39FEE02-CAND-003",
+        "AEXP-DAY11-B39FEE02-CAND-004",
+        "AEXP-DAY11-B39FEE02-CAND-005",
+        "AEXP-DAY11-B39FEE02-CAND-006",
+        "AEXP-DAY11-B39FEE02-CAND-007",
+        "AEXP-DAY11-B39FEE02-CAND-008"
+      ],
+      "rejected_suggestions": [],
+      "state_after": {
+        "used_candidates": 8,
+        "observed_results": 9
+      }
+    }
+  ],
+  "evaluations_used": 8,
+  "rejected_suggestions": 0,
+  "stop_reason": "max_iterations",
+  "stop_detail": "reported by the algorithm",
+  "recommendation": {
+    "parameters": {
+      "association_vector": [
+        "CELL-001",
+        "CELL-001",
+        "CELL-001",
+        "CELL-001",
+        "CELL-001",
+        "CELL-001",
+        "CELL-002",
+        "CELL-003",
+        "CELL-002",
+        "CELL-003",
+        "CELL-002",
+        "CELL-002"
+      ]
+    },
+    "note": "evaluated_candidates=9"
+  },
+  "final_state": {
+    "used_candidates": 8,
+    "observed_results": 9
+  },
+  "error": null
+}
