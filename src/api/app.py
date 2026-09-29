@@ -16,10 +16,11 @@ from experiments import ExperimentService
 from optimization import OptimizationService
 from system_optimization import SystemOptimizationService
 from system_simulation import SystemExperimentService
+from scenarios import ScenarioSystemService
 
 from . import __version__
 from .errors import install_error_handlers
-from .routes import algorithm_packages, algorithms, benchmarks, comparisons, experiments, health, optimizations, scenarios, system, system_optimization, user_association
+from .routes import algorithm_packages, algorithms, benchmarks, comparisons, experiments, health, optimizations, scenarios, scenario_system, system, system_optimization, user_association
 from .schemas import API_PREFIX
 
 
@@ -30,6 +31,7 @@ def create_app(
     optimization_service: OptimizationService | None = None,
     system_service: SystemExperimentService | None = None,
     system_optimization_service: SystemOptimizationService | None = None,
+    scenario_service: ScenarioSystemService | None = None,
 ) -> FastAPI:
     """optimization_service / system_service / system_optimization_service 为 None 时不挂载对应路由。"""
     @asynccontextmanager
@@ -50,6 +52,7 @@ def create_app(
     app.state.optimization_service = optimization_service
     app.state.system_service = system_service
     app.state.system_optimization_service = system_optimization_service
+    app.state.scenario_service = scenario_service or ScenarioSystemService()
     app.state.testing = testing
 
     if cors_origins:
@@ -61,7 +64,7 @@ def create_app(
         )
 
     install_error_handlers(app)
-    for router in (health.router, scenarios.router, experiments.router, user_association.router, benchmarks.router, algorithm_packages.router, comparisons.router):
+    for router in (health.router, scenarios.router, scenario_system.router, experiments.router, user_association.router, benchmarks.router, algorithm_packages.router, comparisons.router):
         app.include_router(router, prefix=API_PREFIX)
     if optimization_service is not None:
         app.include_router(optimizations.router, prefix=API_PREFIX)

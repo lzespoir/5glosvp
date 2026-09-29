@@ -4,6 +4,7 @@ from experiments import ExperimentService
 from optimization import OptimizationService
 from system_optimization import SystemOptimizationService
 from system_simulation import SystemExperimentService
+from scenarios import ScenarioSystemService
 
 
 def get_service(request: Request) -> ExperimentService:
@@ -20,3 +21,7 @@ def get_system_service(request: Request) -> SystemExperimentService:
 
 def get_system_optimization_service(request: Request) -> SystemOptimizationService:
     return request.app.state.system_optimization_service
+
+
+def get_scenario_service(request: Request) -> ScenarioSystemService:
+    return request.app.state.scenario_service

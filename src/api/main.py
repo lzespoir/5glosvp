@@ -31,6 +31,7 @@ from system_optimization import (
     default_system_parameter_catalog,
 )
 from system_simulation import FileSystemExperimentStore, SystemExperimentService, SystemScenarioCatalog
+from scenarios import ScenarioSystemService
 
 from . import __version__
 from .app import create_app
@@ -85,6 +86,7 @@ def build_app(settings: Settings | None = None) -> FastAPI:
         optimization_service=optimization_service,
         system_service=system_service,
         system_optimization_service=system_optimization_service,
+        scenario_service=ScenarioSystemService(),
     )
 
 

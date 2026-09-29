@@ -160,6 +160,9 @@ class ExperimentCreateRequest(BaseModel):
 
     name: str = Field(min_length=1, max_length=200, description="实验名称 / Experiment name")
     scenario_id: str = Field(min_length=1, description="场景 ID / Scenario id")
+    scenario_version: str | None = None
+    scenario_definition_hash: str | None = None
+    scenario_instance_id: str | None = None
 
 
 class ScenarioRef(BaseModel):
@@ -233,6 +236,9 @@ class ExperimentResponse(BaseModel):
     )
     optimization_id: str | None = Field(default=None, description="所属优化运行 / Parent optimization run")
     scenario: ScenarioRef
+    scenario_version: str | None = None
+    scenario_definition_hash: str | None = None
+    scenario_instance_id: str | None = None
     backend: BackendRef
     created_at: str
     started_at: str | None = None
@@ -265,6 +271,9 @@ class ExperimentResponse(BaseModel):
             scenario=ScenarioRef(
                 scenario_id=r.scenario_id, name_zh=r.scenario_name_zh, name_en=r.scenario_name_en
             ),
+            scenario_version=r.scenario_version,
+            scenario_definition_hash=r.scenario_definition_hash,
+            scenario_instance_id=r.scenario_instance_id,
             backend=BackendRef(id=r.backend, version=r.backend_version),
             created_at=r.created_at,
             started_at=r.started_at,

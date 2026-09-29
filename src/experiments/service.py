@@ -116,8 +116,14 @@ class ExperimentService:
     def list_experiments(self, limit: int = 50, offset: int = 0) -> tuple[list[ExperimentRecord], int]:
         return self._store.list(limit=limit, offset=offset), self._store.count()
 
-    def create_experiment(self, name: str, scenario_id: str) -> ExperimentRecord:
-        return self.run_experiment(name, self._catalog.get(scenario_id))
+    def create_experiment(
+        self, name: str, scenario_id: str, *, scenario_version: str | None = None,
+        scenario_definition_hash: str | None = None, scenario_instance_id: str | None = None,
+    ) -> ExperimentRecord:
+        return self.run_experiment(
+            name, self._catalog.get(scenario_id), scenario_version=scenario_version,
+            scenario_definition_hash=scenario_definition_hash, scenario_instance_id=scenario_instance_id,
+        )
 
     def backend_descriptor(self, backend_id: str) -> BackendDescriptor:
         return self._registry.get(backend_id)
@@ -136,6 +142,9 @@ class ExperimentService:
         config: ScenarioConfig,
         purpose: ExperimentPurpose = ExperimentPurpose.MANUAL,
         optimization_id: str | None = None,
+        scenario_version: str | None = None,
+        scenario_definition_hash: str | None = None,
+        scenario_instance_id: str | None = None,
     ) -> ExperimentRecord:
         """用给定（可能是派生的）场景配置同步运行一次实验。"""
         backend, health = self.ensure_backend_available(config.backend)
@@ -153,6 +162,9 @@ class ExperimentService:
             backend_version=health.get("version"),
             created_at=utc_now(),
             config=config.model_dump(mode="json"),
+            scenario_version=scenario_version,
+            scenario_definition_hash=scenario_definition_hash,
+            scenario_instance_id=scenario_instance_id,
         )
         record.transition(ExperimentStatus.CREATED)
         self._store.create(record)

@@ -89,6 +89,10 @@ class ExperimentRecord(BaseModel):
     finished_at: str | None = None
     # 场景配置快照（ScenarioConfig 的 JSON 形式）
     config: dict[str, Any]
+    # Day 12 semantic scenario identity; optional for legacy Day 4--11 records.
+    scenario_version: str | None = None
+    scenario_definition_hash: str | None = None
+    scenario_instance_id: str | None = None
     result: SimulationResult | None = None
     artifacts: list[Artifact] = Field(default_factory=list)
     error: ExperimentError | None = None

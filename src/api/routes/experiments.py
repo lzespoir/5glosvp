@@ -36,7 +36,12 @@ _INLINE_MEDIA_TYPES = {"image/png", "application/json", "application/yaml", "tex
     ),
 )
 def create_experiment(body: ExperimentCreateRequest, service: ServiceDep) -> ExperimentResponse:
-    record = service.create_experiment(name=body.name, scenario_id=body.scenario_id)
+    record = service.create_experiment(
+        name=body.name, scenario_id=body.scenario_id,
+        scenario_version=body.scenario_version,
+        scenario_definition_hash=body.scenario_definition_hash,
+        scenario_instance_id=body.scenario_instance_id,
+    )
     return ExperimentResponse.from_record(record)
 
 
