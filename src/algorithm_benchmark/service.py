@@ -16,6 +16,7 @@ from .models import (
 from .research_catalog import RESEARCH_CATALOG
 from .provenance import runtime_environment
 from user_association.service import UserAssociationService
+from frozen_artifacts import FrozenArtifactService
 
 
 class BenchmarkService:
@@ -141,29 +142,8 @@ class BenchmarkService:
         return benchmark
 
     def _load_day8_frozen_channel(self, scenario: Any, backend: MultiCellBackend) -> FrozenMultiCellChannel:
-        """Restore Day 8's persisted link artifact; never retrace for a benchmark run."""
-        source = self.reference_dir.parent / "user_association" / "OPT-9748F677" / "optimization.json"
-        data = json.loads(source.read_text(encoding="utf-8"))
-        persisted = data["scenario"]
-        if persisted["scenario_id"] != scenario.scenario_id or persisted["cells"] != scenario.model_dump(mode="json")["cells"]:
-            raise ValueError("Day 8 frozen scenario does not match benchmark scenario")
-        cell_ids = [c.cell_id for c in scenario.cells]
-        ue_ids = [u.ue_id for u in scenario.ues]
-        gains = []
-        for ue_id in ue_ids:
-            links = {x["cell_id"]: x for x in data["candidate_cells"][ue_id]}
-            gains.append([10 ** (float(links[cid]["link_gain_db"]) / 10.0) if cid in links else 0.0 for cid in cell_ids])
-        ch = data["channel"]
-        channel = FrozenMultiCellChannel(
-            scenario_id=scenario.scenario_id, ue_ids=ue_ids, cell_ids=cell_ids,
-            gains_linear=__import__("numpy").asarray(gains, dtype=float),
-            gains_db=__import__("numpy").where(__import__("numpy").asarray(gains) > 0, 10 * __import__("numpy").log10(__import__("numpy").maximum(gains, 1e-30)), -300.0),
-            positions=__import__("numpy").asarray([u.position for u in scenario.ues]),
-            channel_hash=ch["sha256"], runtime_seconds=0.0, provider_versions=ch["provider_versions"],
-            provenance_hash_version="0.1",
-        )
-        backend.channel = channel
-        return channel
+        """Compatibility wrapper around the shared frozen artifact layer."""
+        return FrozenArtifactService(self.reference_dir.parent).load_day8_channel(scenario, backend)
 
     @staticmethod
     def _convergence(trace: Any, actual: dict[str, Any]) -> list[dict[str, Any]]:
@@ -204,7 +184,7 @@ class BenchmarkService:
             (root / name).write_text(json.dumps(value, ensure_ascii=False, indent=2), encoding="utf-8")
         (root / "README.md").write_text(
             "# Day 9 Algorithm Benchmark\n\nPurpose: Algorithm Benchmark and Comparative Validation\n\n"
-            "Problem: User Association\nData Source: Simulation\nVerification: Independent\n"
+            "Problem: User Association\nData Source: Simulation\n验证状态：待独立验证\n"
             "Comparison Eligible: YES\nAcceptance Eligible: NO\n\n"
             "This reference compares compatible algorithms under one frozen protocol. It does not declare an overall winner.\n",
             encoding="utf-8",

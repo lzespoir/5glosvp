@@ -1,11 +1,13 @@
 import { CheckCircleOutlined, CloudUploadOutlined, ExperimentOutlined, SafetyOutlined } from '@ant-design/icons';
 import { Alert, Button, Card, Col, Descriptions, Divider, Input, InputNumber, Result, Row, Space, Spin, Steps, Tag, Typography } from 'antd';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import { API_BASE_URL, resolveApiUrl } from '../../api/client';
 import {
   cloneExternalExperiment,
+  cancelExternalExperiment,
   createExternalExperiment,
+  forceTerminateExternalExperiment,
   registerPackage,
   smokeTestPackage,
   useExternalExperiment,
@@ -34,9 +36,15 @@ export function AlgorithmOnboardingPage() {
   const [registered, setRegistered] = useState<any | null>(null);
   const [parameters, setParameters] = useState<Record<string, any>>({ seed: 20260929, candidate_offset: 1 });
   const [budget, setBudget] = useState(8);
+  const [timeLimitSeconds, setTimeLimitSeconds] = useState<number | null>(null);
   const [runId, setRunId] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
+  useEffect(() => {
+    const initialRunId = new URLSearchParams(window.location.search).get('run_id');
+    if (initialRunId) setRunId(initialRunId);
+  }, []);
   const run = useExternalExperiment(runId);
+  const { refetch: refetchRun } = run;
   const manifest = registered?.manifest as Record<string, any> | undefined;
   const parameterSchema = (manifest?.parameters || {}) as Record<string, Record<string, any>>;
   const runData = run.data;
@@ -77,7 +85,7 @@ export function AlgorithmOnboardingPage() {
       scenario_id: DEFAULT_SCENARIO,
       parameters,
       evaluation_budget: budget,
-      time_limit_seconds: null,
+      time_limit_seconds: timeLimitSeconds,
     }));
     setRunId(result.run_id);
   }
@@ -86,6 +94,18 @@ export function AlgorithmOnboardingPage() {
     if (!runData) return;
     const result = await perform('clone', () => cloneExternalExperiment(runData.run_id, runData.parameters));
     setRunId(result.run_id);
+  }
+
+  async function handleCancel() {
+    if (!runData) return;
+    await perform('cancel', () => cancelExternalExperiment(runData.run_id));
+    await refetchRun();
+  }
+
+  async function handleForceTerminate() {
+    if (!runData) return;
+    await perform('force', () => forceTerminateExternalExperiment(runData.run_id));
+    await refetchRun();
   }
 
   return (
@@ -178,6 +198,10 @@ export function AlgorithmOnboardingPage() {
                   <Typography.Text strong>Evaluation budget</Typography.Text>
                   <InputNumber style={{ width: '100%' }} min={1} max={12} value={budget} onChange={(value) => setBudget(value || 8)} />
                 </div>
+                <div>
+                  <Typography.Text strong>Time limit (optional, seconds)</Typography.Text>
+                  <InputNumber style={{ width: '100%' }} min={0.000001} step={0.001} value={timeLimitSeconds ?? undefined} placeholder="No automatic limit" onChange={(value) => setTimeLimitSeconds(value ?? null)} />
+                </div>
               </Space>
             </Col>
             <Col xs={24} lg={15}>
@@ -210,7 +234,21 @@ export function AlgorithmOnboardingPage() {
                 <Descriptions.Item label="Evaluations">{runData.evaluations_used ?? '—'} / {runData.evaluation_budget}</Descriptions.Item>
                 <Descriptions.Item label="Frozen channel"><code>{runData.channel_hash || 'loading'}</code></Descriptions.Item>
                 <Descriptions.Item label="Best KPI">{runData.best_candidate ? `${runData.best_candidate.network_throughput_mbps} Mbps network throughput · P5 ${runData.best_candidate.p5_ue_throughput_mbps} Mbps` : 'running'}</Descriptions.Item>
+                <Descriptions.Item label="Lifecycle evidence">{runData.cancel_requested ? 'cancel requested' : 'normal execution'}{runData.termination_reason ? ` · ${runData.termination_reason}` : ''}</Descriptions.Item>
               </Descriptions>
+              {['starting', 'running', 'cancel_requested', 'cancelling'].includes(runData.status) && (
+                <Alert
+                  className="section-bottom"
+                  type="warning"
+                  showIcon
+                  title="Lifecycle controls"
+                  description="Cancel first requests graceful shutdown. Force terminate is reserved for an unresponsive, platform-owned worker. An explicit time limit follows the same graceful → force → terminal path automatically."
+                  action={<Space wrap>
+                    <Button size="small" loading={busy === 'cancel'} onClick={handleCancel}>Graceful cancel</Button>
+                    <Button danger size="small" loading={busy === 'force'} onClick={handleForceTerminate}>Force terminate</Button>
+                  </Space>}
+                />
+              )}
               {runData.status === 'completed' && (
                 <Result
                   status="success"
@@ -224,6 +262,9 @@ export function AlgorithmOnboardingPage() {
                 />
               )}
               {runData.status === 'failed' && <Alert type="error" showIcon title="Run failed" description={runData.error?.message || 'See logs and structured error.'} />}
+              {runData.status === 'time_limit_exceeded' && <Alert type="warning" showIcon title="Time limit exceeded" description={runData.time_limit_message || 'The platform executed graceful cancellation and escalation before closing the run.'} />}
+              {runData.status === 'terminated' && <Alert type="error" showIcon title="Run force terminated" description={runData.termination_reason || 'The owned worker was deliberately terminated.'} />}
+              {runData.status === 'cancelled' && <Alert type="info" showIcon title="Run cancelled" description="The worker acknowledged graceful cancellation; this run is retained as evidence." />}
             </>
           )}
         </Card>

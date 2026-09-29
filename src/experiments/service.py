@@ -44,7 +44,7 @@ from .store import ExperimentStore
 
 logger = logging.getLogger(__name__)
 
-DEFAULT_TIMEOUT_SECONDS = 600.0
+DEFAULT_REQUEST_WAIT_SECONDS = 600.0
 
 
 @dataclass
@@ -65,7 +65,8 @@ def _error_code_for(exc: BaseException) -> ExperimentErrorCode:
 
 class ExperimentService:
     """
-    同步执行实验（Day 2）。实验在单工作线程中串行执行，请求线程最多等待 timeout 秒。
+    兼容 Day 2 的同步 API。请求线程最多等待 request_wait_seconds；请求等待
+    到期只返回当前 run 记录，绝不改变后台实验的科学状态。
     """
 
     def __init__(
@@ -73,12 +74,12 @@ class ExperimentService:
         store: ExperimentStore,
         registry: BackendRegistry,
         catalog: ScenarioCatalog,
-        timeout_seconds: float = DEFAULT_TIMEOUT_SECONDS,
+        timeout_seconds: float | None = DEFAULT_REQUEST_WAIT_SECONDS,
     ) -> None:
         self._store = store
         self._registry = registry
         self._catalog = catalog
-        self._timeout = timeout_seconds
+        self._request_wait_seconds = timeout_seconds
         # 所有状态迁移在此锁内进行，防止超时处理与工作线程互相覆盖
         self._lock = threading.Lock()
         self._executor = ThreadPoolExecutor(max_workers=1, thread_name_prefix="experiment")
@@ -164,9 +165,12 @@ class ExperimentService:
 
         future = self._executor.submit(self._execute, record.experiment_id, backend, config)
         try:
-            future.result(timeout=self._timeout)
+            future.result(timeout=self._request_wait_seconds)
         except FutureTimeoutError:
-            self._mark_timeout(record.experiment_id)
+            logger.info(
+                "%s request wait expired after %.3fs; background run remains active",
+                record.experiment_id, self._request_wait_seconds or 0.0,
+            )
         return self.get_experiment(record.experiment_id)
 
     def list_artifacts(self, experiment_id: str) -> list[Artifact]:
@@ -269,16 +273,3 @@ class ExperimentService:
             record.transition(ExperimentStatus.FAILED)
             self._store.update(record)
         logger.error("%s FAILED code=%s %s: %s", experiment_id, error.code.value, error.type, error.message)
-
-    def _mark_timeout(self, experiment_id: str) -> None:
-        self._finish_failed(
-            experiment_id,
-            ExperimentError(
-                code=ExperimentErrorCode.SIMULATION_TIMEOUT,
-                message=(
-                    f"Experiment did not finish within {self._timeout:.0f} s "
-                    "(soft timeout; the worker thread cannot be force-stopped)"
-                ),
-                type="TimeoutError",
-            ),
-        )

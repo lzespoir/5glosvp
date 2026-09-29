@@ -60,7 +60,11 @@ class AlgorithmPackageService:
         self.runs_dir.mkdir(parents=True, exist_ok=True)
         self._lock = threading.RLock()
         self.evaluation_adapters = default_registry()
-        self.execution_manager = ExecutionManager(self.repo_root, self.runs_dir)
+        self.execution_manager = ExecutionManager(
+            self.repo_root, self.runs_dir,
+            cancel_grace_seconds=float(os.environ.get("GLOSVP_CANCEL_GRACE_SECONDS", "2")),
+            terminate_grace_seconds=float(os.environ.get("GLOSVP_TERMINATE_GRACE_SECONDS", "2")),
+        )
 
     # ------------------------------------------------------------------
     # Package discovery / identity
@@ -353,7 +357,9 @@ class AlgorithmPackageService:
                         record[key] = current[key]
             except (OSError, ValueError):
                 pass
-        path.write_text(json.dumps(record, ensure_ascii=False, indent=2), encoding="utf-8")
+        temporary = path.with_name(f".{path.name}.{os.getpid()}.tmp")
+        temporary.write_text(json.dumps(record, ensure_ascii=False, indent=2), encoding="utf-8")
+        os.replace(temporary, path)
 
     def get_experiment(self, run_id: str) -> dict[str, Any]:
         path = self._run_path(run_id)
@@ -423,6 +429,7 @@ class AlgorithmPackageService:
             )
             execution = evaluated["execution"]
             channel = evaluated["channel"]
+            record.update(evaluated.get("identity", {}))
             if cancel_event is not None and cancel_event.is_set():
                 record.update({"status": RunStatus.CANCELLED.value, "stage": "CANCELLED", "finished_at": _now(), "cancel_requested": True})
                 self._write_run(record)
@@ -436,6 +443,7 @@ class AlgorithmPackageService:
                 "stop_reason": execution["trace"].stop_reason.value if execution["trace"].stop_reason else None,
                 "runtime": execution["runtime"], "best_candidate": execution["best"].model_dump(mode="json"),
                 "baseline": execution["baseline"].model_dump(mode="json"), "trace": trace,
+                **evaluated.get("identity", {}),
                 "logs": record["logs"] + [{"source": "algorithm", "event": "suggest_observe_complete", "evaluations_used": execution["trace"].evaluations_used, "at": _now()}],
                 "provenance": {
                     "package_id": package["package_id"], "algorithm_id": package["algorithm_id"], "algorithm_version": package["algorithm_version"],

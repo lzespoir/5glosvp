@@ -6,7 +6,7 @@ GLOSVP_OPTIMIZATIONS_DIR       优化运行仓库目录，默认 <repo>/data/opt
 GLOSVP_SYSTEM_EXPERIMENTS_DIR  系统级实验仓库目录，默认 <repo>/data/system_experiments
 GLOSVP_SYSTEM_OPTIMIZATIONS_DIR 系统级优化仓库目录，默认 <repo>/data/system_optimizations
 GLOSVP_CONFIGS_DIR             场景配置目录，默认 <repo>/configs（系统级场景位于其 system/ 子目录）
-GLOSVP_EXPERIMENT_TIMEOUT      单次实验同步等待上限（秒），默认 600
+GLOSVP_EXPERIMENT_TIMEOUT      legacy API request wait 上限（秒），到期不改变实验状态，默认 600
 TESTING                        "true" 时注册 FakeBackend / FakeSystemBackend（仅软件测试）
 """
 
@@ -36,7 +36,7 @@ class Settings:
     system_experiments_dir: Path
     system_optimizations_dir: Path
     configs_dir: Path
-    experiment_timeout_seconds: float
+    experiment_timeout_seconds: float | None
     testing: bool
     cors_origins: tuple[str, ...]
 

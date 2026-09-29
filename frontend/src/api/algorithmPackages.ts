@@ -56,6 +56,13 @@ export interface ExternalExperiment {
   logs?: Array<Record<string, any>>;
   trace?: Record<string, any>;
   error?: Record<string, any>;
+  cancel_requested?: boolean;
+  termination_reason?: string;
+  time_limit_pending?: boolean;
+  time_limit_message?: string;
+  worker_id?: string;
+  pid?: number;
+  process_group_id?: number;
 }
 
 export async function validatePackage(path: string) {
@@ -91,6 +98,16 @@ export async function rerunExternalExperiment(runId: string) {
 
 export async function cloneExternalExperiment(runId: string, parameters: Record<string, any>) {
   const { data } = await apiClient.post<ExternalExperiment>(`/algorithm-experiments/${encodeURIComponent(runId)}/clone`, { parameters });
+  return data;
+}
+
+export async function cancelExternalExperiment(runId: string) {
+  const { data } = await apiClient.post<ExternalExperiment>(`/algorithm-experiments/${encodeURIComponent(runId)}/cancel`);
+  return data;
+}
+
+export async function forceTerminateExternalExperiment(runId: string) {
+  const { data } = await apiClient.post<ExternalExperiment>(`/algorithm-experiments/${encodeURIComponent(runId)}/force-terminate`, { confirmation: 'FORCE_TERMINATE' });
   return data;
 }
 

@@ -296,7 +296,7 @@ def test_failed_simulation_sets_failed_status(ctx):
     assert persisted.status is ExperimentStatus.FAILED and persisted.finished_at
 
 
-def test_timeout_marks_failed(tmp_path):
+def test_request_wait_expiry_does_not_mark_background_run_failed(tmp_path):
     release = threading.Event()
     service, store = _make_service(
         tmp_path, timeout=0.2,
@@ -305,14 +305,14 @@ def test_timeout_marks_failed(tmp_path):
     _write_scenario(tmp_path / "configs", "BLOCK-001", "blocking")
     try:
         record = service.create_experiment("timeout", "BLOCK-001")
-        assert record.status is ExperimentStatus.FAILED
-        assert record.error.code.value == "SIMULATION_TIMEOUT"
+        assert record.status is ExperimentStatus.RUNNING
+        assert record.error is None
     finally:
         release.set()
         service.close()
-    # 工作线程之后完成也不能覆盖 FAILED 状态
+    # 后台科学运行完成后，请求等待超时不能把它改成 FAILED。
     service._executor.shutdown(wait=True)
-    assert store.get(record.experiment_id).status is ExperimentStatus.FAILED
+    assert store.get(record.experiment_id).status is ExperimentStatus.SUCCEEDED
 
 
 def test_unknown_route_uses_error_model(client):

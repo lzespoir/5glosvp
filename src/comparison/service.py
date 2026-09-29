@@ -27,7 +27,13 @@ class ComparisonIntent(str, Enum):
 
 
 class ComparisonService:
-    REQUIRED = ("problem_type", "scenario_id", "channel_hash", "objective", "constraints", "kpi_versions", "protocol", "evaluation_budget", "backend")
+    REQUIRED = (
+        "problem_type", "dataset_id", "dataset_version", "dataset_hash",
+        "scenario_id", "scenario_version", "scenario_hash", "channel_artifact_id",
+        "channel_hash", "traffic_realization_id", "traffic_hash", "objective_id",
+        "objective_version", "constraints_hash", "kpi_versions", "protocol_id",
+        "protocol_version", "evaluation_budget", "backend_id", "backend_version",
+    )
 
     def __init__(self, repo_root: Path) -> None:
         self.repo_root = Path(repo_root).resolve()
@@ -53,17 +59,17 @@ class ComparisonService:
 
     @staticmethod
     def _snapshot(run: dict[str, Any]) -> dict[str, Any]:
+        provenance = run.get("provenance") if isinstance(run.get("provenance"), dict) else {}
+
+        def value(name: str) -> Any:
+            if name in run:
+                return run[name]
+            return provenance.get(name)
+
         return {
-            "problem_type": run.get("problem_type", "user_association"),
-            "scenario_id": run.get("scenario_id"),
-            "channel_hash": run.get("channel_hash"),
-            "objective": run.get("objective", "USER_ASSOCIATION_NETWORK_THROUGHPUT"),
-            "constraints": run.get("constraints", "P5 UE throughput >= baseline P5"),
-            "kpi_versions": run.get("kpi_versions", "USER_ASSOCIATION_KPI_V0.1"),
-            "protocol": run.get("protocol_id", "DAY8_USER_ASSOCIATION_PROTOCOL_V0.1"),
-            "evaluation_budget": run.get("evaluation_budget"),
-            "backend": run.get("backend", run.get("provenance", {}).get("provider", "sionna_multicell")),
-            "algorithm": f"{run.get('algorithm_id')}@{run.get('algorithm_version')}",
+            name: value(name) for name in ComparisonService.REQUIRED
+        } | {
+            "algorithm": {"id": value("algorithm_id"), "version": value("algorithm_version"), "package_hash": value("package_hash")},
             "algorithm_parameters": run.get("parameters", {}),
         }
 
@@ -83,11 +89,15 @@ class ComparisonService:
         dimensions = []
         incompatible = []
         declared_differences = []
+        missing = []
         for name in self.REQUIRED + ("algorithm", "algorithm_parameters"):
             values = [snapshot.get(name) for snapshot in snapshots]
-            equal = all(value == values[0] for value in values[1:])
+            equal = all(value is not None for value in values) and all(value == values[0] for value in values[1:])
             varying = name in declared or name in allowed
             dimensions.append({"name": name, "values": values, "equal": equal, "frozen_by_default": name in self.REQUIRED, "declared_varying": varying})
+            if any(value is None for value in values):
+                missing.append(name)
+                continue
             if not equal:
                 if name in declared:
                     declared_differences.append(name)
@@ -97,13 +107,14 @@ class ComparisonService:
                     pass
                 else:
                     incompatible.append(name)
-        status = "not_directly_comparable" if incompatible else ("comparable_with_declared_differences" if declared_differences else "comparable")
+        status = "insufficient_context" if missing else ("not_directly_comparable" if incompatible else ("comparable_with_declared_differences" if declared_differences else "comparable"))
         return {
             "preview_id": f"CPREV-{uuid.uuid4().hex[:10].upper()}", "selected_run_ids": run_ids, "intent": intent.value,
             "status": status, "dimensions": dimensions, "differences": incompatible + declared_differences,
             "incompatible_dimensions": incompatible, "declared_differences": declared_differences,
-            "allowed_actions": ["side_by_side"] if incompatible else ["side_by_side", "aligned_metrics", "convergence_overlay"],
-            "message_zh": "存在未声明差异，仅允许并列查看" if incompatible else "可以按预览条件创建对比对象",
+            "missing_dimensions": missing,
+            "allowed_actions": ["side_by_side"] if incompatible or missing else ["side_by_side", "aligned_metrics", "convergence_overlay"],
+            "message_zh": "关键科研身份缺失，证据不足，不能确认直接可比" if missing else ("存在未声明差异，仅允许并列查看" if incompatible else "可以按预览条件创建对比对象"),
             "created_at": _now(),
         }
 
@@ -111,7 +122,7 @@ class ComparisonService:
         if not confirmed:
             raise ValueError("COMPARISON_CONFIRMATION_REQUIRED")
         comparison_id = f"COMP-DAY11-{uuid.uuid4().hex[:10].upper()}"
-        record = {"comparison_id": comparison_id, "created_at": _now(), "confirmed_at": _now(), "status": "created", "verification_status": "pending", "verified": False, "user_intent": preview["intent"], "selected_run_ids": preview["selected_run_ids"], "compatibility": preview, "views": {"side_by_side": True, "aligned_metrics": preview["status"] != "not_directly_comparable", "convergence_overlay": preview["status"] != "not_directly_comparable"}, "result_policy": {"ranking": False, "winner": False, "gain": False, "a_over_b": False}}
+        record = {"comparison_id": comparison_id, "created_at": _now(), "confirmed_at": _now(), "status": "created", "verification_status": "pending", "verified": False, "user_intent": preview["intent"], "selected_run_ids": preview["selected_run_ids"], "compatibility": preview, "views": {"side_by_side": True, "aligned_metrics": preview["status"] == "comparable", "convergence_overlay": preview["status"] == "comparable"}, "result_policy": {"ranking": False, "winner": False, "gain": False, "a_over_b": False}}
         (self.dir / f"{comparison_id}.json").write_text(json.dumps(record, ensure_ascii=False, indent=2), encoding="utf-8")
         return record
 
@@ -122,10 +133,6 @@ class ComparisonService:
         return json.loads(path.read_text(encoding="utf-8"))
 
     def verify(self, comparison_id: str) -> dict[str, Any]:
-        record = self.get(comparison_id)
-        preview = self.preview(record["selected_run_ids"], ComparisonIntent(record["user_intent"]), record["compatibility"].get("declared_differences", []))
-        expected = record["compatibility"]
-        passed = preview["selected_run_ids"] == expected["selected_run_ids"] and preview["status"] == expected["status"] and preview["dimensions"] == expected["dimensions"]
-        record.update({"verification_status": "verified" if passed else "failed", "verified": passed, "verifier_id": "comparison-independent-verifier-v0.1", "verified_at": _now() if passed else None, "verification_hash": _hash(preview)})
-        (self.dir / f"{comparison_id}.json").write_text(json.dumps(record, ensure_ascii=False, indent=2), encoding="utf-8")
-        return record
+        from .verifier import ComparisonVerifier
+
+        return ComparisonVerifier(self.repo_root).verify(comparison_id)
