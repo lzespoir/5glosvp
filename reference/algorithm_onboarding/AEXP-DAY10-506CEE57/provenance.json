@@ -1,0 +1,18 @@
+{
+  "package_id": "example_external_optimizer--0.1.0",
+  "algorithm_id": "example_external_optimizer",
+  "algorithm_version": "0.1.0",
+  "provider": "Day 10 example package",
+  "category": "external",
+  "implementation_origin": "original",
+  "manifest_hash": "59e2de68fd078c8cc1104b1d25123419c5d380de142d54f9306e407158ca1607",
+  "source_hash": "64b12fa31e1900e70f44345669f02147fdfe3887bcf031c5b2f76e64ea0aeb9f",
+  "package_hash": "c3f7b44a84f1b83ea7d4637bf094344d55e4f467076e1bccbbd57172401c7741",
+  "sdk_version": "0.1",
+  "scenario_id": "MULTICELL-DEMO-001",
+  "channel_realization_id": "CH-MULTICELL-FBD449D7",
+  "channel_hash": "fbd449d7dc9b6b717658750d8de664fd5ffd30744bf3068f19b2e63fda613437",
+  "data_source": "simulation",
+  "paper_reproduced": false,
+  "algorithm_correct": false
+}

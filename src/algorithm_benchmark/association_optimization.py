@@ -24,7 +24,8 @@ class AssociationOptimizationService:
     """
 
     def run(self, algorithm: Algorithm, scenario: MultiCellScenario, backend: MultiCellBackend,
-            budget: int, seed: int, benchmark_run_id: str) -> dict[str, Any]:
+            budget: int, seed: int, benchmark_run_id: str,
+            algorithm_hyperparameters: dict[str, Any] | None = None) -> dict[str, Any]:
         wall_start = time.perf_counter()
         channel = backend.realize_channel()
         candidate_cells = backend.candidate_cells()
@@ -52,7 +53,9 @@ class AssociationOptimizationService:
             objective_direction=Direction.MAXIMIZE, baseline_parameters={ASSOCIATION_PARAMETER: choices[0]},
             max_evaluations=budget,
         )
-        hyperparameters = {"seed": seed} if algorithm.metadata().algorithm_id == "random_search_v0_1" else {}
+        hyperparameters = algorithm_hyperparameters if algorithm_hyperparameters is not None else (
+            {"seed": seed} if algorithm.metadata().algorithm_id == "random_search_v0_1" else {}
+        )
         report = check_compatibility(algorithm, problem, hyperparameters, budget)
         if not report.compatible:
             raise ValueError([e.message for e in report.errors])

@@ -1,0 +1,9 @@
+{
+  "data_source": "simulation",
+  "channel_hash": "fbd449d7dc9b6b717658750d8de664fd5ffd30744bf3068f19b2e63fda613437",
+  "channel_realization_id": "CH-MULTICELL-FBD449D7",
+  "comparison_eligible": true,
+  "package_hash": "c3f7b44a84f1b83ea7d4637bf094344d55e4f467076e1bccbbd57172401c7741",
+  "provider": "Day 10 example package",
+  "acceptance_eligible": false
+}

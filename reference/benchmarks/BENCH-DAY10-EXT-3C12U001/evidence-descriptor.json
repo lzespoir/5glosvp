@@ -1,0 +1,16 @@
+{
+  "evidence_type": "algorithm_benchmark",
+  "benchmark_id": "BENCH-DAY10-EXT-3C12U001",
+  "protocol_id": "ALGORITHM_BENCHMARK_V0_1",
+  "protocol_hash": "abf31fc8a19efe47a792890757e0bf604e45bca41511efd3fbe38b4791cfd377",
+  "run_ids": [
+    "BRUN-ASSOCIATION-BASELINE-V0-1-R01",
+    "BRUN-EXTERNAL-EXAMPLE-OPTIMIZER-R01"
+  ],
+  "verified": true,
+  "comparison_eligible": true,
+  "acceptance_eligible": false,
+  "data_source": "simulation",
+  "verification": "independent_verified",
+  "package_hash": "c3f7b44a84f1b83ea7d4637bf094344d55e4f467076e1bccbbd57172401c7741"
+}

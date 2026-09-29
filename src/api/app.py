@@ -19,7 +19,7 @@ from system_simulation import SystemExperimentService
 
 from . import __version__
 from .errors import install_error_handlers
-from .routes import algorithms, benchmarks, experiments, health, optimizations, scenarios, system, system_optimization, user_association
+from .routes import algorithm_packages, algorithms, benchmarks, experiments, health, optimizations, scenarios, system, system_optimization, user_association
 from .schemas import API_PREFIX
 
 
@@ -61,7 +61,7 @@ def create_app(
         )
 
     install_error_handlers(app)
-    for router in (health.router, scenarios.router, experiments.router, user_association.router, benchmarks.router):
+    for router in (health.router, scenarios.router, experiments.router, user_association.router, benchmarks.router, algorithm_packages.router):
         app.include_router(router, prefix=API_PREFIX)
     if optimization_service is not None:
         app.include_router(optimizations.router, prefix=API_PREFIX)

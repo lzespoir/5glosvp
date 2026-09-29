@@ -45,6 +45,10 @@ class MultiCellBackend:
         return scene
 
     def realize_channel(self, log: logging.Logger | None = None) -> FrozenMultiCellChannel:
+        # BenchmarkService may inject the persisted Day 8 realization. Reuse it
+        # instead of retracing so every algorithm sees the same frozen channel.
+        if self.channel is not None:
+            return self.channel
         rt = importlib.import_module("sionna.rt")
         phy = importlib.import_module("sionna.phy.ofdm")
         from importlib import metadata

@@ -1,4 +1,4 @@
-import { BookOutlined } from '@ant-design/icons';
+import { BookOutlined, CloudUploadOutlined } from '@ant-design/icons';
 import { Alert, Button, Card, Col, Descriptions, Row, Skeleton, Tag } from 'antd';
 import { useNavigate } from 'react-router-dom';
 
@@ -53,9 +53,14 @@ export function AlgorithmsPage() {
   const navigate = useNavigate();
   const query = useAlgorithms();
   const guide = (
-    <Button icon={<BookOutlined />} onClick={() => navigate(INTEGRATION_GUIDE_PATH)}>
-      算法接入说明 Integration Guide
-    </Button>
+    <span>
+      <Button icon={<CloudUploadOutlined />} onClick={() => navigate('/algorithm-onboarding')}>
+        接入外部算法 Onboard External
+      </Button>{' '}
+      <Button icon={<BookOutlined />} onClick={() => navigate(INTEGRATION_GUIDE_PATH)}>
+        算法接入说明 Integration Guide
+      </Button>
+    </span>
   );
   return (
     <>
@@ -69,8 +74,8 @@ export function AlgorithmsPage() {
         type="info"
         showIcon
         className="section-bottom"
-        title="平台当前没有项目科研算法或学习优化算法；目录中的算法均为工程基线或接入验证算法。"
-        description="No project research algorithm or learning optimizer is registered yet. Listed algorithms are an engineering baseline and an integration demo."
+        title="目录同时展示内置算法与已注册的外部算法；外部算法必须先完成接入验证。"
+        description="The catalog shows built-in and registered external algorithms. External packages must pass validation and smoke testing before use."
       />
       {query.isError ? (
         <Card><ErrorState error={query.error} onRetry={() => query.refetch()} /></Card>

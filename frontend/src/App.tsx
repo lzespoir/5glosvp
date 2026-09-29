@@ -7,6 +7,7 @@ import { BenchmarkDetailPage, BenchmarkRunDetailPage } from './pages/BenchmarkDe
 import { AlgorithmsPage } from './pages/Algorithms';
 import { AlgorithmDetailPage } from './pages/Algorithms/AlgorithmDetail';
 import { IntegrationGuidePage } from './pages/Algorithms/IntegrationGuide';
+import { AlgorithmOnboardingPage } from './pages/AlgorithmOnboarding';
 import { ExperimentDetailPage } from './pages/ExperimentDetail';
 import { ExperimentsPage } from './pages/Experiments';
 import { OptimizationDetailPage } from './pages/OptimizationDetail';
@@ -39,6 +40,7 @@ export function App() {
         <Route path="system/experiments/:experimentId" element={<SystemExperimentDetailPage />} />
         <Route path="algorithms" element={<AlgorithmsPage />} />
         <Route path="algorithms/guide" element={<IntegrationGuidePage />} />
+        <Route path="algorithm-onboarding" element={<AlgorithmOnboardingPage />} />
         <Route path="algorithms/:algorithmId" element={<AlgorithmDetailPage />} />
         <Route path="acceptance" element={<AcceptancePage />} />
         <Route path="*" element={<Navigate to="/overview" replace />} />

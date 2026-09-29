@@ -1,0 +1,11 @@
+{
+  "status": "independently_verified",
+  "comparable": true,
+  "checks": [
+    "same protocol",
+    "same frozen channel hash",
+    "same budget",
+    "external package hash evidence"
+  ],
+  "paper_reproduced": false
+}

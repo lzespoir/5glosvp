@@ -1,0 +1,39 @@
+{
+  "protocol_id": "ALGORITHM_BENCHMARK_V0_1",
+  "version": "0.1",
+  "problem_type": "USER_ASSOCIATION",
+  "scenario_ids": [
+    "MULTICELL-DEMO-001"
+  ],
+  "evaluation_context_policy": "same frozen scenario, channel, traffic and candidate neighborhood",
+  "objective": {
+    "id": "NETWORK_THROUGHPUT_WITH_P5_FLOOR_V0_1",
+    "direction": "maximize",
+    "version": "0.1"
+  },
+  "constraints": [
+    {
+      "id": "P5_FLOOR",
+      "operator": ">=",
+      "value": "baseline_p5"
+    }
+  ],
+  "kpi_versions": {
+    "network_throughput": "0.1",
+    "average_ue_throughput": "0.1",
+    "p5_ue_throughput": "0.1"
+  },
+  "evaluation_budget": 8,
+  "time_budget_seconds": null,
+  "initial_solution_policy": "DAY8_BASELINE_ASSOCIATION",
+  "seed_policy": "fixed scenario seed per repeat; random search records derived seed",
+  "repeat_policy": {
+    "num_repeats": 1,
+    "confidence_intervals": false
+  },
+  "channel_realization_policy": "CH-MULTICELL-FBD449D7 frozen and reused",
+  "traffic_realization_policy": "full_buffer deterministic scenario traffic",
+  "aggregation_policy": "single repeat; no statistical aggregation",
+  "runtime_measurement_policy": "ALGORITHM_RUNTIME_V0_1 split optimizer overhead and simulator evaluation",
+  "hardware_environment_policy": "record current Python/Sionna/Torch/hardware provenance"
+}

@@ -1,0 +1,141 @@
+[
+  {
+    "package_id": "example_external_optimizer--0.1.0",
+    "algorithm_id": "example_external_optimizer",
+    "algorithm_version": "0.1.0",
+    "manifest_hash": "59e2de68fd078c8cc1104b1d25123419c5d380de142d54f9306e407158ca1607",
+    "source_hash": "64b12fa31e1900e70f44345669f02147fdfe3887bcf031c5b2f76e64ea0aeb9f",
+    "package_hash": "c3f7b44a84f1b83ea7d4637bf094344d55e4f467076e1bccbbd57172401c7741",
+    "path": "examples/algorithm_packages/example_external_optimizer",
+    "manifest": {
+      "schema_version": "0.1",
+      "algorithm": {
+        "id": "example_external_optimizer",
+        "name": "Example External Optimizer",
+        "version": "0.1.0",
+        "description": "Minimal trusted external SDK example for Day 10 onboarding",
+        "provider": "Day 10 example package",
+        "category": "external",
+        "learning_algorithm": false
+      },
+      "sdk": {
+        "version": "0.1"
+      },
+      "entrypoint": {
+        "module": "optimizer",
+        "class": "ExampleExternalOptimizer"
+      },
+      "compatibility": {
+        "problem_types": [
+          "user_association"
+        ],
+        "parameter_types": [
+          "categorical_vector"
+        ]
+      },
+      "parameters": {
+        "seed": {
+          "type": "integer",
+          "default": 20260929,
+          "minimum": 0,
+          "description": "Deterministic package-side candidate ordering seed"
+        },
+        "candidate_offset": {
+          "type": "integer",
+          "default": 1,
+          "minimum": 1,
+          "maximum": 50,
+          "description": "Number of initial candidates skipped in the deterministic ordering"
+        }
+      },
+      "resources": {
+        "cpu": true,
+        "gpu": "optional"
+      },
+      "execution": {
+        "supports_cancel": false
+      },
+      "implementation_origin": "original"
+    },
+    "metadata": {
+      "algorithm_id": "example_external_optimizer",
+      "name_zh": "外部示例优化器",
+      "name_en": "Example External Optimizer",
+      "version": "0.1.0",
+      "category": "external",
+      "description_zh": "Day 10 外部算法接入示例。",
+      "description_en": "A deterministic external package onboarding example.",
+      "purpose_zh": "演示包校验、冒烟测试和平台负责评价。",
+      "purpose_en": "Demonstrate package validation, smoke testing and platform-owned evaluation.",
+      "provider": "Day 10 example package",
+      "learning_algorithm": false,
+      "project_research_deliverable": false,
+      "acceptance_algorithm": false,
+      "capabilities": {
+        "supports_discrete": false,
+        "supports_continuous": false,
+        "supports_integer": false,
+        "supports_categorical": true,
+        "supports_vector": false,
+        "supports_constraints": false,
+        "supports_multi_objective": false,
+        "supports_batch_suggestions": false,
+        "supports_iterative_feedback": true,
+        "supports_auto_configuration": false,
+        "max_parameters": 1
+      },
+      "hyperparameter_schema": [
+        {
+          "id": "seed",
+          "name_zh": "随机种子",
+          "name_en": "Seed",
+          "type": "integer",
+          "default": 20260929,
+          "bounds": {
+            "lower": 0.0,
+            "upper": 2147483647.0,
+            "lower_inclusive": true,
+            "upper_inclusive": true
+          },
+          "choices": null,
+          "unit": "1",
+          "description_zh": "",
+          "description_en": ""
+        },
+        {
+          "id": "candidate_offset",
+          "name_zh": "候选偏移",
+          "name_en": "Candidate offset",
+          "type": "integer",
+          "default": 1,
+          "bounds": {
+            "lower": 1.0,
+            "upper": 50.0,
+            "lower_inclusive": true,
+            "upper_inclusive": true
+          },
+          "choices": null,
+          "unit": "1",
+          "description_zh": "",
+          "description_en": ""
+        }
+      ],
+      "supported_problem_types": [
+        "user_association"
+      ],
+      "source": "external package",
+      "status": "available",
+      "sdk_version": "0.1",
+      "labels": [],
+      "supported_parameter_types": [
+        "categorical"
+      ],
+      "auto_configuration": false
+    },
+    "status": "REGISTERED",
+    "validation_status": "PASS",
+    "smoke_status": "PASS",
+    "registered_at": "2026-09-29T01:39:57.134075+00:00",
+    "disabled": false
+  }
+]

@@ -1,0 +1,13 @@
+{
+  "status": "PASS",
+  "verified": true,
+  "algorithm_correct": false,
+  "paper_reproduced": false,
+  "checks": [
+    "package identity",
+    "manifest/source/package hash",
+    "SDK/interface",
+    "platform evaluation",
+    "trace/KPI/evidence"
+  ]
+}

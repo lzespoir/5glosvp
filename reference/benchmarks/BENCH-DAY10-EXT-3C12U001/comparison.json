@@ -1,0 +1,52 @@
+[
+  {
+    "benchmark_run_id": "BRUN-ASSOCIATION-BASELINE-V0-1-R01",
+    "algorithm_id": "association_baseline_v0_1",
+    "algorithm_version": "0.1",
+    "category": "engineering_baseline",
+    "learning_algorithm": false,
+    "seed": 20260928,
+    "objective": 2045.6758506814976,
+    "network_throughput_mbps": 2045.6758506814976,
+    "average_ue_throughput_mbps": 170.47298755679148,
+    "p5_ue_throughput_mbps": 49.24711635053457,
+    "feasible": true,
+    "evaluations_used": 0,
+    "runtime": {
+      "optimizer_overhead_time": 5.7266840420197695,
+      "simulation_evaluation_time": 1.2000903250882402,
+      "total_wall_time": 6.92677436710801
+    },
+    "stop_reason": "completed",
+    "verification": "independent verification passed",
+    "comparison_eligible": true,
+    "comparison_reason": "same protocol/scenario/baseline/channel/objective/constraint/KPI/budget"
+  },
+  {
+    "benchmark_run_id": "BRUN-EXTERNAL-EXAMPLE-OPTIMIZER-R01",
+    "algorithm_id": "example_external_optimizer",
+    "algorithm_version": "0.1.0",
+    "category": "external",
+    "learning_algorithm": false,
+    "seed": 20260929,
+    "objective": 2045.6607436285308,
+    "network_throughput_mbps": 2045.6607436285308,
+    "average_ue_throughput_mbps": 170.4717286357109,
+    "p5_ue_throughput_mbps": 49.247116823365495,
+    "feasible": true,
+    "evaluations_used": 8,
+    "runtime": {
+      "optimizer_overhead_time": 0.0019153319299221039,
+      "simulation_evaluation_time": 0.0068598390789702535,
+      "total_wall_time": 0.008775171008892357
+    },
+    "stop_reason": "max_iterations",
+    "verification": "independent verification passed",
+    "comparison_eligible": true,
+    "comparison_reason": "same Day 9 protocol/scenario/baseline/frozen channel/objective/constraint/KPI/budget",
+    "package_id": "example_external_optimizer--0.1.0",
+    "package_hash": "c3f7b44a84f1b83ea7d4637bf094344d55e4f467076e1bccbbd57172401c7741",
+    "sdk_version": "0.1",
+    "provider": "Day 10 example package"
+  }
+]

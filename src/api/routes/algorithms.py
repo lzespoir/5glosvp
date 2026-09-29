@@ -1,9 +1,12 @@
+from pathlib import Path
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 
 from optimization.models import OptimizationStatus
 from system_optimization import SystemOptimizationService
+from algorithms import AlgorithmMetadata, AlgorithmNotFoundError
+from algorithm_packages import AlgorithmPackageService
 
 from ..algorithm_schemas import (
     AlgorithmDetail,
@@ -19,19 +22,46 @@ from ..schemas import ErrorResponse
 from ..system_optimization_schemas import algorithm_notice
 
 router = APIRouter(tags=["algorithms"])
+package_service = AlgorithmPackageService(Path(__file__).resolve().parents[3])
+
+
+def _package_metadata(package: dict) -> AlgorithmMetadata:
+    data = dict(package["metadata"])
+    # model_dump(mode="json") includes Pydantic computed fields; remove them
+    # before validating the canonical metadata model again.
+    data.pop("supported_parameter_types", None)
+    data.pop("auto_configuration", None)
+    return AlgorithmMetadata.model_validate(data)
 
 ServiceDep = Annotated[SystemOptimizationService, Depends(get_system_optimization_service)]
 
 
 @router.get("/algorithms", response_model=AlgorithmList, summary="算法目录 / Algorithm catalog (registry)")
-def list_algorithms(service: ServiceDep) -> AlgorithmList:
-    return AlgorithmList(items=[AlgorithmSummary.from_metadata(m) for m in service.algorithms.list()])
+def list_algorithms(request: Request, service: ServiceDep) -> AlgorithmList:
+    items = [AlgorithmSummary.from_metadata(m) for m in service.algorithms.list()]
+    if getattr(request.app.state, "testing", False):
+        return AlgorithmList(items=items)
+    for package in package_service.list_packages():
+        if package.get("status") != "REGISTERED" or package.get("disabled"):
+            continue
+        try:
+            items.append(AlgorithmSummary.from_metadata(_package_metadata(package)))
+        except Exception:
+            continue
+    return AlgorithmList(items=items)
 
 
 @router.get("/algorithms/{algorithm_id}", response_model=AlgorithmDetail, responses={404: {"model": ErrorResponse}},
             summary="算法详情 / Algorithm detail")
 def get_algorithm(algorithm_id: str, service: ServiceDep) -> AlgorithmDetail:
-    metadata = service.algorithms.metadata(algorithm_id)
+    try:
+        metadata = service.algorithms.metadata(algorithm_id)
+    except AlgorithmNotFoundError:
+        try:
+            package = package_service.get_package(algorithm_id)
+            metadata = _package_metadata(package)
+        except (KeyError, ValueError) as exc:
+            raise AlgorithmNotFoundError(algorithm_id) from exc
     runs = sorted((r for r in service.list_all() if r.optimizer_id == algorithm_id),
                   key=lambda r: r.created_at, reverse=True)
     succeeded = [r for r in runs if r.status is OptimizationStatus.SUCCEEDED]

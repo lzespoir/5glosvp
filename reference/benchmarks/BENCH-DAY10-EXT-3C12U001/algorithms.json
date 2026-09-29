@@ -1,0 +1,11 @@
+{
+  "external": [
+    {
+      "package_id": "example_external_optimizer--0.1.0",
+      "algorithm_id": "example_external_optimizer",
+      "version": "0.1.0",
+      "package_hash": "c3f7b44a84f1b83ea7d4637bf094344d55e4f467076e1bccbbd57172401c7741",
+      "status": "REGISTERED"
+    }
+  ]
+}
