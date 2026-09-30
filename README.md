@@ -31,6 +31,8 @@
 
 设计任务书：[`design/001.md`](design/001.md)（Day 1）、[`design/DAY1_FIX_and_DAY2_API.md`](design/DAY1_FIX_and_DAY2_API.md)（Day 1.1 + Day 2）、[`design/DAY3_FRONTEND.md`](design/DAY3_FRONTEND.md)（Day 3）、[`design/DAY4_OPTIMIZATION.md`](design/DAY4_OPTIMIZATION.md)（Day 4）、[`design/DAY5_SYSTEM_LEVEL_KPI.md`](design/DAY5_SYSTEM_LEVEL_KPI.md)（Day 5）、[`design/DAY6_SYSTEM_OPTIMIZATION.md`](design/DAY6_SYSTEM_OPTIMIZATION.md)（Day 6）、[`design/DAY7_ALGORITHM_INTERGRATION.md`](design/DAY7_ALGORITHM_INTERGRATION.md)（Day 7）。
 
+Day 15：[`design/DAY15_PLATFORM_IA_SCENARIO_CONFIGURATION.md`](design/DAY15_PLATFORM_IA_SCENARIO_CONFIGURATION.md)；冻结记录：[`design/DAY15_FINAL_REPORT.md`](design/DAY15_FINAL_REPORT.md)。
+
 ## 当前能力 / Current Capabilities
 
 | 能力 / Capability | 状态 / Status |
@@ -43,10 +45,14 @@
 | 项目科研 / 学习优化算法 Research / Learning Algorithm | Not Yet（仅有接入验证用 Research Demo） |
 | 实测数据验证 Measured Data Validation | Not Yet |
 | 验收 KPI Acceptance KPI | Not Yet |
+| 场景工作区 Scenario Workspace（Definition / Instance） | ✓ 配置与结构校验；Day15 实验执行适配器未接入 |
+| 环境/网络配置 Environment / Network | ✓ 声明、版本、资产 hash、站点/小区/UE 与批量编辑基础；资产转换未实现 |
+| A-Matrix Antenna Provider | ✓ 来源 hash、91×72 查询、默认球面相对响应、热图与多束视觉叠加；绝对校准未实现 |
+| Network Import | Contract only（未接入 CSV/GeoJSON/厂商格式 importer） |
 
 ## 当前状态 / Current Status
 
-**Day 1 技术探针 + Day 1.1 修复 + Day 2 Experiment API + Day 3 Web 前端 V0.1 + Day 4 Optimization Loop V0.2 + Day 5 System-Level KPI V0.3 + Day 6 System Optimization V0.4 + Day 7 Algorithm Integration V0.5：完成 / DONE**
+**Day 1–7 已冻结；Day 15 场景工作区与平台信息架构：Foundation / PASS WITH DOCUMENTED LIMITATIONS。Day15 配置尚未接入真实 Experiment 执行器，不代表系统仿真、100+ 验收场景或 1000 Cell 仿真已完成。**
 
 | 项目 / Item | 值 / Value |
 | --- | --- |
@@ -229,7 +235,10 @@ npm run dev                       # http://127.0.0.1:5173 ，/api 代理到 http
 | `/overview`（`/` 重定向） | 平台概览：快速开始（运行传播仿真 / 运行系统仿真 / 运行参数优化 / 验收验证 Coming Soon）、后端状态、场景/实验数量、最新 Radio Map、最近实验、运行耗时图 |
 | `/system` | 系统级仿真：科学边界提示、场景参数（BS/Cell/UE 数、频率、带宽、业务模型、后端、种子、数据来源）、二维网络视图（BS ▲ / UE 生成区域，无地图底图）、运行系统仿真、最近系统级实验 |
 | `/system/experiments/:experimentId` | 系统级结果：结果来源徽标（Sionna Simulation Generated / Fast Engineering Approximation / TEST FIXTURE）、KPI 卡片（网络 / 平均 / P5 / UE 数）与 KPI 详情、UE 吞吐率分布图、网络视图、UE 表、UE 计算链抽屉、数据来源与高级信息、运行耗时与产物 |
-| `/scenarios` | 场景中心：场景卡片与参数，“运行实验”确认 → 运行中 → 成功跳转详情 / 失败显示错误 |
+| `/scenarios` | 已配置场景库：仅列 ScenarioDefinition；配置数、可运行、已执行、实验验证、验收证据分开展示 |
+| `/scenarios/:scenarioId` | Scenario Workspace：基本信息、环境、站点/小区、天线、UE、业务、无线模型、网络功能、优化问题、预览与校验；冻结实例不触发运行 |
+| `/scenarios/assets/antenna` | 天线工作区：默认 3D 球面相对响应、2D 热图、1/4/8 beam overlay（仅视觉叠加）、来源 hash |
+| `/scenarios/ue` / `/scenarios/radio` | UE Twin 几何与 Day14 无线观测的场景上下文入口；旧路径保留兼容 |
 | `/experiments` | 实验中心：“传播仿真 / 系统级仿真”两个标签页（`?type=system`），服务端分页（每页 20，`limit/offset`） |
 | `/experiments/:experimentId` | 实验详情：Radio Map、RSS/SINR/Path Gain/Radio Map 覆盖比例、系统级 KPI 占位、运行耗时、数据来源、时间线、产物；优化产生的实验显示“优化基线/优化候选”并链接回优化实验 |
 | `/optimizations` | 优化中心：优化器卡片（网格搜索 · 工程基线 · Learning Algorithm: No）、目标函数卡片、新建优化实验、优化实验列表（服务端分页） |

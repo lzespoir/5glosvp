@@ -7,13 +7,14 @@ import {
 } from '@ant-design/icons';
 import { Badge, Button, Card, Col, Descriptions, Empty, Row, Skeleton, Space, Statistic, Table, Tag } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import type { ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 
 import { useBackends } from '../../api/backends';
 import { useExperiments } from '../../api/experiments';
 import { useOptimizations } from '../../api/optimizations';
 import { useScenarios } from '../../api/scenarios';
+import { workspaceApi, type Capability, type Counts } from '../../api/workspace';
 import { ErrorState } from '../../components/ErrorState';
 import { PageHeader } from '../../components/PageHeader';
 import { findRadioMap, RadioMap } from '../../components/RadioMap';
@@ -25,7 +26,7 @@ import { EMPTY, formatDateTime, formatSeconds } from '../../utils/format';
 const RECENT_LIMIT = 20;
 
 const QUICK_START: { titleZh: string; titleEn: string; desc: string; to: string | null; icon: ReactNode }[] = [
-  { titleZh: '运行传播仿真', titleEn: 'Run Propagation Simulation', desc: 'Sionna RT 无线电地图', to: '/scenarios', icon: <EnvironmentOutlined /> },
+  { titleZh: '配置业务场景', titleEn: 'Configure Scenario', desc: '保存配置定义并查看校验边界', to: '/scenarios', icon: <EnvironmentOutlined /> },
   { titleZh: '运行系统仿真', titleEn: 'Run System Simulation', desc: '多 UE 下行吞吐率与网络 KPI', to: '/system', icon: <ClusterOutlined /> },
   { titleZh: '运行参数优化', titleEn: 'Run Parameter Optimization', desc: '传播层 / 系统级参数优化', to: '/optimizations', icon: <FunctionOutlined /> },
   { titleZh: '算法中心', titleEn: 'Algorithm Center', desc: '算法目录、能力声明与接入说明', to: '/algorithms', icon: <NodeIndexOutlined /> },
@@ -62,6 +63,15 @@ export function OverviewPage() {
   const scenarios = useScenarios();
   const experiments = useExperiments(RECENT_LIMIT, 0);
   const optimizations = useOptimizations(1, 0);
+  const [workspaceCounts, setWorkspaceCounts] = useState<Counts | null>(null);
+  const [capabilities, setCapabilities] = useState<Capability[]>([]);
+  const [workspaceError, setWorkspaceError] = useState(false);
+
+  useEffect(() => {
+    Promise.all([workspaceApi.counts(), workspaceApi.capabilities()])
+      .then(([counts, rows]) => { setWorkspaceCounts(counts); setCapabilities(rows); setWorkspaceError(false); })
+      .catch(() => setWorkspaceError(true));
+  }, []);
 
   const items = experiments.data?.items ?? [];
   const latest = items[0];
@@ -80,6 +90,16 @@ export function OverviewPage() {
           </>
         }
       />
+
+      <Card className="section-bottom" title="平台能力与场景状态 · Backend-sourced status" extra={<Link to="/platform-status">查看全部能力</Link>}>
+        {workspaceError && <Badge status="error" text="配置工作区状态不可达；下方数值不代表 Day15 已配置场景" />}
+        <Row gutter={[12, 12]}>{([
+          ['configured_scenario_count', '已配置定义'], ['runnable_scenario_count', '可运行'],
+          ['executed_scenario_count', '已执行'], ['experiment_verified_count', '实验验证'], ['acceptance_evidence_count', '验收证据'],
+        ] as const).map(([key, label]) => <Col xs={12} md={8} xl={4} key={key}><Statistic title={label} value={workspaceCounts?.[key] ?? '—'} /></Col>)}</Row>
+        <Space wrap className="section-top">{capabilities.slice(0, 5).map((capability) => <Tag key={capability.capability_id} color={capability.status === 'IMPLEMENTED' ? 'blue' : 'default'}>{capability.name}: {capability.status}</Tag>)}</Space>
+        <div className="muted section-top">计数来自已保存配置与真实运行状态；Day12 候选组合不计入配置库。已实现能力不等于正式验收证据。</div>
+      </Card>
 
       <Card
         size="small"
@@ -129,7 +149,7 @@ export function OverviewPage() {
           </KpiCard>
         </Col>
         <Col xs={24} sm={12} xl={6}>
-          <KpiCard titleZh="场景" titleEn="Scenarios" loading={scenarios.isLoading}>
+          <KpiCard titleZh="内置场景模板" titleEn="Legacy Templates" loading={scenarios.isLoading}>
             <Statistic value={scenarios.data?.length ?? EMPTY} suffix={<span className="muted">Scenarios</span>} />
           </KpiCard>
         </Col>

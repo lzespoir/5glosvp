@@ -4,13 +4,12 @@ import {
   DashboardOutlined,
   EnvironmentOutlined,
   ExperimentOutlined,
-  FunctionOutlined,
   NodeIndexOutlined,
   RadarChartOutlined,
 } from '@ant-design/icons';
 import { Alert, Badge, Layout, Menu, Space, Tooltip } from 'antd';
 import type { MenuProps } from 'antd';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 
 import { useBackends } from '../api/backends';
@@ -30,20 +29,28 @@ function navLabel(zh: string, en: string) {
 
 const NAV_ITEMS: NonNullable<MenuProps['items']> = [
   { key: '/overview', icon: <DashboardOutlined />, label: navLabel('平台概览', 'Overview') },
-  { key: '/scenarios', icon: <EnvironmentOutlined />, label: navLabel('场景中心', 'Scenario Center') },
-  { key: '/a-matrix', icon: <RadarChartOutlined />, label: navLabel('A矩阵 / UE Twin', 'A-Matrix / UE Twin') },
-  { key: '/radio-observability', icon: <RadarChartOutlined />, label: navLabel('多小区无线观测', 'Multi-cell Radio View') },
-  { key: '/user-association', icon: <ClusterOutlined />, label: navLabel('用户关联', 'User Association') },
-  { key: '/benchmarks', icon: <FunctionOutlined />, label: navLabel('算法对比', 'Benchmark') },
-  { key: '/system', icon: <ClusterOutlined />, label: navLabel('系统级仿真', 'System Simulation') },
-  { key: '/optimizations', icon: <FunctionOutlined />, label: navLabel('优化中心', 'Optimization Center') },
-  { key: '/algorithms', icon: <NodeIndexOutlined />, label: navLabel('算法中心', 'Algorithm Center') },
-  { key: '/experiments', icon: <ExperimentOutlined />, label: navLabel('实验中心', 'Experiment Center') },
-  { key: '/acceptance', icon: <AuditOutlined />, label: navLabel('验收中心', 'Acceptance Center') },
+  { key: 'group-scenarios', icon: <EnvironmentOutlined />, label: navLabel('场景', 'Scenarios'), children: [
+    { key: '/scenarios', label: '已配置场景库' }, { key: '/scenarios/advanced', label: '候选组合 / 高级视图' },
+    { key: '/scenarios/assets/antenna', label: '环境资产 / 天线' }, { key: '/scenarios/ue', label: 'UE Twin 几何' },
+    { key: '/scenarios/radio', label: '无线观测示例' }, { key: '/scenarios/association', label: '用户关联' },
+  ] },
+  { key: 'group-experiments', icon: <ExperimentOutlined />, label: navLabel('实验', 'Experiments'), children: [
+    { key: '/experiments', label: '实验记录' }, { key: '/system', label: '系统级仿真' }, { key: '/optimizations', label: '优化运行' },
+  ] },
+  { key: 'group-algorithms', icon: <NodeIndexOutlined />, label: navLabel('算法', 'Algorithms'), children: [
+    { key: '/algorithms', label: '算法目录' }, { key: '/algorithm-onboarding', label: '算法接入' },
+  ] },
+  { key: 'group-analysis', icon: <RadarChartOutlined />, label: navLabel('分析', 'Analysis'), children: [
+    { key: '/benchmarks', label: '算法 Benchmark' }, { key: '/comparisons', label: '运行对比' },
+  ] },
+  { key: '/acceptance', icon: <AuditOutlined />, label: navLabel('验收', 'Acceptance') },
+  { key: 'group-system', icon: <ClusterOutlined />, label: navLabel('系统', 'System'), children: [
+    { key: '/platform-status', label: '平台能力状态' },
+  ] },
 ];
 
 function selectedNavKey(pathname: string): string {
-  const keys = ['/overview', '/scenarios', '/a-matrix', '/radio-observability', '/user-association', '/benchmarks', '/system', '/optimizations', '/algorithms', '/experiments', '/acceptance'];
+  const keys = ['/scenarios/assets/antenna', '/scenarios/advanced', '/scenarios/association', '/scenarios/radio', '/scenarios/ue', '/algorithm-onboarding', '/optimizations', '/experiments', '/benchmarks', '/comparisons', '/algorithms', '/acceptance', '/platform-status', '/system', '/scenarios', '/overview'];
   const match = keys.find((k) =>
     pathname.startsWith(k),
   );
@@ -84,10 +91,18 @@ export function PlatformLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const { data: health } = useHealth();
+  const activeGroup = location.pathname.startsWith('/scenarios') ? 'group-scenarios'
+    : ['/experiments', '/system', '/optimizations'].some((path) => location.pathname.startsWith(path)) ? 'group-experiments'
+      : ['/algorithms', '/algorithm-onboarding'].some((path) => location.pathname.startsWith(path)) ? 'group-algorithms'
+        : ['/benchmarks', '/comparisons'].some((path) => location.pathname.startsWith(path)) ? 'group-analysis'
+          : location.pathname.startsWith('/platform-status') ? 'group-system' : '';
+  const [openKeys, setOpenKeys] = useState<string[]>(activeGroup ? [activeGroup] : []);
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [location.pathname]);
+
+  useEffect(() => { setOpenKeys(activeGroup ? [activeGroup] : []); }, [activeGroup]);
 
   return (
     <Layout className="platform">
@@ -110,12 +125,14 @@ export function PlatformLayout() {
         />
       )}
       <Layout>
-        <Sider width={208} theme="light" className="platform__sider">
+        <Sider width={256} theme="light" className="platform__sider">
           <Menu
             mode="inline"
+            openKeys={openKeys}
             selectedKeys={[selectedNavKey(location.pathname)]}
             items={NAV_ITEMS}
-            onClick={({ key }) => navigate(key)}
+            onOpenChange={(keys) => setOpenKeys(keys.length ? [String(keys[keys.length - 1])] : [])}
+            onClick={({ key }) => { if (String(key).startsWith('/')) navigate(key); }}
           />
         </Sider>
         <Layout className="platform__main">
