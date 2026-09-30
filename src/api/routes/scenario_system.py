@@ -5,7 +5,7 @@ from fastapi import APIRouter, Depends, HTTPException, Query
 from scenarios import ScenarioSystemService
 
 from ..deps import get_scenario_service
-from ..scenario_system_schemas import AcceptanceResponse, ScenarioCatalogResponse, ScenarioMaterializeRequest, ScenarioPreviewRequest, ScenarioRulesResponse, ScenarioVerifyResponse
+from ..scenario_system_schemas import AcceptanceResponse, AcceptanceScenarioSetResponse, ScenarioCatalogResponse, ScenarioMaterializeRequest, ScenarioPreviewRequest, ScenarioRulesResponse, ScenarioVerifyResponse
 
 router = APIRouter(prefix="/scenario-system", tags=["scenario-system"])
 ServiceDep = Annotated[ScenarioSystemService, Depends(get_scenario_service)]
@@ -47,6 +47,11 @@ def coverage(service: ServiceDep): return service.coverage()
 
 @router.get("/acceptance", response_model=AcceptanceResponse)
 def acceptance(service: ServiceDep): return AcceptanceResponse(items=service.acceptance())
+
+
+@router.get("/acceptance-scenario-set", response_model=AcceptanceScenarioSetResponse)
+def acceptance_scenario_set(service: ServiceDep):
+    return AcceptanceScenarioSetResponse(item=service.acceptance_scenario_set())
 
 
 @router.get("/verification", response_model=ScenarioVerifyResponse)

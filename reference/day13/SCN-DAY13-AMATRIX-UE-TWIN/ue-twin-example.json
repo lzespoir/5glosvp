@@ -1,0 +1,136 @@
+{
+  "ue_id": "UE-D13-EVIDENCE-001",
+  "position": {
+    "x": 20.0,
+    "y": 0.0,
+    "z": 1.5,
+    "coordinate_system": "SIONNA_SCENE_CARTESIAN",
+    "source": "DAY13_EVIDENCE"
+  },
+  "orientation": null,
+  "mobility_state": "STATIC_DAY13_GEOMETRY",
+  "serving_cell_id": "CELL-D13-SERVING",
+  "neighbor_cell_ids": [
+    "CELL-D13-N1",
+    "CELL-D13-N2"
+  ],
+  "traffic_profile": "full_buffer",
+  "aau_id": "AAU5270E",
+  "aau_position": {
+    "x": 0.0,
+    "y": 0.0,
+    "z": 10.0,
+    "coordinate_system": "SIONNA_SCENE_CARTESIAN",
+    "source": "DAY13_EVIDENCE"
+  },
+  "radio_geometry": {
+    "distance_3d_m": 21.73131381210073,
+    "azimuth_deg": 0.0,
+    "elevation_deg": -23.025492008528037,
+    "coordinate_convention": "SIONNA_SCENE_CARTESIAN"
+  },
+  "beam_observations": [
+    {
+      "beam_id": 0,
+      "entry_key": "AAU5270E#16h4vssbcase0_8beam__tilt-2_azimuth0#0",
+      "azimuth_deg": 0.0,
+      "elevation_deg": -23.025492008528037,
+      "grid_row": 33,
+      "grid_col": 0,
+      "normalized_response": 0.0034737026374028067,
+      "rank": 1,
+      "lookup_method": "nearest_grid"
+    },
+    {
+      "beam_id": 7,
+      "entry_key": "AAU5270E#16h4vssbcase0_8beam__tilt-2_azimuth0#7",
+      "azimuth_deg": 0.0,
+      "elevation_deg": -23.025492008528037,
+      "grid_row": 33,
+      "grid_col": 0,
+      "normalized_response": 0.0011255950281826735,
+      "rank": 2,
+      "lookup_method": "nearest_grid"
+    },
+    {
+      "beam_id": 1,
+      "entry_key": "AAU5270E#16h4vssbcase0_8beam__tilt-2_azimuth0#1",
+      "azimuth_deg": 0.0,
+      "elevation_deg": -23.025492008528037,
+      "grid_row": 33,
+      "grid_col": 0,
+      "normalized_response": 0.00026404709830882555,
+      "rank": 3,
+      "lookup_method": "nearest_grid"
+    },
+    {
+      "beam_id": 6,
+      "entry_key": "AAU5270E#16h4vssbcase0_8beam__tilt-2_azimuth0#6",
+      "azimuth_deg": 0.0,
+      "elevation_deg": -23.025492008528037,
+      "grid_row": 33,
+      "grid_col": 0,
+      "normalized_response": 0.00023530772173007179,
+      "rank": 4,
+      "lookup_method": "nearest_grid"
+    },
+    {
+      "beam_id": 4,
+      "entry_key": "AAU5270E#16h4vssbcase0_8beam__tilt-2_azimuth0#4",
+      "azimuth_deg": 0.0,
+      "elevation_deg": -23.025492008528037,
+      "grid_row": 33,
+      "grid_col": 0,
+      "normalized_response": 0.0002240921884597535,
+      "rank": 5,
+      "lookup_method": "nearest_grid"
+    },
+    {
+      "beam_id": 5,
+      "entry_key": "AAU5270E#16h4vssbcase0_8beam__tilt-2_azimuth0#5",
+      "azimuth_deg": 0.0,
+      "elevation_deg": -23.025492008528037,
+      "grid_row": 33,
+      "grid_col": 0,
+      "normalized_response": 0.00022353790744459348,
+      "rank": 6,
+      "lookup_method": "nearest_grid"
+    },
+    {
+      "beam_id": 3,
+      "entry_key": "AAU5270E#16h4vssbcase0_8beam__tilt-2_azimuth0#3",
+      "azimuth_deg": 0.0,
+      "elevation_deg": -23.025492008528037,
+      "grid_row": 33,
+      "grid_col": 0,
+      "normalized_response": 0.00018402215471633395,
+      "rank": 7,
+      "lookup_method": "nearest_grid"
+    },
+    {
+      "beam_id": 2,
+      "entry_key": "AAU5270E#16h4vssbcase0_8beam__tilt-2_azimuth0#2",
+      "azimuth_deg": 0.0,
+      "elevation_deg": -23.025492008528037,
+      "grid_row": 33,
+      "grid_col": 0,
+      "normalized_response": 0.00017133295584786725,
+      "rank": 8,
+      "lookup_method": "nearest_grid"
+    }
+  ],
+  "strongest_relative_beam_id": 0,
+  "provenance": {
+    "profile_id": "am_spread_aau5270e_c0_t-2_a0_multi",
+    "library": "spread",
+    "beam_type": "SSB",
+    "normalization_policy": "PEAK_LINEAR_POWER_TO_RELATIVE",
+    "angular_grid_version": "D13-ANGULAR-GRID-0.1",
+    "lookup_method": "nearest_grid",
+    "a_matrix_artifact_ids": [
+      "AMX-D13-66F4FA18D1FE"
+    ],
+    "relative_only": true
+  },
+  "calibration_status": "ABSOLUTE_RADIO_KPI_NOT_CALIBRATED"
+}

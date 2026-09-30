@@ -6,7 +6,7 @@ from typing import Any
 
 from .catalog import ScenarioCatalog
 from .combination import count_combinations, iter_dimension_combinations, scenario_from_dimensions
-from .models import AcceptanceMapping, ScenarioCoverage, ScenarioCoverageCell, ScenarioCounts, ScenarioInstance, ScenarioPreview, ScenarioTaxonomy, ScenarioWorkspace
+from .models import AcceptanceMapping, AcceptanceScenarioSet, ScenarioCoverage, ScenarioCoverageCell, ScenarioCounts, ScenarioInstance, ScenarioPreview, ScenarioTaxonomy, ScenarioWorkspace
 from .rules import RULES
 from .taxonomy import TAXONOMY
 from .verifier import verify_catalog
@@ -50,11 +50,11 @@ class ScenarioSystemService:
             family_items = [item for item in definitions if item.scenario_family == family["value"]]
             for problem in ("NETWORK_STRUCTURE", "USER_ACCESS", "SYSTEM_RESOURCE"):
                 items = [item for item in family_items if problem in item.supported_problem_types]
-                matrix.append(ScenarioCoverageCell(row=family["value"], column=problem, dimensions={"scenario_family": family["value"], "optimization_problem": problem}, counts=ScenarioCounts(theoretical_count=len(items), valid_count=len(items), invalid_count=0, executable_count=sum(item.compatibility_status == "VALID_EXECUTABLE" for item in items), requires_external_asset_count=sum(item.compatibility_status == "REQUIRES_EXTERNAL_ASSET" for item in items), materialized_count=len(items), verified_count=len(items)), evidence=[]))
+                matrix.append(ScenarioCoverageCell(row=family["value"], column=problem, dimensions={"scenario_family": family["value"], "optimization_problem": problem}, counts=ScenarioCounts(theoretical_count=len(items), valid_count=len(items), invalid_count=0, executable_count=sum(item.compatibility_status == "VALID_EXECUTABLE" for item in items), requires_external_asset_count=sum(item.compatibility_status == "REQUIRES_EXTERNAL_ASSET" for item in items), materialized_count=len(items), definition_verified_count=len(items), experiment_verified_count=0, verified_count=0, acceptance_evidence_count=0), evidence=[]))
         family_counts = {}
         for family in TAXONOMY.families:
             items = [item for item in definitions if item.scenario_family == family["value"]]
-            family_counts[family["value"]] = ScenarioCounts(theoretical_count=len(items), valid_count=len(items), invalid_count=0, executable_count=sum(item.compatibility_status == "VALID_EXECUTABLE" for item in items), requires_external_asset_count=sum(item.compatibility_status == "REQUIRES_EXTERNAL_ASSET" for item in items), materialized_count=len(items), verified_count=len(items))
+            family_counts[family["value"]] = ScenarioCounts(theoretical_count=len(items), valid_count=len(items), invalid_count=0, executable_count=sum(item.compatibility_status == "VALID_EXECUTABLE" for item in items), requires_external_asset_count=sum(item.compatibility_status == "REQUIRES_EXTERNAL_ASSET" for item in items), materialized_count=len(items), definition_verified_count=len(items), experiment_verified_count=0, verified_count=0, acceptance_evidence_count=0)
         return ScenarioCoverage(counts=counts, matrix=matrix, family_counts=family_counts)
 
     def acceptance(self) -> list[AcceptanceMapping]:
@@ -65,5 +65,19 @@ class ScenarioSystemService:
             AcceptanceMapping(key="innovation-4", title_zh="创新点 4：百余业务场景与模型接入", title_en="Innovation point 4", status="待接入真实模型/待实测验证", evidence=["120 semantic definitions", "A-matrix profile"], note_zh="不能宣称创新点 4 已完成验收。"),
         ]
 
+    def acceptance_scenario_set(self) -> AcceptanceScenarioSet:
+        return AcceptanceScenarioSet(
+            coverage_summary={
+                "materialized_definition_count": len(self.catalog.definitions()),
+                "selection_required": True,
+                "families_available": sorted({item.scenario_family for item in self.catalog.definitions()}),
+            }
+        )
+
     def verify(self) -> dict:
-        return verify_catalog(list(self.catalog.definitions())) | {"counts": self.coverage().counts.model_dump(mode="json")}
+        result = verify_catalog(list(self.catalog.definitions()))
+        result["counts"] = self.coverage().counts.model_dump(mode="json")
+        result["definition_verified_count"] = len(self.catalog.definitions())
+        result["experiment_verified_count"] = 0
+        result["acceptance_evidence_count"] = 0
+        return result

@@ -1,0 +1,13 @@
+{
+  "scenario_id": "SCN-D12-A258458AD5",
+  "scenario_version": "0.1",
+  "scenario_definition_hash": "a258458ad50f031b462abf8f124604f1bc1108daa86d548ca4807735be835e84",
+  "a_matrix_artifact_id": "AMX-D13-66F4FA18D1FE",
+  "a_matrix_hash": "66f4fa18d1fec7b8f19ae388feb9abaaf587f1d076101947c8fe85ee618bc8c0",
+  "antenna_profile_id": "am_spread_aau5270e_c0_t-2_a0_multi",
+  "normalization_policy": "PEAK_LINEAR_POWER_TO_RELATIVE",
+  "angular_grid_version": "D13-ANGULAR-GRID-0.1",
+  "lookup_method": "nearest_grid",
+  "identity_hash": "af559ec1eccc40500a550d4806fec4b312d2e340b71d4363b268880662fa7041",
+  "absolute_radio_kpi_status": "ABSOLUTE_RADIO_KPI_NOT_CALIBRATED"
+}

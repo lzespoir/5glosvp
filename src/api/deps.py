@@ -5,6 +5,7 @@ from optimization import OptimizationService
 from system_optimization import SystemOptimizationService
 from system_simulation import SystemExperimentService
 from scenarios import ScenarioSystemService
+from ue_twin import UETwinService
 
 
 def get_service(request: Request) -> ExperimentService:
@@ -25,3 +26,7 @@ def get_system_optimization_service(request: Request) -> SystemOptimizationServi
 
 def get_scenario_service(request: Request) -> ScenarioSystemService:
     return request.app.state.scenario_service
+
+
+def get_day13_service(request: Request) -> UETwinService:
+    return request.app.state.day13_service

@@ -23,7 +23,9 @@ const countCards = [
   ['executable_count', '可执行组合'],
   ['requires_external_asset_count', '需要外部模型/数据'],
   ['materialized_count', '已实例化'],
-  ['verified_count', '已验证'],
+  ['definition_verified_count', '定义校验通过'],
+  ['experiment_verified_count', '实验验证'],
+  ['acceptance_evidence_count', '验收证据'],
 ] as const;
 
 export function ScenariosPage() {
@@ -38,7 +40,7 @@ export function ScenariosPage() {
   const [selected, setSelected] = useState<ScenarioDefinition | null>(null);
   const preview = useScenarioPreview(selection, taxonomy.isSuccess);
   const options = taxonomy.data?.dimensions ?? [];
-  const previewCounts = preview.data?.counts ?? { theoretical_count: 0, valid_count: 0, executable_count: 0, requires_external_asset_count: 0, materialized_count: 0, verified_count: 0, invalid_count: 0 };
+  const previewCounts = preview.data?.counts ?? { theoretical_count: 0, valid_count: 0, executable_count: 0, requires_external_asset_count: 0, materialized_count: 0, definition_verified_count: 0, experiment_verified_count: 0, acceptance_evidence_count: 0, verified_count: 0, invalid_count: 0 };
   const backendById = new Map((backends.data ?? []).map((b) => [b.id, b]));
   const legacyLoaded = backends.isSuccess;
   const columns = useMemo(() => [
@@ -86,7 +88,7 @@ export function ScenariosPage() {
         {
           key: 'coverage', label: '覆盖矩阵 Coverage', children: (
             <Card title="Family × Optimization Problem">
-              <Table rowKey={(record) => record.row + '-' + record.column} dataSource={coverage.data?.matrix ?? []} columns={[{ title: 'Family', dataIndex: 'row' }, { title: '优化问题', dataIndex: 'column' }, { title: '有效', dataIndex: ['counts', 'valid_count'] }, { title: '可执行', dataIndex: ['counts', 'executable_count'] }, { title: '已验证', dataIndex: ['counts', 'verified_count'] }]} pagination={{ pageSize: 12 }} />
+              <Table rowKey={(record) => record.row + '-' + record.column} dataSource={coverage.data?.matrix ?? []} columns={[{ title: 'Family', dataIndex: 'row' }, { title: '优化问题', dataIndex: 'column' }, { title: '有效', dataIndex: ['counts', 'valid_count'] }, { title: '可执行', dataIndex: ['counts', 'executable_count'] }, { title: '定义校验', dataIndex: ['counts', 'definition_verified_count'] }, { title: '实验验证', dataIndex: ['counts', 'experiment_verified_count'] }, { title: '验收证据', dataIndex: ['counts', 'acceptance_evidence_count'] }]} pagination={{ pageSize: 12 }} />
             </Card>
           ),
         },

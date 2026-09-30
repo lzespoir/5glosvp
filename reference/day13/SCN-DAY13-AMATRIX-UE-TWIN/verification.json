@@ -1,0 +1,54 @@
+{
+  "source_files": {
+    "a_matrix_spread.npy": {
+      "hash_matches_baseline": true,
+      "sha256": "66f4fa18d1fec7b8f19ae388feb9abaaf587f1d076101947c8fe85ee618bc8c0",
+      "shape_groups": {
+        "[91, 72]": 1216
+      },
+      "all_numeric": true,
+      "all_finite": true,
+      "negative_leaf_count": 0,
+      "entry_count": 1216
+    },
+    "a_matrix_phase_power.npy": {
+      "hash_matches_baseline": true,
+      "sha256": "1d8a986a040d117d389f09ea805f5b8d026cec3699a5cb2a8b19b01701fcbe2f",
+      "shape_groups": {
+        "[91, 72]": 1310
+      },
+      "all_numeric": true,
+      "all_finite": true,
+      "negative_leaf_count": 0,
+      "entry_count": 1310
+    }
+  },
+  "normalization": {
+    "max_is_one": true,
+    "raw_not_written": true
+  },
+  "geometry": {
+    "distance_matches": true,
+    "azimuth_wrap": true,
+    "elevation_in_range": true
+  },
+  "angular_grid": {
+    "version": "D13-ANGULAR-GRID-0.1",
+    "elevation_min_deg": -90.0,
+    "elevation_max_deg": 90.0,
+    "elevation_step_deg": 2.0,
+    "elevation_count": 91,
+    "azimuth_min_deg": 0.0,
+    "azimuth_max_sample_deg": 355.0,
+    "azimuth_period_deg": 360.0,
+    "azimuth_step_deg": 5.0,
+    "azimuth_count": 72,
+    "axis_order": [
+      "elevation",
+      "azimuth"
+    ],
+    "convention_source": "SIONNATEST_IMPLEMENTATION"
+  },
+  "git_raw_npy_tracked": false,
+  "verified": true
+}

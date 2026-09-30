@@ -24,7 +24,14 @@ class ScenarioCatalog:
 
     def counts(self) -> ScenarioCounts:
         raw = count_combinations()
-        return ScenarioCounts(**raw, materialized_count=len(self.definitions()), verified_count=len(self.definitions()))
+        return ScenarioCounts(
+            **raw,
+            materialized_count=len(self.definitions()),
+            definition_verified_count=len(self.definitions()),
+            experiment_verified_count=0,
+            verified_count=0,
+            acceptance_evidence_count=0,
+        )
 
     def get(self, scenario_id: str) -> ScenarioDefinition:
         for scenario in self.definitions():

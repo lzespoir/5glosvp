@@ -26,6 +26,8 @@ export interface ScenarioCounts {
   requires_external_asset_count: number;
   materialized_count?: number;
   executed_count?: number;
+  definition_verified_count?: number;
+  experiment_verified_count?: number;
   verified_count?: number;
   acceptance_evidence_count?: number;
 }

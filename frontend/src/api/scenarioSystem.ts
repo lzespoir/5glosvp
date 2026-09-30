@@ -41,26 +41,9 @@ export async function materializeScenario(scenario_id: string): Promise<Scenario
   return data;
 }
 
-export function useScenarioTaxonomy() {
-  return useQuery({ queryKey: scenarioSystemKeys.taxonomy, queryFn: fetchScenarioTaxonomy });
-}
-
-export function useScenarioPreview(selection: Record<string, string[]>, enabled: boolean) {
-  return useQuery({ queryKey: scenarioSystemKeys.preview(selection), queryFn: () => previewScenarioCombination(selection), enabled, staleTime: 30_000 });
-}
-
-export function useScenarioCatalog() {
-  return useQuery({ queryKey: scenarioSystemKeys.catalog, queryFn: fetchScenarioCatalog });
-}
-
-export function useScenarioCoverage() {
-  return useQuery({ queryKey: scenarioSystemKeys.coverage, queryFn: fetchScenarioCoverage });
-}
-
-export function useAcceptanceMapping() {
-  return useQuery({ queryKey: scenarioSystemKeys.acceptance, queryFn: fetchAcceptanceMapping });
-}
-
-export function useMaterializeScenario() {
-  return useMutation({ mutationFn: materializeScenario });
-}
+export function useScenarioTaxonomy() { return useQuery({ queryKey: scenarioSystemKeys.taxonomy, queryFn: fetchScenarioTaxonomy }); }
+export function useScenarioPreview(selection: Record<string, string[]>, enabled: boolean) { return useQuery({ queryKey: scenarioSystemKeys.preview(selection), queryFn: () => previewScenarioCombination(selection), enabled, staleTime: 30_000 }); }
+export function useScenarioCatalog() { return useQuery({ queryKey: scenarioSystemKeys.catalog, queryFn: fetchScenarioCatalog }); }
+export function useScenarioCoverage() { return useQuery({ queryKey: scenarioSystemKeys.coverage, queryFn: fetchScenarioCoverage }); }
+export function useAcceptanceMapping() { return useQuery({ queryKey: scenarioSystemKeys.acceptance, queryFn: fetchAcceptanceMapping }); }
+export function useMaterializeScenario() { return useMutation({ mutationFn: materializeScenario }); }

@@ -1,0 +1,150 @@
+{
+  "mapping_version": "sionnatest-profiles-v1",
+  "status": "PARTIAL_BY_SOURCE_SEMANTICS",
+  "profiles": [
+    {
+      "id": "am_spread_aau5270e_c0_t-2_a0_multi",
+      "alias": "AAU5270E SSB multi×8 t-2",
+      "library": "spread",
+      "beam_type": "SSB",
+      "multi_beam": true,
+      "entry_key": "AAU5270E#16h4vssbcase0_8beam__tilt-2_azimuth0#0",
+      "keys_by_beam": {
+        "0": "AAU5270E#16h4vssbcase0_8beam__tilt-2_azimuth0#0",
+        "1": "AAU5270E#16h4vssbcase0_8beam__tilt-2_azimuth0#1",
+        "2": "AAU5270E#16h4vssbcase0_8beam__tilt-2_azimuth0#2",
+        "3": "AAU5270E#16h4vssbcase0_8beam__tilt-2_azimuth0#3",
+        "4": "AAU5270E#16h4vssbcase0_8beam__tilt-2_azimuth0#4",
+        "5": "AAU5270E#16h4vssbcase0_8beam__tilt-2_azimuth0#5",
+        "6": "AAU5270E#16h4vssbcase0_8beam__tilt-2_azimuth0#6",
+        "7": "AAU5270E#16h4vssbcase0_8beam__tilt-2_azimuth0#7"
+      },
+      "beam_ids": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "aau_type": "AAU5270E",
+      "coverage": 0,
+      "tilt_deg": -2,
+      "azimuth_deg": 0,
+      "beam_id": 0,
+      "normalize": true,
+      "roll_tilt_deg": 0,
+      "roll_azimuth_deg": 0
+    },
+    {
+      "id": "am_spread_aau5619_c0_t-2_a0_multi",
+      "alias": "AAU5619 SSB multi×8 t-2",
+      "library": "spread",
+      "beam_type": "SSB",
+      "multi_beam": true,
+      "entry_key": "AAU5619#16h4vssbcase0_8beam__tilt-2_azimuth0#0",
+      "keys_by_beam": {
+        "0": "AAU5619#16h4vssbcase0_8beam__tilt-2_azimuth0#0",
+        "1": "AAU5619#16h4vssbcase0_8beam__tilt-2_azimuth0#1",
+        "2": "AAU5619#16h4vssbcase0_8beam__tilt-2_azimuth0#2",
+        "3": "AAU5619#16h4vssbcase0_8beam__tilt-2_azimuth0#3",
+        "4": "AAU5619#16h4vssbcase0_8beam__tilt-2_azimuth0#4",
+        "5": "AAU5619#16h4vssbcase0_8beam__tilt-2_azimuth0#5",
+        "6": "AAU5619#16h4vssbcase0_8beam__tilt-2_azimuth0#6",
+        "7": "AAU5619#16h4vssbcase0_8beam__tilt-2_azimuth0#7"
+      },
+      "beam_ids": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "aau_type": "AAU5619",
+      "coverage": 0,
+      "tilt_deg": -2,
+      "azimuth_deg": 0,
+      "beam_id": 0,
+      "normalize": true,
+      "roll_tilt_deg": 0,
+      "roll_azimuth_deg": 0
+    },
+    {
+      "id": "am_spread_aau5636_c0_t1_a0_multi",
+      "alias": "AAU5636 SSB multi×8 t1",
+      "library": "spread",
+      "beam_type": "SSB",
+      "multi_beam": true,
+      "entry_key": "AAU5636#16h4vssbcase0_8beam__tilt1_azimuth0#0",
+      "keys_by_beam": {
+        "0": "AAU5636#16h4vssbcase0_8beam__tilt1_azimuth0#0",
+        "1": "AAU5636#16h4vssbcase0_8beam__tilt1_azimuth0#1",
+        "2": "AAU5636#16h4vssbcase0_8beam__tilt1_azimuth0#2",
+        "3": "AAU5636#16h4vssbcase0_8beam__tilt1_azimuth0#3",
+        "4": "AAU5636#16h4vssbcase0_8beam__tilt1_azimuth0#4",
+        "5": "AAU5636#16h4vssbcase0_8beam__tilt1_azimuth0#5",
+        "6": "AAU5636#16h4vssbcase0_8beam__tilt1_azimuth0#6",
+        "7": "AAU5636#16h4vssbcase0_8beam__tilt1_azimuth0#7"
+      },
+      "beam_ids": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "aau_type": "AAU5636",
+      "coverage": 0,
+      "tilt_deg": 1,
+      "azimuth_deg": 0,
+      "beam_id": 0,
+      "normalize": true,
+      "roll_tilt_deg": 0,
+      "roll_azimuth_deg": 0
+    },
+    {
+      "id": "am_spread_aau5639_c0_t-1_a0_multi",
+      "alias": "AAU5639 SSB multi×8 t-1",
+      "library": "spread",
+      "beam_type": "SSB",
+      "multi_beam": true,
+      "entry_key": "AAU5639#16h4vssbcase0_8beam__tilt-1_azimuth0#0",
+      "keys_by_beam": {
+        "0": "AAU5639#16h4vssbcase0_8beam__tilt-1_azimuth0#0",
+        "1": "AAU5639#16h4vssbcase0_8beam__tilt-1_azimuth0#1",
+        "2": "AAU5639#16h4vssbcase0_8beam__tilt-1_azimuth0#2",
+        "3": "AAU5639#16h4vssbcase0_8beam__tilt-1_azimuth0#3",
+        "4": "AAU5639#16h4vssbcase0_8beam__tilt-1_azimuth0#4",
+        "5": "AAU5639#16h4vssbcase0_8beam__tilt-1_azimuth0#5",
+        "6": "AAU5639#16h4vssbcase0_8beam__tilt-1_azimuth0#6",
+        "7": "AAU5639#16h4vssbcase0_8beam__tilt-1_azimuth0#7"
+      },
+      "beam_ids": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "aau_type": "AAU5639",
+      "coverage": 0,
+      "tilt_deg": -1,
+      "azimuth_deg": 0,
+      "beam_id": 0,
+      "normalize": true,
+      "roll_tilt_deg": 0,
+      "roll_azimuth_deg": 0
+    }
+  ]
+}

@@ -1,0 +1,40 @@
+[
+  {
+    "manifest_version": "0.1",
+    "artifact_id": "AMX-D13-66F4FA18D1FE",
+    "source_family": "8_BEAM_FAMILY",
+    "source_file_name": "a_matrix_spread.npy",
+    "source_hash": "66f4fa18d1fec7b8f19ae388feb9abaaf587f1d076101947c8fe85ee618bc8c0",
+    "source_size_bytes": 63875284,
+    "source_mtime_ns": 1784003301931492963,
+    "entry_count": 1216,
+    "shape": [
+      91,
+      72
+    ],
+    "dtype": "object-container/float64-leaf",
+    "angular_grid_version": "D13-ANGULAR-GRID-0.1",
+    "normalization_policy": "PEAK_LINEAR_POWER_TO_RELATIVE",
+    "profile_mapping_version": "sionnatest-profiles-v1",
+    "semantic_status": "RELATIVE_RESPONSE_ONLY"
+  },
+  {
+    "manifest_version": "0.1",
+    "artifact_id": "AMX-D13-1D8A986A040D",
+    "source_family": "7_BEAM_FAMILY",
+    "source_file_name": "a_matrix_phase_power.npy",
+    "source_hash": "1d8a986a040d117d389f09ea805f5b8d026cec3699a5cb2a8b19b01701fcbe2f",
+    "source_size_bytes": 68812831,
+    "source_mtime_ns": 1784003295359407303,
+    "entry_count": 1310,
+    "shape": [
+      91,
+      72
+    ],
+    "dtype": "object-container/float64-leaf",
+    "angular_grid_version": "D13-ANGULAR-GRID-0.1",
+    "normalization_policy": "PEAK_LINEAR_POWER_TO_RELATIVE",
+    "profile_mapping_version": "sionnatest-profiles-v1",
+    "semantic_status": "RELATIVE_RESPONSE_ONLY"
+  }
+]

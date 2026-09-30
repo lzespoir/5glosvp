@@ -1,0 +1,17 @@
+{
+  "version": "D13-ANGULAR-GRID-0.1",
+  "elevation_min_deg": -90.0,
+  "elevation_max_deg": 90.0,
+  "elevation_step_deg": 2.0,
+  "elevation_count": 91,
+  "azimuth_min_deg": 0.0,
+  "azimuth_max_sample_deg": 355.0,
+  "azimuth_period_deg": 360.0,
+  "azimuth_step_deg": 5.0,
+  "azimuth_count": 72,
+  "axis_order": [
+    "elevation",
+    "azimuth"
+  ],
+  "convention_source": "SIONNATEST_IMPLEMENTATION"
+}

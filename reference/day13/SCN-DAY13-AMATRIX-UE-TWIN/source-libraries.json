@@ -1,0 +1,28 @@
+[
+  {
+    "library_id": "spread",
+    "family": "8_BEAM_FAMILY",
+    "source_file_name": "a_matrix_spread.npy",
+    "source_artifact": "sionnatest/a_matrix",
+    "source_hash": "66f4fa18d1fec7b8f19ae388feb9abaaf587f1d076101947c8fe85ee618bc8c0",
+    "entry_count": 1216,
+    "beam_types": {
+      "SSB": 1024,
+      "CSI-RS": 192
+    },
+    "semantic_status": "RELATIVE_RESPONSE_ONLY"
+  },
+  {
+    "library_id": "phase_power",
+    "family": "7_BEAM_FAMILY",
+    "source_file_name": "a_matrix_phase_power.npy",
+    "source_artifact": "sionnatest/a_matrix",
+    "source_hash": "1d8a986a040d117d389f09ea805f5b8d026cec3699a5cb2a8b19b01701fcbe2f",
+    "entry_count": 1310,
+    "beam_types": {
+      "SSB": 1022,
+      "CSI-RS": 288
+    },
+    "semantic_status": "RELATIVE_RESPONSE_ONLY"
+  }
+]

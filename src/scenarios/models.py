@@ -80,8 +80,21 @@ class ScenarioCounts(BaseModel):
     requires_external_asset_count: int
     materialized_count: int = 0
     executed_count: int = 0
+    definition_verified_count: int = 0
+    experiment_verified_count: int = 0
     verified_count: int = 0
     acceptance_evidence_count: int = 0
+
+
+class AcceptanceScenarioSet(BaseModel):
+    set_id: str = "ASC-D13-DRAFT"
+    name: str = "Day 13 Acceptance Scenario Set"
+    version: str = "0.1"
+    selection_policy: str = "COVERAGE_DRIVEN_NOT_SELECTED"
+    scenario_ids: list[str] = Field(default_factory=list)
+    coverage_summary: dict[str, Any] = Field(default_factory=dict)
+    status: str = "DRAFT"
+    evidence_status: str = "NOT_SELECTED"
 
 
 class ScenarioPreview(BaseModel):

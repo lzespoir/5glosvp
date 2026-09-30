@@ -4,7 +4,7 @@ from typing import Any
 
 from pydantic import BaseModel, Field
 
-from scenarios.models import AcceptanceMapping, CompatibilityRule, ScenarioCoverage, ScenarioDefinition, ScenarioPreview, ScenarioTaxonomy, ScenarioWorkspace
+from scenarios.models import AcceptanceMapping, AcceptanceScenarioSet, CompatibilityRule, ScenarioCoverage, ScenarioDefinition, ScenarioPreview, ScenarioTaxonomy, ScenarioWorkspace
 
 
 class ScenarioPreviewRequest(BaseModel):
@@ -36,6 +36,10 @@ class AcceptanceResponse(BaseModel):
     items: list[AcceptanceMapping]
 
 
+class AcceptanceScenarioSetResponse(BaseModel):
+    item: AcceptanceScenarioSet
+
+
 class ScenarioVerifyResponse(BaseModel):
     verified: bool
     verifier_id: str
@@ -47,4 +51,3 @@ class ScenarioVerifyResponse(BaseModel):
     seed_only_duplicates: list[str]
     mismatches: list[str]
     counts: dict[str, Any]
-
