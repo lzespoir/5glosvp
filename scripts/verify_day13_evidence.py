@@ -55,9 +55,16 @@ def main() -> None:
     distance = math.sqrt(dx * dx + dy * dy + dz * dz)
     geometry = {"distance_3d_m": distance, "azimuth_deg": math.degrees(math.atan2(dy, dx)) % 360.0, "elevation_deg": math.degrees(math.atan2(dz, math.hypot(dx, dy)))}
     checks["geometry"] = {"distance_matches": abs(distance - 21.731313) < 1e-5, "azimuth_wrap": geometry["azimuth_deg"] == 0.0, "elevation_in_range": -90.0 <= geometry["elevation_deg"] <= 90.0}
+    lookup_cases = json.loads((evidence / "lookup-boundary-checks.json").read_text(encoding="utf-8"))
+    lookup_verified = True
+    for case in lookup_cases:
+        expected_row = max(0, min(90, int(math.floor(((float(case["elevation_deg"]) + 90.0) / 2.0) + 0.5))))
+        expected_col = int(math.floor((float(case["azimuth_deg"]) % 360.0 + 2.5) / 5.0)) % 72
+        lookup_verified = lookup_verified and case["grid_row"] == expected_row and case["grid_col"] == expected_col
+    checks["lookup"] = {"method": "nearest_grid", "tie_policy": "UPWARD_GRID_VALUE", "boundary_cases": lookup_cases, "verified": lookup_verified}
     checks["angular_grid"] = json.loads((evidence / "angular-grid.json").read_text(encoding="utf-8"))
     checks["git_raw_npy_tracked"] = False
-    checks["verified"] = all(item["hash_matches_baseline"] and item["all_numeric"] and item["all_finite"] for item in file_checks.values()) and checks["normalization"]["max_is_one"] and checks["geometry"]["distance_matches"]
+    checks["verified"] = all(item["hash_matches_baseline"] and item["all_numeric"] and item["all_finite"] for item in file_checks.values()) and checks["normalization"]["max_is_one"] and checks["geometry"]["distance_matches"] and checks["lookup"]["verified"]
     (evidence / "verification.json").write_text(json.dumps(checks, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print(json.dumps(checks, ensure_ascii=False, indent=2))
 

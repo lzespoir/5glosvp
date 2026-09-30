@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 from typing import Any
 
 from antenna import AMatrixAdapter, compute_radio_geometry
@@ -9,6 +10,19 @@ from antenna.amatrix_adapter import normalize_response
 from antenna.models import BeamResponse
 
 from .models import Position, UETwin
+
+
+def nearest_grid_indices(elevation_deg: float, azimuth_deg: float) -> tuple[int, int]:
+    """Return periodic nearest-grid indices with an explicit upward tie policy.
+
+    Elevation is clamped to the declared [-90, 90] grid and azimuth wraps over
+    the 360-degree boundary. Exact half-step ties select the higher grid value.
+    """
+    row = int(math.floor(((elevation_deg + 90.0) / 2.0) + 0.5))
+    row = max(0, min(90, row))
+    azimuth = azimuth_deg % 360.0
+    col = int(math.floor((azimuth + 2.5) / 5.0)) % 72
+    return row, col
 
 
 class UETwinService:
@@ -63,9 +77,7 @@ class UETwinService:
             normalized, _field, _quality = normalize_response(raw)
             az = geometry.azimuth_deg % 360.0
             el = geometry.elevation_deg
-            row = int(round((el + 90.0) / 2.0))
-            row = max(0, min(90, row))
-            col = int(az // 5.0) % 72
+            row, col = nearest_grid_indices(el, az)
             responses.append(
                 BeamResponse(
                     beam_id=beam_id,

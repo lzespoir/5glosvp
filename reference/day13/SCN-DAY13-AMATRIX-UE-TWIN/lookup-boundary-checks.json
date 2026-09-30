@@ -1,0 +1,79 @@
+[
+  {
+    "elevation_deg": 0.0,
+    "azimuth_deg": 0.0,
+    "grid_row": 45,
+    "grid_col": 0,
+    "tie_policy": "UPWARD_GRID_VALUE"
+  },
+  {
+    "elevation_deg": 0.0,
+    "azimuth_deg": 2.4,
+    "grid_row": 45,
+    "grid_col": 0,
+    "tie_policy": "UPWARD_GRID_VALUE"
+  },
+  {
+    "elevation_deg": 0.0,
+    "azimuth_deg": 2.5,
+    "grid_row": 45,
+    "grid_col": 1,
+    "tie_policy": "UPWARD_GRID_VALUE"
+  },
+  {
+    "elevation_deg": 0.0,
+    "azimuth_deg": 2.6,
+    "grid_row": 45,
+    "grid_col": 1,
+    "tie_policy": "UPWARD_GRID_VALUE"
+  },
+  {
+    "elevation_deg": 0.0,
+    "azimuth_deg": 4.9,
+    "grid_row": 45,
+    "grid_col": 1,
+    "tie_policy": "UPWARD_GRID_VALUE"
+  },
+  {
+    "elevation_deg": 0.0,
+    "azimuth_deg": 352.4,
+    "grid_row": 45,
+    "grid_col": 70,
+    "tie_policy": "UPWARD_GRID_VALUE"
+  },
+  {
+    "elevation_deg": 0.0,
+    "azimuth_deg": 352.6,
+    "grid_row": 45,
+    "grid_col": 71,
+    "tie_policy": "UPWARD_GRID_VALUE"
+  },
+  {
+    "elevation_deg": 0.0,
+    "azimuth_deg": 357.4,
+    "grid_row": 45,
+    "grid_col": 71,
+    "tie_policy": "UPWARD_GRID_VALUE"
+  },
+  {
+    "elevation_deg": 0.0,
+    "azimuth_deg": 357.6,
+    "grid_row": 45,
+    "grid_col": 0,
+    "tie_policy": "UPWARD_GRID_VALUE"
+  },
+  {
+    "elevation_deg": 0.0,
+    "azimuth_deg": 359.9,
+    "grid_row": 45,
+    "grid_col": 0,
+    "tie_policy": "UPWARD_GRID_VALUE"
+  },
+  {
+    "elevation_deg": 0.0,
+    "azimuth_deg": 360.0,
+    "grid_row": 45,
+    "grid_col": 0,
+    "tie_policy": "UPWARD_GRID_VALUE"
+  }
+]

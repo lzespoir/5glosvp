@@ -10,7 +10,7 @@ from antenna.amatrix_adapter import AMatrixAdapter, AMatrixDataError, normalize_
 from antenna.geometry import GeometryError, compute_radio_geometry
 from scenarios.service import ScenarioSystemService
 from ue_twin.models import Position
-from ue_twin.service import UETwinService
+from ue_twin.service import UETwinService, nearest_grid_indices
 
 pytestmark = pytest.mark.unit
 
@@ -48,6 +48,44 @@ def test_geometry_cardinals_and_wrap():
     assert above.elevation_deg == pytest.approx(90)
     with pytest.raises(GeometryError, match="SAME_POSITION"):
         compute_radio_geometry([0, 0, 0], [0, 0, 0])
+
+
+def test_nearest_grid_uses_periodic_azimuth_and_upward_ties():
+    cases = {
+        0.0: 0,
+        2.4: 0,
+        2.5: 1,
+        2.6: 1,
+        4.9: 1,
+        352.4: 70,
+        352.5: 71,
+        352.6: 71,
+        357.4: 71,
+        357.5: 0,
+        357.6: 0,
+        359.9: 0,
+        360.0: 0,
+    }
+    for azimuth, expected_col in cases.items():
+        row, col = nearest_grid_indices(0.0, azimuth)
+        assert row == 45
+        assert col == expected_col
+
+
+def test_nearest_grid_elevation_bounds_and_upward_ties():
+    cases = {
+        -90.0: 0,
+        -89.1: 0,
+        -89.0: 1,
+        -88.9: 1,
+        0.0: 45,
+        89.0: 90,
+        90.0: 90,
+    }
+    for elevation, expected_row in cases.items():
+        row, col = nearest_grid_indices(elevation, 0.0)
+        assert row == expected_row
+        assert col == 0
 
 
 def test_amatrix_raw_normalized_and_zero_guard(tmp_path: Path):

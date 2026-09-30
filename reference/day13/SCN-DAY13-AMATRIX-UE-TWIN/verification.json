@@ -32,6 +32,90 @@
     "azimuth_wrap": true,
     "elevation_in_range": true
   },
+  "lookup": {
+    "method": "nearest_grid",
+    "tie_policy": "UPWARD_GRID_VALUE",
+    "boundary_cases": [
+      {
+        "elevation_deg": 0.0,
+        "azimuth_deg": 0.0,
+        "grid_row": 45,
+        "grid_col": 0,
+        "tie_policy": "UPWARD_GRID_VALUE"
+      },
+      {
+        "elevation_deg": 0.0,
+        "azimuth_deg": 2.4,
+        "grid_row": 45,
+        "grid_col": 0,
+        "tie_policy": "UPWARD_GRID_VALUE"
+      },
+      {
+        "elevation_deg": 0.0,
+        "azimuth_deg": 2.5,
+        "grid_row": 45,
+        "grid_col": 1,
+        "tie_policy": "UPWARD_GRID_VALUE"
+      },
+      {
+        "elevation_deg": 0.0,
+        "azimuth_deg": 2.6,
+        "grid_row": 45,
+        "grid_col": 1,
+        "tie_policy": "UPWARD_GRID_VALUE"
+      },
+      {
+        "elevation_deg": 0.0,
+        "azimuth_deg": 4.9,
+        "grid_row": 45,
+        "grid_col": 1,
+        "tie_policy": "UPWARD_GRID_VALUE"
+      },
+      {
+        "elevation_deg": 0.0,
+        "azimuth_deg": 352.4,
+        "grid_row": 45,
+        "grid_col": 70,
+        "tie_policy": "UPWARD_GRID_VALUE"
+      },
+      {
+        "elevation_deg": 0.0,
+        "azimuth_deg": 352.6,
+        "grid_row": 45,
+        "grid_col": 71,
+        "tie_policy": "UPWARD_GRID_VALUE"
+      },
+      {
+        "elevation_deg": 0.0,
+        "azimuth_deg": 357.4,
+        "grid_row": 45,
+        "grid_col": 71,
+        "tie_policy": "UPWARD_GRID_VALUE"
+      },
+      {
+        "elevation_deg": 0.0,
+        "azimuth_deg": 357.6,
+        "grid_row": 45,
+        "grid_col": 0,
+        "tie_policy": "UPWARD_GRID_VALUE"
+      },
+      {
+        "elevation_deg": 0.0,
+        "azimuth_deg": 359.9,
+        "grid_row": 45,
+        "grid_col": 0,
+        "tie_policy": "UPWARD_GRID_VALUE"
+      },
+      {
+        "elevation_deg": 0.0,
+        "azimuth_deg": 360.0,
+        "grid_row": 45,
+        "grid_col": 0,
+        "tie_policy": "UPWARD_GRID_VALUE"
+      }
+    ],
+    "verified": true
+  },
   "angular_grid": {
     "version": "D13-ANGULAR-GRID-0.1",
     "elevation_min_deg": -90.0,
