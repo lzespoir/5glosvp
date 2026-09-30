@@ -1,0 +1,65 @@
+{
+  "day": 15,
+  "conclusion": "PASS_WITH_DOCUMENTED_LIMITATIONS",
+  "base_head": "54984d6d149649bb13031ea6dcfd5722ac8a9cae",
+  "base_head_equal_origin_main": true,
+  "test_environment": "remote ubuntu@10.20.14.69; conda activate 5glosvp",
+  "backend": {
+    "targeted_day15": "12 passed",
+    "full_suite": "341 passed"
+  },
+  "frontend": {
+    "typecheck": "PASS",
+    "test_files": 15,
+    "tests_passed": 67,
+    "production_build": "PASS"
+  },
+  "browser_e2e": {
+    "configured_scenario_id": "SCN-D15-B63CC46493",
+    "configured_definition_version": 8,
+    "configuration_validation": "VALID",
+    "simulation_ready": false,
+    "experiment_ready": false,
+    "frozen_instance_ids": ["SCI-D15-24D9F743716A", "SCI-D15-CF4C1A083792"],
+    "run_status": "NOT_EXECUTED",
+    "scenario_archived_after_smoke": true,
+    "legacy_radio_route_redirect": "PASS; Day14 observation content and provenance remain visible",
+    "antenna_route": "PASS; 3D spherical default, 2D heatmap option, 1/4/8 beam overlays, nearest-grid note and artifact hash visible",
+    "navigation": "PASS; readable 256px sidebar remains fixed during vertical page scroll; only active group expanded",
+    "console_error_count": "NOT_CAPTURED"
+  },
+  "independent_verifier": {
+    "implementation": "Python standard library only; does not import production validator/service/Pydantic",
+    "result": "PASS",
+    "scenario_definition_count": 1,
+    "active_configured_count_after_archive": 0,
+    "asset_count": 0,
+    "instance_count": 2,
+    "run_count": 0,
+    "problems": []
+  },
+  "scientific_scope": {
+    "a_matrix_grid": "91x72; [elevation, azimuth]; peak-normalized relative response; periodic nearest-grid; unchanged",
+    "a_matrix_manifest": [
+      {"family": "8_BEAM_FAMILY", "artifact_id": "AMX-D13-66F4FA18D1FE", "source_hash": "66f4fa18d1fec7b8f19ae388feb9abaaf587f1d076101947c8fe85ee618bc8c0"},
+      {"family": "7_BEAM_FAMILY", "artifact_id": "AMX-D13-1D8A986A040D", "source_hash": "1d8a986a040d117d389f09ea805f5b8d026cec3699a5cb2a8b19b01701fcbe2f"}
+    ],
+    "antenna_provider_registry": {"A_MATRIX": "IMPLEMENTED", "SIONNA_BUILTIN": "CONTRACT_ONLY", "GAUSSIAN": "CONTRACT_ONLY", "CUSTOM": "CONTRACT_ONLY", "EXTERNAL": "CONTRACT_ONLY"},
+    "raw_a_matrix_modified": false,
+    "raw_a_matrix_committed": false,
+    "day13_grid_normalization_lookup_changed": false,
+    "day14_radio_scientific_semantics_changed": false,
+    "absolute_radio_kpi_calibrated": false,
+    "acceptance_scenario_set_selected": false,
+    "1000_cell_configuration_smoke_is_physical_simulation": false
+  },
+  "known_limitations": [
+    "Day15 scenario execution adapter is not connected; no Day15 run/observation/evidence is produced.",
+    "NetworkImporter is contract-only; no CSV/GeoJSON/vendor parser is enabled.",
+    "OSM/GLTF conversion and map rendering are not implemented.",
+    "Traffic realizations, mobility traces, handover, measured data, absolute radio calibration, and 1000-cell physical simulation remain unimplemented.",
+    "The browser console error counter was not captured independently.",
+    "Eight-beam rendering was visually checked at the default decimation stride of 3 (5,952 canvas points); FPS and low-end device stress were not benchmarked."
+  ],
+  "implementation_commit_sha": "8fc4d1d"
+}
