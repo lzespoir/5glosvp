@@ -1,0 +1,11 @@
+{
+  "serving_cell_id": "CELL-D14-A1",
+  "serving_selection_source": "SCENARIO_DEFINED",
+  "serving_selection_status": "DECLARED_NOT_HANDOVER",
+  "neighbor_ranking_metric": "SIM_RECEIVED_POWER",
+  "neighbor_ranking_source": "FAST_PROPAGATION_UNCALIBRATED",
+  "ranked_neighbors": [
+    {"cell_id": "CELL-D14-A2", "sim_received_power_dbm": -42.022229849045175},
+    {"cell_id": "CELL-D14-B1", "sim_received_power_dbm": -48.631674066530955}
+  ]
+}

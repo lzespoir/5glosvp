@@ -1,0 +1,13 @@
+{
+  "scenario_id": "SCN-DAY14-MULTISITE-001",
+  "scenario_instance_id": "SCI-D14-MULTISITE-001",
+  "radio_context_id": "RC-D14-MULTISITE-001",
+  "radio_context_version": "D14-RADIO-CONTEXT-0.1",
+  "sites": ["SITE-D14-A", "SITE-D14-B"],
+  "cells": ["CELL-D14-A1", "CELL-D14-A2", "CELL-D14-B1"],
+  "ues": ["UE-D14-001", "UE-D14-002", "UE-D14-003"],
+  "coordinate_system": "SIONNA_SCENE_CARTESIAN",
+  "radio_config_version": "D14-RADIO-CONFIG-0.1",
+  "explicit_fields": ["tx_power_dbm", "carrier_frequency_hz", "bandwidth_hz", "antenna_profile_id", "a_matrix_hash", "propagation_backend"],
+  "status": "OBSERVABILITY_FIXTURE_NOT_ACCEPTANCE_EVIDENCE"
+}

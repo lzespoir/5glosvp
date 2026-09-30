@@ -6,6 +6,7 @@ from system_optimization import SystemOptimizationService
 from system_simulation import SystemExperimentService
 from scenarios import ScenarioSystemService
 from ue_twin import UETwinService
+from radio import RadioObservabilityService
 
 
 def get_service(request: Request) -> ExperimentService:
@@ -30,3 +31,7 @@ def get_scenario_service(request: Request) -> ScenarioSystemService:
 
 def get_day13_service(request: Request) -> UETwinService:
     return request.app.state.day13_service
+
+
+def get_radio_service(request: Request) -> RadioObservabilityService:
+    return request.app.state.radio_service

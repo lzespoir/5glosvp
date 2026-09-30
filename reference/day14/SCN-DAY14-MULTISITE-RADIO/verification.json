@@ -1,0 +1,14 @@
+{
+  "verified": true,
+  "independent_of_production_service": true,
+  "checks": {
+    "identity_hash": true,
+    "multi_cell_and_multi_site": true,
+    "serving_neighbor_binding": true,
+    "geometry_and_units": true,
+    "sim_metric_naming": true,
+    "calibration_boundary": true,
+    "a_matrix_hash_and_normalization": true,
+    "ue_twin_radio_observation_reference": true
+  }
+}

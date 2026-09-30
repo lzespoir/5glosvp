@@ -1,0 +1,10 @@
+{
+  "radio_context_id": "RC-D14-MULTISITE-001",
+  "radio_context_version": "D14-RADIO-CONTEXT-0.1",
+  "a_matrix_artifact_hashes": ["66f4fa18d1fec7b8f19ae388feb9abaaf587f1d076101947c8fe85ee618bc8c0"],
+  "normalization_policy": "PEAK_LINEAR_POWER_TO_RELATIVE",
+  "angular_grid_version": "D13-ANGULAR-GRID-0.1",
+  "lookup_method": "nearest_grid",
+  "propagation_backend": "D14-FAST-PROPAGATION-0.1",
+  "identity_hash": "6368c50778a22fb535a6d085ded02e03dc2aede3e72ab6747e3f75a7aa2dd63c"
+}

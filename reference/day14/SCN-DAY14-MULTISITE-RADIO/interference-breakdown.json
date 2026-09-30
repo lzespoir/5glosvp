@@ -1,0 +1,11 @@
+{
+  "signal_metric": "SIM_RECEIVED_POWER",
+  "signal_dbm": -33.805,
+  "per_interferer_dbm": [-42.022229849045175, -48.631674066530955],
+  "aggregate_interference_dbm": -41.16468410539946,
+  "noise_floor_dbm": -100.0,
+  "sinr_metric": "SIM_SINR",
+  "sinr_db": 7.359878282619567,
+  "calibration_status": "UNCALIBRATED_SIMULATION",
+  "notes": ["Declared neighbor cells only", "Not measured", "Not RSRP/SINR acceptance evidence"]
+}

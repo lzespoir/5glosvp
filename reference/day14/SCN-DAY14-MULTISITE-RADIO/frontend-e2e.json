@@ -1,0 +1,12 @@
+{
+  "url": "http://10.20.14.69:5176/radio-observability",
+  "route_visible": true,
+  "scenario_visible": true,
+  "cell_table_visible": true,
+  "ue_switch": {"from": "UE-D14-001", "to": "UE-D14-002", "verified": true},
+  "serving_neighbor_visible": true,
+  "power_interference_visible": true,
+  "calibration_boundary_visible": true,
+  "console_errors": 0,
+  "status": "PASS"
+}

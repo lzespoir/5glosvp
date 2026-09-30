@@ -16,6 +16,7 @@ import { OptimizationsPage } from './pages/Optimizations';
 import { OverviewPage } from './pages/Overview';
 import { ScenariosPage } from './pages/Scenarios';
 import { Day13Page } from './pages/Day13';
+import { Day14Page } from './pages/Day14';
 import { UserAssociationPage } from './pages/UserAssociation';
 import { SystemPage } from './pages/System';
 import { SystemExperimentDetailPage } from './pages/SystemExperimentDetail';
@@ -30,6 +31,7 @@ export function App() {
         <Route path="scenarios" element={<ScenariosPage />} />
         <Route path="a-matrix" element={<Day13Page />} />
         <Route path="ue-twin" element={<Day13Page />} />
+        <Route path="radio-observability" element={<Day14Page />} />
         <Route path="user-association" element={<UserAssociationPage />} />
         <Route path="benchmarks" element={<BenchmarkCenterPage />} />
         <Route path="comparisons" element={<ComparisonsPage />} />

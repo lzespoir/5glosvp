@@ -1,0 +1,9 @@
+{
+  "repository_baseline": "21d58f0dceed485fff26a69392e2928ebd26c60a",
+  "a_matrix_raw_npy_modified": false,
+  "a_matrix_spread_sha256": "66f4fa18d1fec7b8f19ae388feb9abaaf587f1d076101947c8fe85ee618bc8c0",
+  "a_matrix_phase_power_sha256": "1d8a986a040d117d389f09ea805f5b8d026cec3699a5cb2a8b19b01701fcbe2f",
+  "source_family": "SIONNATEST_IMPLEMENTATION",
+  "profile_id": "am_spread_aau5270e_c0_t-2_a0_multi",
+  "raw_data_semantics": "RELATIVE_RESPONSE_ONLY"
+}

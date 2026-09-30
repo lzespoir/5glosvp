@@ -32,6 +32,7 @@ const NAV_ITEMS: NonNullable<MenuProps['items']> = [
   { key: '/overview', icon: <DashboardOutlined />, label: navLabel('平台概览', 'Overview') },
   { key: '/scenarios', icon: <EnvironmentOutlined />, label: navLabel('场景中心', 'Scenario Center') },
   { key: '/a-matrix', icon: <RadarChartOutlined />, label: navLabel('A矩阵 / UE Twin', 'A-Matrix / UE Twin') },
+  { key: '/radio-observability', icon: <RadarChartOutlined />, label: navLabel('多小区无线观测', 'Multi-cell Radio View') },
   { key: '/user-association', icon: <ClusterOutlined />, label: navLabel('用户关联', 'User Association') },
   { key: '/benchmarks', icon: <FunctionOutlined />, label: navLabel('算法对比', 'Benchmark') },
   { key: '/system', icon: <ClusterOutlined />, label: navLabel('系统级仿真', 'System Simulation') },
@@ -42,7 +43,7 @@ const NAV_ITEMS: NonNullable<MenuProps['items']> = [
 ];
 
 function selectedNavKey(pathname: string): string {
-  const keys = ['/overview', '/scenarios', '/a-matrix', '/user-association', '/benchmarks', '/system', '/optimizations', '/algorithms', '/experiments', '/acceptance'];
+  const keys = ['/overview', '/scenarios', '/a-matrix', '/radio-observability', '/user-association', '/benchmarks', '/system', '/optimizations', '/algorithms', '/experiments', '/acceptance'];
   const match = keys.find((k) =>
     pathname.startsWith(k),
   );

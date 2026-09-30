@@ -1,0 +1,9 @@
+{
+  "radio_observation_status": "UNCALIBRATED_SIMULATION",
+  "absolute_radio_kpi_status": "ABSOLUTE_RADIO_KPI_NOT_CALIBRATED",
+  "a_matrix_status": "RELATIVE_ONLY",
+  "measured_data": false,
+  "sionna_rt_executed": false,
+  "handover_executed": false,
+  "acceptance_kpi": false
+}

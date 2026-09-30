@@ -30,3 +30,6 @@ class UETwin(BaseModel):
     strongest_relative_beam_id: int | None = None
     provenance: dict[str, Any] = Field(default_factory=dict)
     calibration_status: str = "ABSOLUTE_RADIO_KPI_NOT_CALIBRATED"
+    # Day14 attaches the RadioObservationSet at the service boundary.  Any is
+    # intentional here to keep the Day13 UE model free of a package cycle.
+    radio_observations: Any | None = None

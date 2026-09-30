@@ -1,0 +1,16 @@
+{
+  "observation_set_id": "ROS-SCN-DAY14-MULTISITE-001-UE-D14-001",
+  "scenario_id": "SCN-DAY14-MULTISITE-001",
+  "ue_id": "UE-D14-001",
+  "cells": 3,
+  "serving_cell_id": "CELL-D14-A1",
+  "neighbor_cell_ids": ["CELL-D14-A2", "CELL-D14-B1"],
+  "geometry": {
+    "CELL-D14-A1": {"distance_3d_m": 23.92, "azimuth_deg": 26.6, "elevation_deg": -20.8},
+    "CELL-D14-A2": {"distance_3d_m": 100.86, "azimuth_deg": 174.3, "elevation_deg": -4.8},
+    "CELL-D14-B1": {"distance_3d_m": 112.13, "azimuth_deg": 280.3, "elevation_deg": -4.3}
+  },
+  "lookup_method": "nearest_grid",
+  "calibration_status": "UNCALIBRATED_SIMULATION",
+  "absolute_radio_kpi_status": "ABSOLUTE_RADIO_KPI_NOT_CALIBRATED"
+}
