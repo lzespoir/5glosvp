@@ -1,9 +1,9 @@
 # Day 13 Final Report — A-Matrix / UE Twin / Radio Geometry
 
-1. Day 12 frozen base: `477a047220cadd0a9d132e53c1e8be9fd18b34b7`.
-2. Day 13 implementation commit: `3627a73` (`feat: add Day13 A-Matrix and UE Twin radio geometry`).
-3. Evidence and final-report commit: the post-implementation documentation commit recorded by `git log`.
-4. Final HEAD/origin/worktree state is recorded by the closing verification below.
+1. Post-rebuild audit baseline: `72882ff73ae3cb88b52057f7a19b25cc6289eded`.
+2. Day 13.1 lookup fix commit: `40de410` (`fix: close Day13 nearest-grid integrity gap`).
+3. Legacy pre-rebuild SHAs, including the former Day 12 and Day 13 commits, are superseded and non-authoritative.
+4. Final audited HEAD/origin/worktree state is recorded by the closing verification after the Day 13.1 documentation commit.
 5. Read-only A-Matrix source: `/home/ubuntu/h2/sionnatest/webapp/data/a_matrix`.
 6. Source files: two `.npy` libraries; no raw source file is copied into Git.
 7. Raw source modified: NO.
@@ -29,8 +29,8 @@
 27. UE and AAU positions are explicit Cartesian coordinates.
 28. Coordinate convention: Sionna scene Cartesian coordinates in metres.
 29. Geometry computes distance, wrapped azimuth and elevation from `dx/dy/dz`.
-30. Direction lookup: nearest grid point only.
-31. Geometry tests cover azimuth wrap, elevation bounds and same-position rejection.
+30. Direction lookup: periodic nearest grid point only; azimuth wraps at 360° and exact half-step ties select the upward grid value.
+31. Geometry/lookup tests cover azimuth wrap, 0/360 boundaries, half-step cases, elevation bounds/ties and same-position rejection.
 32. Interpolation: NOT implemented.
 33. Query output: per-beam normalized relative response and lookup method.
 34. Strongest beam: relative strongest beam only; no serving-beam or KPI inference.
@@ -60,14 +60,14 @@
 58. Browser E2E: PASS for Explorer, UE Twin query, geometry, response table and calibration boundary.
 59. Clean Day 13 browser console errors: `0`.
 60. Adapter loading: lazy per-library loading with warm-query cache; no performance benchmark claim.
-61. Independent evidence verifier: `verified: true`.
-62. Day 4–12 regression: PASS through the full backend/frontend suites above.
-63. Evidence root: `reference/day13/SCN-DAY13-AMATRIX-UE-TWIN/`.
-64. Limitations: owner semantic confirmation, absolute calibration, interpolation, dynamic mobility, handover and large-scale RT rerun remain out of scope.
-65. Technical debt: authoritative profile/axis/unit metadata, formal phase_power/spread semantics, coverage-driven acceptance selection, and full comparison-service binding.
-66. Day 13 disposition: `PASS WITH TECHNICAL DEBT`.
-67. Day 13 freeze: YES after final documentation commit, push and clean-worktree verification.
-68. Day 14 readiness: YES, pending review; no acceptance route is preselected.
+61. Day 13.1 evidence includes independently checked periodic nearest-grid boundary cases.
+62. Independent evidence verifier: `verified: true`.
+63. Day 4–12 regression: PASS through the full backend/frontend suites above.
+64. Evidence root: `reference/day13/SCN-DAY13-AMATRIX-UE-TWIN/`.
+65. Limitations: owner semantic confirmation, absolute calibration, interpolation, dynamic mobility, handover and large-scale RT rerun remain out of scope.
+66. Technical debt: authoritative profile/axis/unit metadata, formal phase_power/spread semantics, coverage-driven acceptance selection, full comparison-service binding, and removal of deprecated `verified_count` compatibility field.
+67. Day 13 disposition: `PASS WITH TECHNICAL DEBT` after Day 13.1 closure.
+68. Day 13 freeze: YES only after the new post-rebuild HEAD, evidence, full regression, push and clean-worktree verification; Day 14 remains pending review.
 
 ## Allowed claim boundary
 
