@@ -578,7 +578,7 @@ data/experiments/
 
 ## 已知限制 / Known Limitations
 
-- **Hard execution timeout is not implemented in Day 2.** 当前为软超时：请求最多等待 `GLOSVP_EXPERIMENT_TIMEOUT` 秒，超时后实验标记为 `failed`（`SIMULATION_TIMEOUT`），但工作线程无法被强制终止，会在后台继续运行直至结束（其结果不会覆盖 `failed` 状态）。
+- **Hard execution timeout is not implemented in Day 2.** 当前为请求等待软超时：请求最多等待 `GLOSVP_EXPERIMENT_TIMEOUT` 秒，到期只结束请求等待并返回当前实验记录；后台工作线程继续运行，等待到期不会将实验科学状态改为 `failed`。
 - 实验在单工作线程中串行执行；并发 POST 会排队（状态 `queued`），每个请求各自同步等待。
 - 进程在实验运行中崩溃时，该实验会停留在 `running`（尚无启动时恢复/清理逻辑）。
 - `FileExperimentStore.list()` 每次扫描全部 `experiment.json`，适合 Day 2 的数据量，不适合大规模实验。
