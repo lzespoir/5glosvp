@@ -33,6 +33,8 @@
 
 Day 15：[`design/DAY15_PLATFORM_IA_SCENARIO_CONFIGURATION.md`](design/DAY15_PLATFORM_IA_SCENARIO_CONFIGURATION.md)；冻结记录：[`design/DAY15_FINAL_REPORT.md`](design/DAY15_FINAL_REPORT.md)。
 
+Day 15.1：[`design/DAY15_1_NAVIGATION_ROUTE_CLEANUP.md`](design/DAY15_1_NAVIGATION_ROUTE_CLEANUP.md)。平台主导航保留概览、场景、实验、算法、分析、验收、系统；UE Twin、Radio Observation、用户关联的独立示例页不再作为场景导航入口。旧 URL 暂保留兼容，但这些示例尚未绑定当前场景/实验上下文，不能视为已迁移完成。
+
 ## 当前能力 / Current Capabilities
 
 | 能力 / Capability | 状态 / Status |
@@ -52,7 +54,7 @@ Day 15：[`design/DAY15_PLATFORM_IA_SCENARIO_CONFIGURATION.md`](design/DAY15_PLA
 
 ## 当前状态 / Current Status
 
-**Day 1–7 已冻结；Day 15 场景工作区与平台信息架构：Foundation / PASS WITH DOCUMENTED LIMITATIONS。Day15 配置尚未接入真实 Experiment 执行器，不代表系统仿真、100+ 验收场景或 1000 Cell 仿真已完成。**
+**Day 1–7 已冻结；Day 15 场景配置基础已实现。Day 15.1 导航重复入口已收敛，但 UE Twin / Radio Observation 尚未成为绑定场景或实验的上下文视图，因此产品信息架构暂不宣称完全冻结。Day15 配置尚未接入真实 Experiment 执行器，不代表系统仿真、100+ 验收场景或 1000 Cell 仿真已完成。**
 
 | 项目 / Item | 值 / Value |
 | --- | --- |

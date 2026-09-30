@@ -27,12 +27,11 @@ function navLabel(zh: string, en: string) {
   );
 }
 
-const NAV_ITEMS: NonNullable<MenuProps['items']> = [
+export const NAV_ITEMS: NonNullable<MenuProps['items']> = [
   { key: '/overview', icon: <DashboardOutlined />, label: navLabel('平台概览', 'Overview') },
   { key: 'group-scenarios', icon: <EnvironmentOutlined />, label: navLabel('场景', 'Scenarios'), children: [
     { key: '/scenarios', label: '已配置场景库' }, { key: '/scenarios/advanced', label: '候选组合 / 高级视图' },
-    { key: '/scenarios/assets/antenna', label: '环境资产 / 天线' }, { key: '/scenarios/ue', label: 'UE Twin 几何' },
-    { key: '/scenarios/radio', label: '无线观测示例' }, { key: '/scenarios/association', label: '用户关联' },
+    { key: '/scenarios/assets/antenna', label: '天线方向图（共享库）' },
   ] },
   { key: 'group-experiments', icon: <ExperimentOutlined />, label: navLabel('实验', 'Experiments'), children: [
     { key: '/experiments', label: '实验记录' }, { key: '/system', label: '系统级仿真' }, { key: '/optimizations', label: '优化运行' },
@@ -49,8 +48,10 @@ const NAV_ITEMS: NonNullable<MenuProps['items']> = [
   ] },
 ];
 
-function selectedNavKey(pathname: string): string {
-  const keys = ['/scenarios/assets/antenna', '/scenarios/advanced', '/scenarios/association', '/scenarios/radio', '/scenarios/ue', '/algorithm-onboarding', '/optimizations', '/experiments', '/benchmarks', '/comparisons', '/algorithms', '/acceptance', '/platform-status', '/system', '/scenarios', '/overview'];
+export function selectedNavKey(pathname: string): string {
+  const compatibilityOnlyRoutes = ['/scenarios/ue', '/scenarios/radio', '/scenarios/association'];
+  if (compatibilityOnlyRoutes.some((path) => pathname === path || pathname.startsWith(`${path}/`))) return '';
+  const keys = ['/scenarios/assets/antenna', '/scenarios/advanced', '/algorithm-onboarding', '/optimizations', '/experiments', '/benchmarks', '/comparisons', '/algorithms', '/acceptance', '/platform-status', '/system', '/scenarios', '/overview'];
   const match = keys.find((k) =>
     pathname.startsWith(k),
   );
@@ -129,7 +130,7 @@ export function PlatformLayout() {
           <Menu
             mode="inline"
             openKeys={openKeys}
-            selectedKeys={[selectedNavKey(location.pathname)]}
+            selectedKeys={selectedNavKey(location.pathname) ? [selectedNavKey(location.pathname)] : []}
             items={NAV_ITEMS}
             onOpenChange={(keys) => setOpenKeys(keys.length ? [String(keys[keys.length - 1])] : [])}
             onClick={({ key }) => { if (String(key).startsWith('/')) navigate(key); }}

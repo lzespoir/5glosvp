@@ -2,6 +2,8 @@
 
 **Conclusion: PASS WITH DOCUMENTED LIMITATIONS — foundation frozen.** This freezes the information architecture, configuration model/API, library semantics, and antenna workspace. It does **not** claim that Day15 definitions can run in the experiment engine.
 
+> **Post-freeze IA audit update:** the initial freeze statement above overstated product IA completion. Day15 configuration foundations remain valid, but the unbound UE Twin/Radio demonstration routes were still exposed as scenario submenu entries and linked as if contextual. Day15.1 removes those navigation links and misleading shortcuts; its direct legacy routes remain compatible. Since UE Twin and Radio Observation are not yet bound to a selected ScenarioInstance/Experiment, **the product IA status is PARTIAL / NOT FULLY FROZEN**. See [`DAY15_1_NAVIGATION_ROUTE_CLEANUP.md`](DAY15_1_NAVIGATION_ROUTE_CLEANUP.md). Scientific and execution status claims below are unchanged.
+
 ## Provenance
 
 - Base HEAD at start: `54984d6d149649bb13031ea6dcfd5722ac8a9cae`

@@ -16,5 +16,6 @@ describe('Day 13 A-Matrix and UE Twin page', () => {
     expect(screen.getByText('A 矩阵与 UE Twin')).toBeTruthy();
     expect(screen.getByText(/绝对无线 KPI 尚未校准/)).toBeTruthy();
     expect(screen.getByText(/归一化相对响应/)).toBeTruthy();
+    expect(screen.queryByText('进入多小区 Radio View')).toBeNull();
   });
 });

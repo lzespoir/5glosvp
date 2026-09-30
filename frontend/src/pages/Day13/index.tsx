@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { Alert, Button, Card, Col, Descriptions, Form, Input, InputNumber, Row, Select, Space, Spin, Statistic, Table, Tabs, Tag, Typography } from 'antd';
 import { EnvironmentOutlined, SafetyCertificateOutlined } from '@ant-design/icons';
 
@@ -65,7 +64,7 @@ export function Day13Page() {
   };
 
   return <>
-    <PageHeader titleZh="A 矩阵与 UE Twin" titleEn="A-Matrix & UE Twin Radio Geometry" subtitle="真实 A-Matrix 的归一化相对方向响应、AAU↔UE 几何和多波束观察" extra={<Button type="primary"><Link to="/radio-observability">进入多小区 Radio View</Link></Button>} />
+    <PageHeader titleZh="A 矩阵与 UE Twin" titleEn="A-Matrix & UE Twin Radio Geometry" subtitle="真实 A-Matrix 的归一化相对方向响应、AAU↔UE 几何和多波束观察" />
     <Alert type="warning" showIcon icon={<SafetyCertificateOutlined />} title="绝对无线 KPI 尚未校准" description="当前仅提供归一化相对波束响应、空间几何和相对波束排序；不将 normalized response 解释为 dBm、dBi、绝对 RSRP 或绝对 SINR。" />
     <Tabs className="section-top" items={[{
       key: 'explorer', label: 'A 矩阵 / 波束方向图', children: <Row gutter={[16, 16]}>
