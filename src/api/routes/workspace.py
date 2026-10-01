@@ -11,7 +11,7 @@ from workspace.models import (
     AntennaDefinition, CellDefinition, CoordinateReference, EnvironmentDefinition,
     RadioModelDefinition, SiteDefinition, TrafficDefinition, UEDefinition,
 )
-from workspace.service import CAPABILITIES, RADIO_MODELS, WorkspaceService
+from workspace.service import CAPABILITIES, RADIO_MODELS, ScenarioReferenced, WorkspaceService
 from antenna import AMatrixDataError
 
 router = APIRouter(prefix="/workspace", tags=["workspace"])
@@ -28,7 +28,7 @@ def fail(exc: Exception):
     if isinstance(exc, KeyError):
         raise HTTPException(404, str(exc)) from exc
     code = str(exc)
-    raise HTTPException(409 if "CONFLICT" in code or "ALREADY" in code or "ARCHIVED" in code else 422, code) from exc
+    raise HTTPException(409 if "CONFLICT" in code or "ALREADY" in code or "ARCHIVED" in code or "REFERENCED" in code or "MUST_BE_ARCHIVED" in code or "NOT_ARCHIVED" in code else 422, code) from exc
 
 
 class CreateScenario(BaseModel):
@@ -130,7 +130,7 @@ def amatrix_options(request: Request):
 
 
 @router.get("/scenarios")
-def list_scenarios(service: Service, offset: Annotated[int, Query(ge=0)] = 0, limit: Annotated[int, Query(ge=1, le=200)] = 20,
+def list_scenarios(service: Service, offset: Annotated[int, Query(ge=0)] = 0, limit: Annotated[int, Query(ge=1, le=100)] = 20,
                    search: str = "", family: str = "", state: str = "", problem: str = "", environment: str = "", traffic: str = "", source: str = ""):
     return service.list(offset=offset, limit=limit, search=search, family=family, state=state, problem=problem, environment=environment, traffic=traffic, source=source)
 
@@ -221,6 +221,26 @@ def archive(scenario_id: str, service: Service):
     try:
         return service.archive(scenario_id)
     except KeyError as exc:
+        fail(exc)
+
+
+@router.post("/scenarios/{scenario_id}/restore")
+def restore(scenario_id: str, service: Service):
+    try:
+        return service.restore(scenario_id)
+    except (KeyError, ValueError) as exc:
+        fail(exc)
+
+
+@router.delete("/scenarios/{scenario_id}")
+def delete_scenario(scenario_id: str, service: Service):
+    try:
+        return service.delete_scenario(scenario_id)
+    except KeyError as exc:
+        raise HTTPException(404, {"code": "SCENARIO_NOT_FOUND", "scenario_id": scenario_id}) from exc
+    except ScenarioReferenced as exc:
+        raise HTTPException(409, {"code": "SCENARIO_REFERENCED", "scenario_id": scenario_id, "reference_summary": exc.reference_summary}) from exc
+    except ValueError as exc:
         fail(exc)
 
 

@@ -21,6 +21,9 @@ export function ScenariosPage() {
   const [selection, setSelection] = useState<Record<string, string[]>>({});
   const [preview, setPreview] = useState<CandidatePreview | null>(null);
   const [selected, setSelected] = useState<ScenarioCandidate | null>(null);
+  const [offset, setOffset] = useState(0);
+  const [filters, setFilters] = useState<Record<string, string>>({});
+  const [pendingFilters, setPendingFilters] = useState<Record<string, string>>({});
   const [previewLoading, setPreviewLoading] = useState(false);
   const [promoteLoading, setPromoteLoading] = useState(false);
   const dimensions = taxonomy.data?.dimensions ?? [];
@@ -29,11 +32,27 @@ export function ScenariosPage() {
   const generate = async () => {
     setPreviewLoading(true);
     setSelected(null);
+    setOffset(0);
     try {
-      setPreview(await scenarioCandidatesApi.preview(selection, 50));
+      setPreview(await scenarioCandidatesApi.preview(selection, { offset: 0, limit: 20, filters }));
     } catch (error) {
-      messageApi.error('候选预览失败：' + String(error));
+      const detail = (error as { response?: { data?: { detail?: unknown } } })?.response?.data?.detail;
+      const code = (error as { code?: string })?.code ?? (typeof detail === 'string' ? detail : '');
+      messageApi.error(code === 'CANDIDATE_SPACE_TOO_LARGE' || code === 'HTTP_422' ? '候选空间过大或筛选条件无效，请缩小范围后重试。' : '候选预览失败，请检查所选范围后重试。');
       setPreview(null);
+    } finally { setPreviewLoading(false); }
+  };
+
+  const loadPage = async (nextOffset: number, nextFilters = filters, expectedQueryHash?: string) => {
+    setPreviewLoading(true);
+    try {
+      const next = await scenarioCandidatesApi.preview(selection, { offset: nextOffset, limit: 20, filters: nextFilters, query_hash: expectedQueryHash });
+      setPreview(next);
+      setOffset(nextOffset);
+      setFilters(nextFilters);
+      setSelected((previous) => next.items.find((item) => item.candidate_id === previous?.candidate_id) ?? previous);
+    } catch {
+      messageApi.error('候选列表加载失败，查询条件可能已变化，请重新生成预览。');
     } finally { setPreviewLoading(false); }
   };
 
@@ -44,7 +63,11 @@ export function ScenariosPage() {
       const scenario = await scenarioCandidatesApi.promote(selected);
       messageApi.success('候选已显式保存为场景库中的 DRAFT 定义；尚未配置网络或创建实验。');
       navigate('/scenarios/' + scenario.scenario_id);
-    } catch (error) { messageApi.error('保存失败：' + String(error)); }
+    } catch (error) {
+      const detail = (error as { response?: { data?: { detail?: unknown } } })?.response?.data?.detail;
+      const code = (error as { code?: string })?.code ?? (typeof detail === 'string' ? detail : '');
+      messageApi.error(code === 'CANDIDATE_ALREADY_CONFIGURED' || code === 'HTTP_409' ? '该候选可能已保存，或查询已过期；请刷新候选后重试。' : '保存失败，候选身份校验未通过。');
+    }
     finally { setPromoteLoading(false); }
   };
 
@@ -61,30 +84,38 @@ export function ScenariosPage() {
   return <>
     {context}
     <PageHeader titleZh="候选场景组合器" titleEn="Scenario Candidate Builder" subtitle="候选空间只用于筛选与预览；保存后才成为场景库中的配置定义。" />
-    <Alert className="section-bottom" type="warning" showIcon title="候选 ≠ 已配置场景 ≠ 实验" description="预览在内存中计算，不写入场景库。只有显式保存后才新增一个 DRAFT 场景定义；这不会自动补齐环境、站点、小区、天线、UE，也不会创建或运行实验，更不构成验收证据。" />
+    <Alert className="section-bottom" type="warning" showIcon title="候选 ≠ 已配置场景 ≠ 实验" description="候选配置仅用于辅助创建场景。候选不会自动进入场景库，也不会计入已配置场景或验收场景数量。预览在内存中计算；只有显式保存才新增一个 DRAFT 定义。" />
     <Card title="选择候选空间" extra={<Button type="primary" onClick={() => void generate()} disabled={!complete} loading={previewLoading}>生成候选预览</Button>}>
-      <Typography.Paragraph type="secondary">每个维度至少选择一项。系统限制一次最多枚举 5,000 个组合，表格最多展示 50 个有效候选。</Typography.Paragraph>
+      <Typography.Paragraph type="secondary">每个维度至少选择一项。单次候选探索最多检查 5,000 个组合，这是请求安全上限，不是平台场景容量；候选结果使用服务端分页浏览。</Typography.Paragraph>
       <Row gutter={[16, 16]}>
         {dimensions.map((dimension) => <Col key={dimension.key} xs={24} md={12} xl={8}>
           <Typography.Text strong>{dimension.label_zh} / {dimension.label_en}</Typography.Text>
-          <Select mode="multiple" allowClear style={{ width: '100%', marginTop: 8 }} placeholder="选择至少一项" value={selection[dimension.key] ?? []} onChange={(value) => { setSelection((previous) => ({ ...previous, [dimension.key]: value })); setPreview(null); setSelected(null); }} options={dimension.options.map((option) => ({ value: option.value, label: option.label_zh + ' · ' + option.status }))} />
+          <Select mode="multiple" allowClear style={{ width: '100%', marginTop: 8 }} placeholder="选择至少一项" value={selection[dimension.key] ?? []} onChange={(value) => { setSelection((previous) => ({ ...previous, [dimension.key]: value })); setPreview(null); setSelected(null); setOffset(0); setFilters({}); setPendingFilters({}); }} options={dimension.options.map((option) => ({ value: option.value, label: option.label_zh + ' · ' + option.status }))} />
         </Col>)}
       </Row>
     </Card>
 
+    {complete && <Card className="section-top" title="候选结果筛选" extra={<Button onClick={() => void loadPage(0, pendingFilters)}>应用筛选</Button>}>
+      <Row gutter={[16, 12]}>{dimensions.filter((dimension) => (selection[dimension.key]?.length ?? 0) > 1).map((dimension) => <Col key={dimension.key} xs={24} md={12} xl={8}>
+        <Typography.Text>{dimension.label_zh}</Typography.Text>
+        <Select allowClear style={{ width: '100%', marginTop: 6 }} placeholder="全部已选项" value={pendingFilters[dimension.key] || undefined} onChange={(value) => setPendingFilters((previous) => { const next = { ...previous }; if (value) next[dimension.key] = value; else delete next[dimension.key]; return next; })} options={(selection[dimension.key] ?? []).map((value) => ({ value, label: dimension.options.find((option) => option.value === value)?.label_zh ?? value }))} />
+      </Col>)}</Row>
+      <Typography.Paragraph className="section-top" type="secondary">筛选只影响候选预览，不会保存或改变候选身份。</Typography.Paragraph>
+    </Card>}
+
     {preview && <>
       <Row gutter={[12, 12]} className="section-top">
         <Col xs={12} md={8} xl={4}><Card size="small"><Statistic title="所选理论组合" value={preview.theoretical_count} /></Card></Col>
-        <Col xs={12} md={8} xl={4}><Card size="small"><Statistic title="有效候选" value={preview.valid_candidate_count} /></Card></Col>
+        <Col xs={12} md={8} xl={4}><Card size="small"><Statistic title="有效候选总数" value={preview.valid_candidate_count} /></Card></Col>
+        <Col xs={12} md={8} xl={4}><Card size="small"><Statistic title="当前筛选结果" value={preview.filtered_candidate_count} /></Card></Col>
         <Col xs={12} md={8} xl={4}><Card size="small"><Statistic title="无效组合" value={preview.invalid_candidate_count} /></Card></Col>
         <Col xs={12} md={8} xl={4}><Card size="small"><Statistic title="规则标记可执行候选" value={preview.executable_candidate_count} /></Card></Col>
         <Col xs={12} md={8} xl={4}><Card size="small"><Statistic title="依赖外部资产候选" value={preview.external_dependency_candidate_count} /></Card></Col>
         <Col xs={12} md={8} xl={4}><Card size="small"><Statistic title="已保存场景变化" value={preview.configured_count_changed ? '是' : '否'} /></Card></Col>
       </Row>
       <Typography.Paragraph className="section-top" type="secondary">“规则标记可执行”仅表示 Day12 组合规则分类，不表示 Day15 网络配置完整、真实实验已运行或实验结果已验证。</Typography.Paragraph>
-      {preview.truncated && <Alert className="section-top" type="info" showIcon title="候选列表已截断" description={`有效候选共 ${preview.valid_candidate_count} 个；当前仅展示 ${preview.returned_count} 个。截断仅影响展示，不会自动保存剩余候选。`} />}
-      {preview.items.length === 0 ? <Empty className="section-top" description="所选维度没有有效候选组合" /> : <Card className="section-top" title={`候选预览 · ${preview.returned_count} 条（未保存）`}>
-        <Table rowKey="candidate_id" size="small" pagination={{ pageSize: 10 }} dataSource={preview.items} columns={columns} rowSelection={{ type: 'radio', selectedRowKeys: selected ? [selected.candidate_id] : [], onChange: (_keys, rows) => setSelected(rows[0] ?? null) }} onRow={(record) => ({ onClick: () => setSelected(record) })} />
+      {preview.total === 0 ? <Empty className="section-top" description="当前选择与筛选条件没有有效候选" /> : <Card className="section-top" title={`候选预览 · ${preview.total} 条（未保存）`}>
+        <Table rowKey="candidate_id" size="small" loading={previewLoading} pagination={{ current: Math.floor(offset / preview.limit) + 1, pageSize: preview.limit, total: preview.total, showSizeChanger: false, onChange: (page) => void loadPage((page - 1) * preview.limit, filters, preview.query_hash) }} dataSource={preview.items} columns={columns} rowSelection={{ type: 'radio', selectedRowKeys: selected ? [selected.candidate_id] : [], onChange: (_keys, rows) => setSelected(rows[0] ?? null) }} onRow={(record) => ({ onClick: () => setSelected(record) })} />
       </Card>}
     </>}
 

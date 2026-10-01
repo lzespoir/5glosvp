@@ -193,6 +193,11 @@ class ConfiguredScenario(BaseModel):
     created_at: str = ""
     updated_at: str = ""
     lineage: dict[str, Any] = Field(default_factory=dict)
+    pre_archive_state: Literal["DRAFT", "VALID", "INVALID", "READY"] | None = None
+    archived_at: str | None = None
+    archived_source: Literal["UI", "API", "SYSTEM"] | None = None
+    restored_at: str | None = None
+    restored_source: Literal["UI", "API", "SYSTEM"] | None = None
 
 
 class ScenarioInstance(BaseModel):

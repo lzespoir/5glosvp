@@ -37,7 +37,7 @@ def file_digest(path: Path) -> str:
 
 
 def definition_digest(scenario: ConfiguredScenario) -> str:
-    payload = scenario.model_dump(mode="json", exclude={"state", "version", "definition_hash", "created_at", "updated_at", "lineage"})
+    payload = scenario.model_dump(mode="json", exclude={"state", "version", "definition_hash", "created_at", "updated_at", "lineage", "pre_archive_state", "archived_at", "archived_source", "restored_at", "restored_source"})
     return digest(payload)
 
 
@@ -87,6 +87,13 @@ class WorkspaceStore:
             finally:
                 if os.path.exists(temporary):
                     os.unlink(temporary)
+
+    def delete(self, collection: str, key: str) -> None:
+        path = self._path(collection, key)
+        with self._lock:
+            if not path.is_file():
+                raise KeyError(key)
+            path.unlink()
 
     def all(self, collection: str) -> list[dict[str, Any]]:
         directory = self.root / collection
@@ -225,10 +232,37 @@ class ScenarioValidator:
         return ValidationResult(issues=issues, config_valid=valid, simulation_ready=False, state="VALID" if valid else "INVALID")
 
 
+class ScenarioReferenced(ValueError):
+    def __init__(self, scenario_id: str, reference_summary: dict[str, int]):
+        super().__init__("SCENARIO_REFERENCED")
+        self.scenario_id = scenario_id
+        self.reference_summary = reference_summary
+
+
+class ScenarioReferenceGuard:
+    """Extensible registry of authoritative references; never cascades deletion."""
+
+    def __init__(self, store: WorkspaceStore):
+        self.store = store
+        self._providers = {"scenario_instances": self._scenario_instances}
+
+    def _scenario_instances(self, scenario_id: str) -> int:
+        return sum(row.get("scenario_id") == scenario_id for row in self.store.all("instances"))
+
+    def register_provider(self, name: str, provider) -> None:
+        if not name or name in self._providers:
+            raise ValueError("REFERENCE_PROVIDER_INVALID")
+        self._providers[name] = provider
+
+    def reference_summary(self, scenario_id: str) -> dict[str, int]:
+        return {name: int(provider(scenario_id)) for name, provider in self._providers.items()}
+
+
 class WorkspaceService:
     def __init__(self, root: Path | str):
         self.store = WorkspaceStore(root)
         self.validator = ScenarioValidator()
+        self.reference_guard = ScenarioReferenceGuard(self.store)
 
     def assets(self) -> list[EnvironmentAsset]:
         return [EnvironmentAsset.model_validate(row) for row in self.store.all("assets")]
@@ -273,7 +307,7 @@ class WorkspaceService:
 
     def list(self, *, offset: int = 0, limit: int = 20, search: str = "", family: str = "", state: str = "", problem: str = "", environment: str = "", traffic: str = "", source: str = "") -> dict[str, Any]:
         items = [ConfiguredScenario.model_validate(row) for row in self.store.all("scenarios")]
-        items = [row for row in items if (not search or search.lower() in (row.name + row.scenario_id).lower()) and (not family or row.family == family) and (not state or row.state == state) and (not problem or problem in row.optimization_problems) and (not environment or row.environment and row.environment.environment_id == environment) and (not traffic or row.traffic.kind == traffic) and (not source or row.source == source)]
+        items = [row for row in items if (row.state == "ARCHIVED" if state == "ARCHIVED" else row.state != "ARCHIVED" and (not state or state == "ACTIVE" or row.state == state)) and (not search or search.lower() in (row.name + row.scenario_id).lower()) and (not family or row.family == family) and (not problem or problem in row.optimization_problems) and (not environment or row.environment and row.environment.environment_id == environment) and (not traffic or row.traffic.kind == traffic) and (not source or row.source == source)]
         items.sort(key=lambda row: (row.updated_at, row.scenario_id), reverse=True)
         return {"items": items[offset:offset + limit], "total": len(items), "offset": offset, "limit": limit}
 
@@ -393,10 +427,38 @@ class WorkspaceService:
         scenario = self.get(scenario_id)
         if scenario.state == "ARCHIVED":
             return scenario
+        scenario.pre_archive_state = scenario.state
         scenario.state = "ARCHIVED"
+        scenario.archived_at = utc_now()
+        scenario.archived_source = "API"
+        scenario.restored_at = None
+        scenario.restored_source = None
         scenario.updated_at = utc_now()
         self.store.write("scenarios", scenario.scenario_id, scenario.model_dump(mode="json"))
         return scenario
+
+    def restore(self, scenario_id: str) -> ConfiguredScenario:
+        scenario = self.get(scenario_id)
+        if scenario.state != "ARCHIVED":
+            raise ValueError("SCENARIO_NOT_ARCHIVED")
+        # Older archived records predate lifecycle provenance; DRAFT is the safe fallback.
+        scenario.pre_archive_state = scenario.pre_archive_state or "DRAFT"
+        scenario.state = scenario.pre_archive_state
+        scenario.restored_at = utc_now()
+        scenario.restored_source = "API"
+        scenario.updated_at = scenario.restored_at
+        self.store.write("scenarios", scenario.scenario_id, scenario.model_dump(mode="json"))
+        return scenario
+
+    def delete_scenario(self, scenario_id: str) -> dict[str, Any]:
+        scenario = self.get(scenario_id)
+        if scenario.state not in {"DRAFT", "INVALID", "ARCHIVED"}:
+            raise ValueError("SCENARIO_MUST_BE_ARCHIVED")
+        reference_summary = self.reference_guard.reference_summary(scenario_id)
+        if any(reference_summary.values()):
+            raise ScenarioReferenced(scenario_id, reference_summary)
+        self.store.delete("scenarios", scenario_id)
+        return {"scenario_id": scenario_id, "deleted": True, "cascade_deleted": False}
 
     def validate(self, scenario: ConfiguredScenario) -> ValidationResult:
         return self.validator.validate(scenario, {asset.asset_id: asset for asset in self.assets()})

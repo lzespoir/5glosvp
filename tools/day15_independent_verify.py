@@ -30,7 +30,7 @@ def verify(root: Path):
         problems.append("duplicate scenario ID")
     for row in scenarios:
         source = dict(row)
-        for key in ("state", "version", "definition_hash", "created_at", "updated_at", "lineage"):
+        for key in ("state", "version", "definition_hash", "created_at", "updated_at", "lineage", "pre_archive_state", "archived_at", "archived_source", "restored_at", "restored_source"):
             source.pop(key, None)
         if canonical(source) != row["definition_hash"]:
             problems.append(f"definition hash mismatch: {row['scenario_id']}")

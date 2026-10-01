@@ -14,6 +14,7 @@ export interface Scenario {
   sites: Site[]; cells: Cell[]; antennas: Antenna[]; ues: UE[];
   traffic: { kind: string; availability: string; source: Source }; radio: { backend: string; status: string; version: string; calibration_status: string };
   network_functions: string[]; optimization_problems: string[]; candidate_hash: string | null; source: Source; state: string; version: number; definition_hash: string; created_at: string; updated_at: string; lineage: Record<string, unknown>;
+  pre_archive_state: string | null; archived_at: string | null; archived_source: string | null; restored_at: string | null; restored_source: string | null;
 }
 export interface Validation { issues: { severity: string; code: string; path: string; message: string }[]; config_valid: boolean; simulation_ready: boolean; experiment_ready: boolean; state: string }
 export interface Counts { configured_scenario_count: number; runnable_scenario_count: number; executed_scenario_count: number; experiment_verified_count: number; acceptance_evidence_count: number }
@@ -30,6 +31,8 @@ export const workspaceApi = {
   create: async (name: string, family: string) => (await apiClient.post<Scenario>('/workspace/scenarios', { name, family })).data,
   clone: async (id: string) => (await apiClient.post<Scenario>(`/workspace/scenarios/${id}/clone`)).data,
   archive: async (id: string) => (await apiClient.post<Scenario>(`/workspace/scenarios/${id}/archive`)).data,
+  restore: async (id: string) => (await apiClient.post<Scenario>(`/workspace/scenarios/${id}/restore`)).data,
+  deleteScenario: async (id: string) => (await apiClient.delete<{ scenario_id: string; deleted: boolean; cascade_deleted: false }>(`/workspace/scenarios/${id}`)).data,
   patch: async (id: string, section: string, expected_version: number, value: unknown) => (await apiClient.patch<Scenario>(`/workspace/scenarios/${id}/${section}`, { expected_version, value })).data,
   assets: async () => (await apiClient.get<{ items: EnvironmentAsset[] }>('/workspace/assets')).data.items,
   registerAsset: async (value: { name: string; asset_type: string; source_path: string; coordinate: Coordinate }) => (await apiClient.post<EnvironmentAsset>('/workspace/assets', value)).data,

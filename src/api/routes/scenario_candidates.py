@@ -5,7 +5,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, Field
 
-from scenarios.candidates import ScenarioCandidateService
+from scenarios.candidates import DEFAULT_PAGE_SIZE, MAX_PAGE_SIZE, ScenarioCandidateService
 from workspace.service import WorkspaceService
 
 router = APIRouter(prefix="/scenario-candidates", tags=["scenario-candidates"])
@@ -14,7 +14,10 @@ candidate_service = ScenarioCandidateService()
 
 class CandidatePreviewRequest(BaseModel):
     selection: dict[str, list[str]]
-    limit: int = Field(default=50, ge=1, le=100)
+    filters: dict[str, str | list[str]] = Field(default_factory=dict)
+    offset: int = Field(default=0, ge=0)
+    limit: int = Field(default=DEFAULT_PAGE_SIZE, ge=1, le=MAX_PAGE_SIZE)
+    query_hash: str | None = None
 
 
 class CandidatePromotionRequest(BaseModel):
@@ -31,7 +34,7 @@ WorkspaceDep = Annotated[WorkspaceService, Depends(get_workspace)]
 @router.post("/preview")
 def preview(body: CandidatePreviewRequest):
     try:
-        return candidate_service.preview(body.selection, body.limit)
+        return candidate_service.preview(body.selection, body.limit, body.offset, body.filters, body.query_hash)
     except ValueError as exc:
         code = str(exc)
         raise HTTPException(422, code) from exc
@@ -43,5 +46,5 @@ def promote(candidate_id: str, body: CandidatePromotionRequest, service: Workspa
         return service.promote_candidate(candidate_id, body.dimensions)
     except ValueError as exc:
         code = str(exc)
-        status = 409 if "ALREADY" in code else 422
+        status = 409 if "ALREADY" in code or "STALE" in code else 422
         raise HTTPException(status, code) from exc
