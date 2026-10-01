@@ -17,6 +17,8 @@ class ScenarioCatalogResponse(BaseModel):
     total: int
     offset: int
     limit: int
+    catalog_semantics: str = "LEGACY_CANDIDATE_CATALOG"
+    acceptance_eligible: bool = False
 
 
 class ScenarioMaterializeRequest(BaseModel):

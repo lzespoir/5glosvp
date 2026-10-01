@@ -7,7 +7,7 @@ from typing import Any, Literal
 from pydantic import BaseModel, Field, model_validator
 
 
-Source = Literal["USER_DEFINED", "IMPORTED", "GENERATED", "MEASURED", "MODEL_DEFAULT", "BACKEND_DEFAULT", "UNKNOWN"]
+Source = Literal["USER_DEFINED", "EXPERT_DEFINED", "IMPORTED", "TEMPLATE_DERIVED", "CLONED_VARIANT", "CANDIDATE_PROMOTED", "GENERATED", "MEASURED", "MODEL_DEFAULT", "BACKEND_DEFAULT", "UNKNOWN"]
 State = Literal["DRAFT", "VALID", "INVALID", "READY", "ARCHIVED"]
 AssetType = Literal["OSM", "GLTF", "GEOJSON", "RASTER_MAP", "TERRAIN", "SIONNA_SCENE", "CUSTOM_MESH"]
 Problem = Literal["NETWORK_STRUCTURE", "USER_ACCESS", "SYSTEM_RESOURCE"]
@@ -175,6 +175,7 @@ class ConfiguredScenario(BaseModel):
     scenario_id: str
     name: str
     family: str = "custom"
+    classification: dict[str, str] = Field(default_factory=dict)
     environment: EnvironmentDefinition | None = None
     sites: list[SiteDefinition] = Field(default_factory=list)
     cells: list[CellDefinition] = Field(default_factory=list)

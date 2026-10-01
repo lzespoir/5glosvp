@@ -282,6 +282,23 @@ class WorkspaceService:
         active = [row for row in rows if row.state != "ARCHIVED"]
         return {"configured_scenario_count": len(active), "runnable_scenario_count": sum(row.state == "READY" for row in active), "executed_scenario_count": 0, "experiment_verified_count": 0, "acceptance_evidence_count": 0}
 
+    def coverage(self) -> dict[str, Any]:
+        """Coverage is derived only from saved, non-archived workspace definitions."""
+        active = [ConfiguredScenario.model_validate(row) for row in self.store.all("scenarios") if row.get("state") != "ARCHIVED"]
+        families = sorted({row.family for row in active})
+        problems = ["NETWORK_STRUCTURE", "USER_ACCESS", "SYSTEM_RESOURCE"]
+        matrix = [
+            {"family": family, "problem_type": problem, "configured_count": sum(family == row.family and problem in row.optimization_problems for row in active)}
+            for family in families for problem in problems
+        ]
+        return {
+            "source": "PERSISTED_CONFIGURED_SCENARIOS",
+            "configured_scenario_count": len(active),
+            "family_counts": {family: sum(row.family == family for row in active) for family in families},
+            "problem_counts": {problem: sum(problem in row.optimization_problems for row in active) for problem in problems},
+            "matrix": matrix,
+        }
+
     def create(self, name: str, family: str = "custom", candidate_hash: str | None = None) -> ConfiguredScenario:
         if not name.strip():
             raise ValueError("SCENARIO_NAME_REQUIRED")
@@ -302,9 +319,37 @@ class WorkspaceService:
         candidate = scenario_from_dimensions(dimensions)
         if candidate.compatibility_status == "INVALID_COMBINATION":
             raise ValueError("CANDIDATE_COMBINATION_INVALID")
-        scenario = self.create(candidate.name_zh, candidate.scenario_family, candidate.scenario_definition_hash)
-        scenario.lineage = {"candidate_id": candidate.scenario_id, "candidate_hash": candidate.scenario_definition_hash, "taxonomy_version": candidate.taxonomy_version, "dimensions": dimensions}
-        scenario.optimization_problems = list(candidate.supported_problem_types)
+        candidate_id = "CAND-" + candidate.scenario_definition_hash[:16].upper()
+        return self.promote_candidate(candidate_id, dimensions)
+
+    def promote_candidate(self, candidate_id: str, dimensions: dict[str, str]) -> ConfiguredScenario:
+        if set(dimensions) != {dimension.key for dimension in TAXONOMY.dimensions}:
+            raise ValueError("CANDIDATE_DIMENSIONS_INCOMPLETE")
+        for dimension in TAXONOMY.dimensions:
+            if dimensions[dimension.key] not in {option.value for option in dimension.options}:
+                raise ValueError("CANDIDATE_DIMENSION_UNKNOWN")
+        candidate = scenario_from_dimensions(dimensions)
+        if candidate.compatibility_status == "INVALID_COMBINATION":
+            raise ValueError("CANDIDATE_COMBINATION_INVALID")
+        expected_id = "CAND-" + candidate.scenario_definition_hash[:16].upper()
+        if candidate_id != expected_id:
+            raise ValueError("CANDIDATE_IDENTITY_MISMATCH")
+        if any(ConfiguredScenario.model_validate(item).candidate_hash == candidate.scenario_definition_hash for item in self.store.all("scenarios")):
+            raise ValueError("CANDIDATE_ALREADY_CONFIGURED")
+        now = utc_now()
+        scenario = ConfiguredScenario(
+            scenario_id="SCN-D15-" + uuid.uuid4().hex[:10].upper(),
+            name=candidate.name_zh,
+            family=candidate.scenario_family,
+            classification=dict(dimensions),
+            optimization_problems=list(candidate.supported_problem_types),
+            candidate_hash=candidate.scenario_definition_hash,
+            source="CANDIDATE_PROMOTED",
+            state="DRAFT",
+            created_at=now,
+            updated_at=now,
+            lineage={"candidate_id": candidate_id, "candidate_hash": candidate.scenario_definition_hash, "taxonomy_version": candidate.taxonomy_version, "dimensions": dict(dimensions), "status": "PROMOTED_DRAFT_NOT_NETWORK_CONFIGURATION"},
+        )
         scenario.definition_hash = definition_digest(scenario)
         self.store.write("scenarios", scenario.scenario_id, scenario.model_dump(mode="json"))
         return scenario
@@ -336,6 +381,7 @@ class WorkspaceService:
         clone.name = source.name + "（副本）"
         clone.version = 1
         clone.state = "DRAFT"
+        clone.source = "CLONED_VARIANT"
         clone.candidate_hash = None
         clone.lineage = {"cloned_from": scenario_id, "source_version": source.version, "source_hash": source.definition_hash}
         clone.created_at = clone.updated_at = utc_now()

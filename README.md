@@ -35,6 +35,8 @@ Day 15：[`design/DAY15_PLATFORM_IA_SCENARIO_CONFIGURATION.md`](design/DAY15_PLA
 
 Day 15.1：[`design/DAY15_1_NAVIGATION_ROUTE_CLEANUP.md`](design/DAY15_1_NAVIGATION_ROUTE_CLEANUP.md)。平台主导航保留概览、场景、实验、算法、分析、验收、系统；UE Twin、Radio Observation、用户关联的独立示例页不再作为场景导航入口。旧 URL 暂保留兼容，但这些示例尚未绑定当前场景/实验上下文，不能视为已迁移完成。
 
+Day 15.2A（场景库语义收敛）：候选预览是受限、无持久化的 taxonomy 子空间计算；只有显式提升才创建场景库中的 `DRAFT` 定义。场景库计数与覆盖仅由已保存的 Day15 定义产生；Day12 first-N catalog/materialize/coverage 保留为带 `LEGACY_CANDIDATE_CATALOG` 标识的兼容接口，不进入主候选 UI，也不具备验收资格。Day15.2B 的 Scenario→Experiment→Task→Run 生命周期仍未实施。实施记录：[`design/DAY15_2A_FINAL_REPORT.md`](design/DAY15_2A_FINAL_REPORT.md)。
+
 ## 当前能力 / Current Capabilities
 
 | 能力 / Capability | 状态 / Status |
@@ -54,7 +56,7 @@ Day 15.1：[`design/DAY15_1_NAVIGATION_ROUTE_CLEANUP.md`](design/DAY15_1_NAVIGAT
 
 ## 当前状态 / Current Status
 
-**Day 1–7 已冻结；Day 15 场景配置基础已实现。Day 15.1 导航重复入口已收敛，但 UE Twin / Radio Observation 尚未成为绑定场景或实验的上下文视图，因此产品信息架构暂不宣称完全冻结。Day15 配置尚未接入真实 Experiment 执行器，不代表系统仿真、100+ 验收场景或 1000 Cell 仿真已完成。**
+**Day 1–7 已冻结；Day 15.2A 已收敛候选与已配置定义的边界。Day 15.1 导航重复入口已收敛，但 UE Twin / Radio Observation 尚未成为绑定场景或实验的上下文视图，因此产品信息架构暂不宣称完全冻结。Day15 配置尚未接入真实 Experiment 执行器；Day15.2B 对象链仍待设计与审查，不代表系统仿真、100+ 验收场景或 1000 Cell 仿真已完成。**
 
 | 项目 / Item | 值 / Value |
 | --- | --- |

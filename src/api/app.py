@@ -24,7 +24,7 @@ from workspace.antenna_provider import AMatrixPatternProvider, AntennaProviderRe
 
 from . import __version__
 from .errors import install_error_handlers
-from .routes import algorithm_packages, algorithms, benchmarks, comparisons, day13, experiments, health, optimizations, radio, scenarios, scenario_system, system, system_optimization, user_association, workspace
+from .routes import algorithm_packages, algorithms, benchmarks, comparisons, day13, experiments, health, optimizations, radio, scenarios, scenario_candidates, scenario_system, system, system_optimization, user_association, workspace
 from .settings import REPO_ROOT
 from .schemas import API_PREFIX
 
@@ -76,7 +76,7 @@ def create_app(
         )
 
     install_error_handlers(app)
-    for router in (health.router, scenarios.router, scenario_system.router, workspace.router, day13.router, radio.router, experiments.router, user_association.router, benchmarks.router, algorithm_packages.router, comparisons.router):
+    for router in (health.router, scenarios.router, scenario_system.router, scenario_candidates.router, workspace.router, day13.router, radio.router, experiments.router, user_association.router, benchmarks.router, algorithm_packages.router, comparisons.router):
         app.include_router(router, prefix=API_PREFIX)
     if optimization_service is not None:
         app.include_router(optimizations.router, prefix=API_PREFIX)

@@ -1,117 +1,104 @@
-import { useMemo, useState } from 'react';
-import { Alert, Button, Card, Col, Descriptions, Empty, Row, Select, Space, Spin, Statistic, Table, Tabs, Tag, Typography } from 'antd';
-import { CheckCircleOutlined, ExperimentOutlined, SafetyCertificateOutlined } from '@ant-design/icons';
+import { useState } from 'react';
+import { Alert, Button, Card, Col, Descriptions, Empty, Row, Select, Space, Spin, Statistic, Table, Tag, Typography, message } from 'antd';
+import { useNavigate } from 'react-router-dom';
 
-import { useAcceptanceMapping, useMaterializeScenario, useScenarioCatalog, useScenarioCoverage, useScenarioPreview, useScenarioTaxonomy } from '../../api/scenarioSystem';
-import { useBackends } from '../../api/backends';
-import { useScenarios } from '../../api/scenarios';
-import { ScenarioCard } from './ScenarioCard';
+import { useScenarioTaxonomy } from '../../api/scenarioSystem';
+import { scenarioCandidatesApi, type CandidatePreview, type ScenarioCandidate } from '../../api/scenarioCandidates';
 import { PageHeader } from '../../components/PageHeader';
 import { ErrorState } from '../../components/ErrorState';
-import type { ScenarioDefinition } from '../../types/scenarioSystem';
 
 const statusLabel: Record<string, string> = {
-  VALID_EXECUTABLE: '有效·可执行',
-  VALID_NOT_EXECUTABLE: '有效·待接入',
+  VALID_EXECUTABLE: '有效 · 规则标记可执行',
+  VALID_NOT_EXECUTABLE: '有效 · 待接入模型',
   INVALID_COMBINATION: '无效组合',
-  REQUIRES_EXTERNAL_ASSET: '需要外部资产',
+  REQUIRES_EXTERNAL_ASSET: '依赖外部模型/数据',
 };
 
-const countCards = [
-  ['theoretical_count', '理论组合'],
-  ['valid_count', '有效组合'],
-  ['executable_count', '可执行组合'],
-  ['requires_external_asset_count', '需要外部模型/数据'],
-  ['materialized_count', '已实例化'],
-  ['definition_verified_count', '定义校验通过'],
-  ['experiment_verified_count', '实验验证'],
-  ['acceptance_evidence_count', '验收证据'],
-] as const;
-
 export function ScenariosPage() {
+  const navigate = useNavigate();
+  const [messageApi, context] = message.useMessage();
   const taxonomy = useScenarioTaxonomy();
-  const catalog = useScenarioCatalog();
-  const coverage = useScenarioCoverage();
-  const acceptance = useAcceptanceMapping();
-  const legacy = useScenarios();
-  const backends = useBackends();
-  const materialize = useMaterializeScenario();
   const [selection, setSelection] = useState<Record<string, string[]>>({});
-  const [selected, setSelected] = useState<ScenarioDefinition | null>(null);
-  const preview = useScenarioPreview(selection, taxonomy.isSuccess);
-  const options = taxonomy.data?.dimensions ?? [];
-  const previewCounts = preview.data?.counts ?? { theoretical_count: 0, valid_count: 0, executable_count: 0, requires_external_asset_count: 0, materialized_count: 0, definition_verified_count: 0, experiment_verified_count: 0, acceptance_evidence_count: 0, verified_count: 0, invalid_count: 0 };
-  const backendById = new Map((backends.data ?? []).map((b) => [b.id, b]));
-  const legacyLoaded = backends.isSuccess;
-  const columns = useMemo(() => [
-    { title: 'Scenario ID', dataIndex: 'scenario_id', key: 'scenario_id' },
+  const [preview, setPreview] = useState<CandidatePreview | null>(null);
+  const [selected, setSelected] = useState<ScenarioCandidate | null>(null);
+  const [previewLoading, setPreviewLoading] = useState(false);
+  const [promoteLoading, setPromoteLoading] = useState(false);
+  const dimensions = taxonomy.data?.dimensions ?? [];
+  const complete = dimensions.length > 0 && dimensions.every((dimension) => (selection[dimension.key]?.length ?? 0) > 0);
+
+  const generate = async () => {
+    setPreviewLoading(true);
+    setSelected(null);
+    try {
+      setPreview(await scenarioCandidatesApi.preview(selection, 50));
+    } catch (error) {
+      messageApi.error('候选预览失败：' + String(error));
+      setPreview(null);
+    } finally { setPreviewLoading(false); }
+  };
+
+  const promote = async () => {
+    if (!selected) return;
+    setPromoteLoading(true);
+    try {
+      const scenario = await scenarioCandidatesApi.promote(selected);
+      messageApi.success('候选已显式保存为场景库中的 DRAFT 定义；尚未配置网络或创建实验。');
+      navigate('/scenarios/' + scenario.scenario_id);
+    } catch (error) { messageApi.error('保存失败：' + String(error)); }
+    finally { setPromoteLoading(false); }
+  };
+
+  if (taxonomy.isLoading) return <Spin fullscreen description="加载场景维度" />;
+  if (taxonomy.isError) return <ErrorState error={taxonomy.error} onRetry={() => { void taxonomy.refetch(); }} />;
+
+  const columns = [
+    { title: '候选 ID', dataIndex: 'candidate_id', key: 'candidate_id' },
     { title: '业务语义', dataIndex: 'name_zh', key: 'name_zh' },
     { title: 'Family', dataIndex: 'scenario_family', key: 'scenario_family' },
-    { title: '状态', dataIndex: 'compatibility_status', key: 'compatibility_status', render: (value: string) => <Tag color={value === 'VALID_EXECUTABLE' ? 'green' : 'gold'}>{statusLabel[value] ?? value}</Tag> },
-  ], []);
+    { title: '支持状态', dataIndex: 'compatibility_status', key: 'compatibility_status', render: (value: string) => <Tag color={value === 'VALID_EXECUTABLE' ? 'green' : 'gold'}>{statusLabel[value] ?? value}</Tag> },
+  ];
 
-  if (taxonomy.isLoading || catalog.isLoading || coverage.isLoading || acceptance.isLoading) return <Spin fullscreen description="加载场景体系 Loading scenario system" />;
-  if (taxonomy.isError || catalog.isError || coverage.isError || acceptance.isError) return <ErrorState error={taxonomy.error ?? catalog.error ?? coverage.error ?? acceptance.error} onRetry={() => { void taxonomy.refetch(); void catalog.refetch(); void coverage.refetch(); void acceptance.refetch(); }} />;
+  return <>
+    {context}
+    <PageHeader titleZh="候选场景组合器" titleEn="Scenario Candidate Builder" subtitle="候选空间只用于筛选与预览；保存后才成为场景库中的配置定义。" />
+    <Alert className="section-bottom" type="warning" showIcon title="候选 ≠ 已配置场景 ≠ 实验" description="预览在内存中计算，不写入场景库。只有显式保存后才新增一个 DRAFT 场景定义；这不会自动补齐环境、站点、小区、天线、UE，也不会创建或运行实验，更不构成验收证据。" />
+    <Card title="选择候选空间" extra={<Button type="primary" onClick={() => void generate()} disabled={!complete} loading={previewLoading}>生成候选预览</Button>}>
+      <Typography.Paragraph type="secondary">每个维度至少选择一项。系统限制一次最多枚举 5,000 个组合，表格最多展示 50 个有效候选。</Typography.Paragraph>
+      <Row gutter={[16, 16]}>
+        {dimensions.map((dimension) => <Col key={dimension.key} xs={24} md={12} xl={8}>
+          <Typography.Text strong>{dimension.label_zh} / {dimension.label_en}</Typography.Text>
+          <Select mode="multiple" allowClear style={{ width: '100%', marginTop: 8 }} placeholder="选择至少一项" value={selection[dimension.key] ?? []} onChange={(value) => { setSelection((previous) => ({ ...previous, [dimension.key]: value })); setPreview(null); setSelected(null); }} options={dimension.options.map((option) => ({ value: option.value, label: option.label_zh + ' · ' + option.status }))} />
+        </Col>)}
+      </Row>
+    </Card>
 
-  return (
-    <>
-      <PageHeader titleZh="场景中心" titleEn="Scenario Center" subtitle="可组合、可追溯的 5G 业务场景体系 · Scenario taxonomy, combinations and coverage" />
-      <Alert className="section-bottom" type="info" showIcon title="计数语义" description="理论组合、有效组合、可执行组合、已实例化、已执行、已验证和验收证据分开统计；百余定义不等于百余场景已完成系统级仿真验证。" />
-      <Tabs items={[
-        {
-          key: 'overview', label: '场景总览 Overview', children: (
-            <Row gutter={[16, 16]}>
-              {countCards.map(([key, label]) => <Col key={key} xs={12} md={8} xl={4}><Card><Statistic title={label} value={coverage.data?.counts[key] ?? 0} /></Card></Col>)}
-              <Col span={24}><Card title="Taxonomy V0.1"><Space wrap>{options.map((dimension) => <Tag key={dimension.key} color="blue">{dimension.label_zh} {dimension.options.length} 项</Tag>)}</Space><Typography.Paragraph className="section-top">已 materialize {catalog.data?.total ?? 0} 个具有不同业务语义的 definition；seed 仅属于 Scenario Instance。</Typography.Paragraph></Card></Col>
-            </Row>
-          ),
-        },
-        {
-          key: 'builder', label: '场景组合器 Builder', children: (
-            <Card title="多维组合选择 Multi-dimensional selection">
-              <Row gutter={[16, 16]}>
-                {options.map((dimension) => <Col key={dimension.key} xs={24} md={12} xl={8}><Typography.Text strong>{dimension.label_zh} / {dimension.label_en}</Typography.Text><Select mode="multiple" allowClear style={{ width: '100%', marginTop: 8 }} placeholder="全部 / All" value={selection[dimension.key]} onChange={(value) => setSelection((previous) => ({ ...previous, [dimension.key]: value }))} options={dimension.options.map((option) => ({ value: option.value, label: option.label_zh + ' · ' + option.status }))} /></Col>)}
-              </Row>
-              <Row gutter={[16, 16]} className="section-top">{countCards.slice(0, 4).map(([key, label]) => <Col key={key} xs={12} md={6}><Statistic title={label} value={previewCounts[key] ?? 0} /></Col>)}</Row>
-              {preview.data?.truncated && <Alert className="section-top" type="warning" showIcon title="组合预览已截断" description="计数是完整计算结果，表格只展示前 100 个组合以保持页面可用。" />}
-              <Table className="section-top" rowKey="scenario_id" size="small" pagination={{ pageSize: 8 }} dataSource={preview.data?.combinations ?? []} columns={columns} onRow={(record) => ({ onClick: () => setSelected(record) })} />
-            </Card>
-          ),
-        },
-        {
-          key: 'catalog', label: '场景库 Catalog', children: (
-            <Card title={'语义定义 ' + (catalog.data?.total ?? 0) + ' 个 / Semantic definitions'}>
-              <Table rowKey="scenario_id" dataSource={catalog.data?.items ?? []} columns={columns} pagination={{ pageSize: 10 }} onRow={(record) => ({ onClick: () => setSelected(record) })} />
-            </Card>
-          ),
-        },
-        {
-          key: 'coverage', label: '覆盖矩阵 Coverage', children: (
-            <Card title="Family × Optimization Problem">
-              <Table rowKey={(record) => record.row + '-' + record.column} dataSource={coverage.data?.matrix ?? []} columns={[{ title: 'Family', dataIndex: 'row' }, { title: '优化问题', dataIndex: 'column' }, { title: '有效', dataIndex: ['counts', 'valid_count'] }, { title: '可执行', dataIndex: ['counts', 'executable_count'] }, { title: '定义校验', dataIndex: ['counts', 'definition_verified_count'] }, { title: '实验验证', dataIndex: ['counts', 'experiment_verified_count'] }, { title: '验收证据', dataIndex: ['counts', 'acceptance_evidence_count'] }]} pagination={{ pageSize: 12 }} />
-            </Card>
-          ),
-        },
-        {
-          key: 'acceptance', label: '验收映射 Acceptance', children: (
-            <Row gutter={[16, 16]}>{(acceptance.data ?? []).map((item) => <Col key={item.key} xs={24} xl={12}><Card title={item.title_zh} extra={<Tag>{item.status}</Tag>}><Typography.Paragraph>{item.note_zh}</Typography.Paragraph><Space wrap>{item.evidence.map((evidence) => <Tag key={evidence} icon={<SafetyCertificateOutlined />}>{evidence}</Tag>)}</Space></Card></Col>)}</Row>
-          ),
-        },
-      ]} />
-      {selected && <Card className="section-top" title="场景详情 Scenario Detail" extra={<Button icon={<ExperimentOutlined />} onClick={() => materialize.mutate(selected.scenario_id)} loading={materialize.isPending}>用此场景创建实验 Workspace</Button>}>
-        <Descriptions bordered size="small" column={2}>
-          <Descriptions.Item label="Scenario ID">{selected.scenario_id}</Descriptions.Item>
-          <Descriptions.Item label="Version / Hash">{selected.version} / {selected.scenario_definition_hash.slice(0, 16)}…</Descriptions.Item>
-          <Descriptions.Item label="业务语义" span={2}>{selected.name_zh}</Descriptions.Item>
-          <Descriptions.Item label="状态"><Tag icon={<CheckCircleOutlined />}>{statusLabel[selected.compatibility_status] ?? selected.compatibility_status}</Tag></Descriptions.Item>
-          <Descriptions.Item label="支持问题">{selected.supported_problem_types.join(', ')}</Descriptions.Item>
-          <Descriptions.Item label="组合维度" span={2}>{Object.entries(selected.dimensions).map(([key, value]) => <Tag key={key}>{key}: {value}</Tag>)}</Descriptions.Item>
-        </Descriptions>
+    {preview && <>
+      <Row gutter={[12, 12]} className="section-top">
+        <Col xs={12} md={8} xl={4}><Card size="small"><Statistic title="所选理论组合" value={preview.theoretical_count} /></Card></Col>
+        <Col xs={12} md={8} xl={4}><Card size="small"><Statistic title="有效候选" value={preview.valid_candidate_count} /></Card></Col>
+        <Col xs={12} md={8} xl={4}><Card size="small"><Statistic title="无效组合" value={preview.invalid_candidate_count} /></Card></Col>
+        <Col xs={12} md={8} xl={4}><Card size="small"><Statistic title="规则标记可执行候选" value={preview.executable_candidate_count} /></Card></Col>
+        <Col xs={12} md={8} xl={4}><Card size="small"><Statistic title="依赖外部资产候选" value={preview.external_dependency_candidate_count} /></Card></Col>
+        <Col xs={12} md={8} xl={4}><Card size="small"><Statistic title="已保存场景变化" value={preview.configured_count_changed ? '是' : '否'} /></Card></Col>
+      </Row>
+      <Typography.Paragraph className="section-top" type="secondary">“规则标记可执行”仅表示 Day12 组合规则分类，不表示 Day15 网络配置完整、真实实验已运行或实验结果已验证。</Typography.Paragraph>
+      {preview.truncated && <Alert className="section-top" type="info" showIcon title="候选列表已截断" description={`有效候选共 ${preview.valid_candidate_count} 个；当前仅展示 ${preview.returned_count} 个。截断仅影响展示，不会自动保存剩余候选。`} />}
+      {preview.items.length === 0 ? <Empty className="section-top" description="所选维度没有有效候选组合" /> : <Card className="section-top" title={`候选预览 · ${preview.returned_count} 条（未保存）`}>
+        <Table rowKey="candidate_id" size="small" pagination={{ pageSize: 10 }} dataSource={preview.items} columns={columns} rowSelection={{ type: 'radio', selectedRowKeys: selected ? [selected.candidate_id] : [], onChange: (_keys, rows) => setSelected(rows[0] ?? null) }} onRow={(record) => ({ onClick: () => setSelected(record) })} />
       </Card>}
-      {materialize.data && <Alert className="section-top" type="success" showIcon title="Experiment Workspace identity 已生成" description={materialize.data.message_zh + ' scenario_instance_id=' + materialize.data.scenario_instance.scenario_instance_id} />}
-      <Card className="section-top" title="既有可运行仿真场景 Existing runnable simulation scenarios">
-        {legacy.isLoading ? <Spin /> : legacy.isError ? <Alert type="warning" title="既有仿真场景暂不可用" /> : legacy.data?.length ? <Row gutter={[16, 16]}>{legacy.data.map((scenario) => <Col key={scenario.scenario_id} xs={24} xl={12}><ScenarioCard scenario={scenario} backend={backendById.get(scenario.backend)} backendsLoaded={legacyLoaded} /></Col>)}</Row> : <Empty description="暂无既有仿真场景" />}
-      </Card>
-    </>
-  );
+    </>}
+
+    {selected && <Card className="section-top" title="候选详情" extra={<Button type="primary" onClick={() => void promote()} loading={promoteLoading}>显式保存到场景库</Button>}>
+      <Descriptions bordered size="small" column={2}>
+        <Descriptions.Item label="候选 ID">{selected.candidate_id}</Descriptions.Item>
+        <Descriptions.Item label="Taxonomy">{selected.taxonomy_version}</Descriptions.Item>
+        <Descriptions.Item label="业务语义" span={2}>{selected.name_zh} / {selected.name_en}</Descriptions.Item>
+        <Descriptions.Item label="候选状态">{statusLabel[selected.compatibility_status] ?? selected.compatibility_status}</Descriptions.Item>
+        <Descriptions.Item label="验收资格"><Tag color="default">无 · 候选不构成验收证据</Tag></Descriptions.Item>
+        <Descriptions.Item label="维度" span={2}>{Object.entries(selected.dimensions).map(([key, value]) => <Tag key={key}>{key}: {value}</Tag>)}</Descriptions.Item>
+      </Descriptions>
+      <Typography.Paragraph className="section-top" type="secondary">保存动作只创建带候选来源与 lineage 的 DRAFT 定义。后续仍需进入场景编辑器补全物理网络配置并执行独立验证。</Typography.Paragraph>
+    </Card>}
+    <Space className="section-top"><Button onClick={() => navigate('/scenarios')}>打开已配置场景库</Button></Space>
+  </>;
 }

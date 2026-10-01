@@ -77,6 +77,11 @@ def counts(service: Service):
     return service.counts()
 
 
+@router.get("/coverage")
+def coverage(service: Service):
+    return service.coverage()
+
+
 @router.get("/assets")
 def assets(service: Service):
     return {"items": service.assets()}
@@ -138,7 +143,7 @@ def create_scenario(body: CreateScenario, service: Service):
         fail(exc)
 
 
-@router.post("/scenarios/from-candidate", status_code=201)
+@router.post("/scenarios/from-candidate", status_code=201, deprecated=True, description="Compatibility endpoint. Prefer explicit candidate preview followed by /scenario-candidates/{candidate_id}/promote.")
 def from_candidate(body: CandidateRequest, service: Service):
     try:
         return service.from_candidate(body.dimensions)

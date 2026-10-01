@@ -23,10 +23,10 @@ def rules(service: ServiceDep): return ScenarioRulesResponse(items=service.rules
 def preview(body: ScenarioPreviewRequest, service: ServiceDep): return service.preview(body.selection, body.limit)
 
 
-@router.get("/catalog", response_model=ScenarioCatalogResponse)
+@router.get("/catalog", response_model=ScenarioCatalogResponse, deprecated=True, description="Legacy Day12 first-N candidate catalog; not the configured scenario library or an acceptance scenario set.")
 def catalog(service: ServiceDep, offset: Annotated[int, Query(ge=0)] = 0, limit: Annotated[int, Query(ge=1, le=200)] = 50, family: str | None = None):
     items, total = service.catalog_page(offset, limit, family)
-    return ScenarioCatalogResponse(items=items, total=total, offset=offset, limit=limit)
+    return ScenarioCatalogResponse(items=items, total=total, offset=offset, limit=limit, catalog_semantics="LEGACY_CANDIDATE_CATALOG", acceptance_eligible=False)
 
 
 @router.get("/catalog/{scenario_id}")
@@ -35,13 +35,13 @@ def detail(scenario_id: str, service: ServiceDep):
     except KeyError as exc: raise HTTPException(status_code=404, detail=f"Scenario not found: {scenario_id}") from exc
 
 
-@router.post("/materialize")
+@router.post("/materialize", deprecated=True, description="Legacy Day12 candidate materialization; does not create a Day15 configured scenario or a real experiment.")
 def materialize(body: ScenarioMaterializeRequest, service: ServiceDep):
     try: return service.materialize(body.scenario_id, body.seed)
     except KeyError as exc: raise HTTPException(status_code=404, detail=f"Scenario not found: {body.scenario_id}") from exc
 
 
-@router.get("/coverage")
+@router.get("/coverage", deprecated=True, description="Legacy candidate-space coverage. Use /workspace/coverage for persisted configured definitions.")
 def coverage(service: ServiceDep): return service.coverage()
 
 
